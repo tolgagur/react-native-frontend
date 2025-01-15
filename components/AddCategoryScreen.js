@@ -11,13 +11,16 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import api from '../services/api';
 
-const AddCategoryScreen = ({ navigation }) => {
+const AddCategoryScreen = ({ navigation, route }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name.trim()) {
+    if (!name.trim() || isSubmitted) {
       Toast.show({
         type: 'error',
         text1: 'Hata',
@@ -28,24 +31,44 @@ const AddCategoryScreen = ({ navigation }) => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      // API isteği burada yapılacak
-      Toast.show({
-        type: 'success',
-        text1: 'Başarılı',
-        text2: 'Kategori başarıyla oluşturuldu',
-        visibilityTime: 3000,
-        position: 'top',
+      const response = await api.post('/categories', {
+        name: name.trim(),
+        description: description.trim(),
+        parentId: null
       });
-      navigation.goBack();
+
+      console.log('Kategori oluşturuldu:', response.data);
+      setIsSubmitted(true);
+
+      Toast.show({
+        type: 'info',
+        text1: 'Kategori Oluşturuldu',
+        text2: `${name.trim()} kategorisi başarıyla oluşturuldu`,
+        visibilityTime: 2000,
+        position: 'top',
+        topOffset: 50
+      });
+      
+      setTimeout(() => {
+        navigation.goBack();
+      }, 2000);
+
     } catch (error) {
+      console.error('Kategori oluşturma hatası:', error);
       Toast.show({
         type: 'error',
         text1: 'Hata',
-        text2: error.message || 'Bir hata oluştu',
-        visibilityTime: 3000,
+        text2: error.response?.data?.message || 'Kategori oluşturulurken bir hata oluştu',
+        visibilityTime: 2000,
         position: 'top',
+        topOffset: 50
       });
+      setIsSubmitted(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -78,6 +101,7 @@ const AddCategoryScreen = ({ navigation }) => {
               value={name}
               onChangeText={setName}
               placeholderTextColor="#999"
+              editable={!isLoading}
             />
           </View>
 
@@ -91,16 +115,22 @@ const AddCategoryScreen = ({ navigation }) => {
               multiline
               numberOfLines={4}
               placeholderTextColor="#999"
+              editable={!isLoading}
             />
           </View>
         </View>
 
         <TouchableOpacity 
-          style={[styles.submitButton, !name.trim() && styles.submitButtonDisabled]}
+          style={[
+            styles.submitButton, 
+            (!name.trim() || isLoading || isSubmitted) && styles.submitButtonDisabled
+          ]}
           onPress={handleSubmit}
-          disabled={!name.trim()}
+          disabled={!name.trim() || isLoading || isSubmitted}
         >
-          <Text style={styles.submitButtonText}>Oluştur</Text>
+          <Text style={styles.submitButtonText}>
+            {isLoading ? 'Oluşturuluyor...' : isSubmitted ? 'Oluşturuldu' : 'Oluştur'}
+          </Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
       <Toast />

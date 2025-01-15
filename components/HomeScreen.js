@@ -12,48 +12,52 @@ import {
   Animated,
   Dimensions,
   PanResponder,
+  ActivityIndicator,
+  RefreshControl
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import api from '../services/api';
+import Toast from 'react-native-toast-message';
 
 const HomeScreen = ({ navigation, route }) => {
   const { onLogout } = route.params || {};
-  const [categories] = useState([
-    { 
-      id: 1, 
-      name: 'What is UX Design?', 
-      icon: 'phone-portrait-outline',
-      isCompleted: true 
-    },
-    { 
-      id: 2, 
-      name: 'UX Design Principles', 
-      icon: 'grid-outline',
-      isLocked: true 
-    },
-    { 
-      id: 3, 
-      name: 'Intro to Color Theory', 
-      icon: 'color-palette-outline',
-      isLocked: true 
-    },
-    { 
-      id: 4, 
-      name: 'Intro to Typography', 
-      icon: 'text-outline',
-      isLocked: true 
-    },
-    { 
-      id: 5, 
-      name: 'Level Test 1', 
-      icon: 'trophy-outline',
-      isLocked: true 
-    },
-  ]);
+  const [categories, setCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { height: screenHeight } = Dimensions.get('window');
   const panY = useRef(new Animated.Value(0)).current;
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/categories');
+      console.log('Kategoriler yüklendi:', response.data);
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Kategori yükleme hatası:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Hata',
+        text2: 'Kategoriler yüklenirken bir hata oluştu',
+        visibilityTime: 3000,
+        position: 'top',
+      });
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const onRefresh = React.useCallback(() => {
+    setIsRefreshing(true);
+    fetchCategories();
+  }, []);
 
   const createOptions = [
     {
@@ -96,10 +100,8 @@ const HomeScreen = ({ navigation, route }) => {
       },
       onPanResponderRelease: (e, gs) => {
         if (gs.dy > 100) {
-          // Kullanıcı yeterince aşağı çekti, modal'ı kapat
           hideModal();
         } else {
-          // Yeteri kadar çekilmedi, eski konumuna geri döndür
           resetPositionAnim.start();
         }
       },
@@ -140,57 +142,77 @@ const HomeScreen = ({ navigation, route }) => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <SafeAreaView style={{ flex: 1 }}>
-        {/* Categories */}
         <ScrollView 
           style={styles.scrollView} 
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={['#007AFF']}
+            />
+          }
         >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Getting Started with UX Design</Text>
+            <Text style={styles.sectionTitle}>Kategorilerim</Text>
           </View>
           
-          {categories.map((category) => (
-            <TouchableOpacity
-              key={category.id}
-              style={[
-                styles.categoryCard,
-                category.isCompleted && styles.completedCard
-              ]}
-            >
-              <View style={styles.cardContent}>
-                <View style={[styles.iconContainer, { backgroundColor: category.isCompleted ? '#E3F2FD' : '#F5F5F5' }]}>
-                  <Ionicons 
-                    name={category.icon} 
-                    size={20} 
-                    color={category.isCompleted ? '#007AFF' : '#666666'} 
-                  />
+          {categories.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="folder-open-outline" size={48} color="#999" />
+              <Text style={styles.emptyText}>Henüz kategori oluşturmadınız</Text>
+              <Text style={styles.emptySubText}>Yeni kategori eklemek için + butonuna tıklayın</Text>
+            </View>
+          ) : (
+            categories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                style={styles.categoryCard}
+                onPress={() => {
+                  // Kategori detay sayfasına yönlendirme yapılacak
+                  console.log('Kategori seçildi:', category);
+                }}
+              >
+                <View style={styles.cardContent}>
+                  <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
+                    <Ionicons 
+                      name="grid-outline"
+                      size={20} 
+                      color="#007AFF"
+                    />
+                  </View>
+                  <View style={styles.categoryInfo}>
+                    <Text style={styles.categoryName}>{category.name}</Text>
+                    {category.description && (
+                      <Text style={styles.categoryDescription} numberOfLines={1}>
+                        {category.description}
+                      </Text>
+                    )}
+                  </View>
                 </View>
-                <Text style={styles.categoryName}>{category.name}</Text>
-              </View>
-              <View style={styles.statusContainer}>
-                {category.isCompleted ? (
-                  <View style={styles.checkmark}>
-                    <Ionicons name="checkmark-circle" size={24} color="#32CD32" />
-                  </View>
-                ) : category.isLocked ? (
-                  <View style={styles.lock}>
-                    <Ionicons name="lock-closed" size={20} color="#CCCCCC" />
-                  </View>
-                ) : null}
-              </View>
-            </TouchableOpacity>
-          ))}
+                <Ionicons name="chevron-forward" size={20} color="#999" />
+              </TouchableOpacity>
+            ))
+          )}
         </ScrollView>
 
         {/* Bottom Navigation */}
         <View style={styles.bottomNav}>
           <TouchableOpacity style={styles.navItem}>
-            <Ionicons name="home-outline" size={24} color="#007AFF" />
+            <Ionicons name="home" size={24} color="#007AFF" />
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navItem}
@@ -277,6 +299,7 @@ const HomeScreen = ({ navigation, route }) => {
           </Animated.View>
         </Modal>
       </SafeAreaView>
+      <Toast />
     </View>
   );
 };
@@ -286,6 +309,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
   scrollView: {
     flex: 1,
@@ -298,17 +327,33 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
     color: '#333',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#666',
+    marginTop: 12,
+  },
+  emptySubText: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 4,
   },
   categoryCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 16,
-    borderRadius: 16,
-    marginBottom: 8,
+    borderRadius: 12,
+    marginBottom: 12,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#F0F0F0',
@@ -317,9 +362,6 @@ const styles = StyleSheet.create({
     shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 2 } : undefined,
     shadowOpacity: Platform.OS === 'ios' ? 0.1 : undefined,
     shadowRadius: Platform.OS === 'ios' ? 3.84 : undefined,
-  },
-  completedCard: {
-    backgroundColor: '#F8F9FF',
   },
   cardContent: {
     flexDirection: 'row',
@@ -334,26 +376,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  categoryName: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#333',
+  categoryInfo: {
     flex: 1,
+    marginRight: 8,
   },
-  statusContainer: {
-    marginLeft: 12,
+  categoryName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 2,
   },
-  checkmark: {
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  lock: {
-    width: 24,
-    height: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+  categoryDescription: {
+    fontSize: 14,
+    color: '#666',
   },
   bottomNav: {
     flexDirection: 'row',

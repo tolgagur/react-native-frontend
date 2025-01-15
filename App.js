@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator, View } from 'react-native';
+import Toast from 'react-native-toast-message';
 import LoginScreen from './components/LoginScreen';
 import RegisterScreen from './components/RegisterScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
@@ -68,41 +69,44 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!token ? (
-          // Auth Stack
-          <>
-            <Stack.Screen 
-              name="Login" 
-              component={LoginScreen}
-              initialParams={{ onLoginSuccess: handleLoginSuccess }}
-            />
-            <Stack.Screen 
-              name="Register" 
-              component={RegisterScreen}
-              initialParams={{ onRegisterSuccess: handleLoginSuccess }}
-            />
-            <Stack.Screen 
-              name="ForgotPassword" 
-              component={ForgotPasswordScreen}
-            />
-          </>
-        ) : (
-          // App Stack
-          <>
-            <Stack.Screen 
-              name="Home" 
-              component={HomeScreen}
-              initialParams={{ onLogout: handleLogout }}
-            />
-            <Stack.Screen 
-              name="AddCategory" 
-              component={AddCategoryScreen} 
-            />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {!token ? (
+            // Auth Stack
+            <>
+              <Stack.Screen 
+                name="Login" 
+                component={LoginScreen}
+                initialParams={{ onLoginSuccess: handleLoginSuccess }}
+              />
+              <Stack.Screen 
+                name="Register" 
+                component={RegisterScreen}
+                initialParams={{ onRegisterSuccess: handleLoginSuccess }}
+              />
+              <Stack.Screen 
+                name="ForgotPassword" 
+                component={ForgotPasswordScreen}
+              />
+            </>
+          ) : (
+            // App Stack
+            <>
+              <Stack.Screen 
+                name="Home" 
+                component={HomeScreen}
+                initialParams={{ onLogout: handleLogout }}
+              />
+              <Stack.Screen 
+                name="AddCategory" 
+                component={AddCategoryScreen} 
+              />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+      <Toast />
+    </>
   );
 } 
