@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import LoginScreen from './components/LoginScreen';
 import RegisterScreen from './components/RegisterScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
+import HomeScreen from './components/HomeScreen';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('login');
@@ -9,10 +10,19 @@ export default function App() {
 
   const handleLoginSuccess = (token) => {
     setToken(token);
-    // Token alındıktan sonra ana uygulamaya yönlendirme yapılacak
+    setCurrentScreen('home');
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setCurrentScreen('login');
   };
 
   const renderScreen = () => {
+    if (token) {
+      return <HomeScreen onLogout={handleLogout} />;
+    }
+
     switch (currentScreen) {
       case 'login':
         return (
