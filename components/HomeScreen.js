@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Platform,
   Modal,
   Animated,
+  Dimensions,
+  PanResponder,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -47,6 +49,10 @@ const HomeScreen = ({ onLogout }) => {
     },
   ]);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { height: screenHeight } = Dimensions.get('window');
+  const panY = useRef(new Animated.Value(0)).current;
 
   const createOptions = [
     {
@@ -71,6 +77,67 @@ const HomeScreen = ({ onLogout }) => {
       color: '#E8F5E9'
     }
   ];
+
+  const resetPositionAnim = Animated.timing(panY, {
+    toValue: 0,
+    duration: 200,
+    useNativeDriver: true,
+  });
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (e, gs) => {
+        if (gs.dy > 0) {
+          panY.setValue(gs.dy);
+        }
+      },
+      onPanResponderRelease: (e, gs) => {
+        if (gs.dy > 100) {
+          // Kullanıcı yeterince aşağı çekti, modal'ı kapat
+          hideModal();
+        } else {
+          // Yeteri kadar çekilmedi, eski konumuna geri döndür
+          resetPositionAnim.start();
+        }
+      },
+    })
+  ).current;
+
+  const showModal = () => {
+    panY.setValue(0);
+    setIsModalVisible(true);
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const hideModal = () => {
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsModalVisible(false);
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -126,7 +193,7 @@ const HomeScreen = ({ onLogout }) => {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navItem}
-            onPress={() => setIsModalVisible(true)}
+            onPress={showModal}
           >
             <Ionicons name="add" size={24} color="#666666" />
           </TouchableOpacity>
@@ -139,20 +206,43 @@ const HomeScreen = ({ onLogout }) => {
         <Modal
           visible={isModalVisible}
           transparent={true}
-          animationType="fade"
-          onRequestClose={() => setIsModalVisible(false)}
+          animationType="none"
+          onRequestClose={hideModal}
         >
           <Animated.View 
-            style={styles.modalOverlay}
-            activeOpacity={1}
+            style={[
+              styles.modalOverlay,
+              {
+                opacity: fadeAnim,
+              }
+            ]}
           >
             <TouchableOpacity
               style={{ flex: 1 }}
-              onPress={() => setIsModalVisible(false)}
+              onPress={hideModal}
+              activeOpacity={1}
             >
               <View />
             </TouchableOpacity>
-            <View style={styles.modalContainer}>
+            <Animated.View
+              {...panResponder.panHandlers}
+              style={[
+                styles.modalContainer,
+                {
+                  transform: [
+                    {
+                      translateY: slideAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [screenHeight, 0],
+                      }),
+                    },
+                    {
+                      translateY: panY,
+                    },
+                  ],
+                },
+              ]}
+            >
               <View style={styles.modalContent}>
                 <View style={styles.modalHeader}>
                   <View style={styles.modalIndicator} />
@@ -163,7 +253,7 @@ const HomeScreen = ({ onLogout }) => {
                     key={option.id}
                     style={styles.optionItem}
                     onPress={() => {
-                      setIsModalVisible(false);
+                      hideModal();
                     }}
                   >
                     <View style={[styles.optionIcon, { backgroundColor: option.color }]}>
@@ -176,7 +266,7 @@ const HomeScreen = ({ onLogout }) => {
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
+            </Animated.View>
           </Animated.View>
         </Modal>
       </SafeAreaView>
@@ -296,21 +386,21 @@ const styles = StyleSheet.create({
   },
   modalHeader: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
   },
   modalIndicator: {
     width: 40,
     height: 4,
     backgroundColor: '#E0E0E0',
     borderRadius: 2,
-    marginVertical: 8,
+    marginVertical: 6,
   },
   optionItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 12,
     borderRadius: 16,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   optionIcon: {
     width: 48,
