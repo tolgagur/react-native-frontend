@@ -9,6 +9,8 @@ import RegisterScreen from './components/RegisterScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
 import HomeScreen from './components/HomeScreen';
 import AddCategoryScreen from './components/AddCategoryScreen';
+import AddStudySetScreen from './components/AddStudySetScreen';
+import AddFlashcardScreen from './components/AddFlashcardScreen';
 
 const Stack = createNativeStackNavigator();
 const TOKEN_KEY = '@flashcard_token';
@@ -101,6 +103,17 @@ export default function App() {
               <Stack.Screen 
                 name="AddCategory" 
                 component={AddCategoryScreen} 
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen 
+                name="AddStudySet" 
+                component={AddStudySetScreen} 
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen 
+                name="AddFlashcard" 
+                component={AddFlashcardScreen} 
+                options={{ headerShown: false }}
               />
             </>
           )}

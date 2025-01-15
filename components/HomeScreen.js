@@ -177,35 +177,35 @@ const HomeScreen = ({ navigation, route }) => {
               <Text style={styles.emptySubText}>Yeni kategori eklemek için + butonuna tıklayın</Text>
             </View>
           ) : (
-            categories.map((category) => (
-              <TouchableOpacity
-                key={category.id}
-                style={styles.categoryCard}
-                onPress={() => {
-                  // Kategori detay sayfasına yönlendirme yapılacak
-                  console.log('Kategori seçildi:', category);
-                }}
-              >
-                <View style={styles.cardContent}>
-                  <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
-                    <Ionicons 
-                      name="grid-outline"
-                      size={20} 
-                      color="#007AFF"
-                    />
+            <View style={styles.gridContainer}>
+              {categories.map((category) => (
+                <TouchableOpacity
+                  key={category.id}
+                  style={styles.categoryCard}
+                  onPress={() => {
+                    console.log('Kategori seçildi:', category);
+                  }}
+                >
+                  <View style={styles.cardContent}>
+                    <View style={styles.iconContainer}>
+                      <Ionicons 
+                        name="grid-outline"
+                        size={24} 
+                        color="#007AFF"
+                      />
+                    </View>
+                    <View style={styles.categoryInfo}>
+                      <Text style={styles.categoryName} numberOfLines={1}>{category.name}</Text>
+                      {category.description && (
+                        <Text style={styles.categoryDescription} numberOfLines={2}>
+                          {category.description}
+                        </Text>
+                      )}
+                    </View>
                   </View>
-                  <View style={styles.categoryInfo}>
-                    <Text style={styles.categoryName}>{category.name}</Text>
-                    {category.description && (
-                      <Text style={styles.categoryDescription} numberOfLines={1}>
-                        {category.description}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#999" />
-              </TouchableOpacity>
-            ))
+                </TouchableOpacity>
+              ))}
+            </View>
           )}
         </ScrollView>
 
@@ -281,6 +281,10 @@ const HomeScreen = ({ navigation, route }) => {
                     onPress={() => {
                       if (option.id === 1) {
                         navigation.navigate('AddCategory');
+                      } else if (option.id === 2) {
+                        navigation.navigate('AddStudySet');
+                      } else if (option.id === 3) {
+                        navigation.navigate('AddFlashcard');
                       }
                       hideModal();
                     }}
@@ -320,16 +324,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     paddingTop: 16,
+    paddingBottom: 20,
   },
   sectionHeader: {
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: '700',
-    color: '#333',
+    color: '#2C2C2C',
+    marginBottom: 4,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -347,48 +353,60 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 4,
   },
-  categoryCard: {
+  gridContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    paddingHorizontal: 4,
+  },
+  categoryCard: {
+    width: '48%',
+    aspectRatio: 1,
+    marginBottom: 16,
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
-    elevation: Platform.OS === 'android' ? 2 : 0,
-    shadowColor: Platform.OS === 'ios' ? '#000' : undefined,
-    shadowOffset: Platform.OS === 'ios' ? { width: 0, height: 2 } : undefined,
-    shadowOpacity: Platform.OS === 'ios' ? 0.1 : undefined,
-    shadowRadius: Platform.OS === 'ios' ? 3.84 : undefined,
+    borderColor: '#F5F5F5',
   },
   cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    marginRight: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F0F7FF',
+    marginBottom: 12,
   },
   categoryInfo: {
-    flex: 1,
-    marginRight: 8,
+    width: '100%',
+    alignItems: 'center',
   },
   categoryName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 2,
+    color: '#2C2C2C',
+    marginBottom: 4,
+    textAlign: 'center',
   },
   categoryDescription: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#757575',
+    textAlign: 'center',
+    lineHeight: 16,
   },
   bottomNav: {
     flexDirection: 'row',
