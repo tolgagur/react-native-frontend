@@ -69,12 +69,20 @@ export const authService = {
 
   login: async (credentials) => {
     try {
+      console.log('Login isteği gönderiliyor:', credentials);
       const response = await api.post('/auth/login', credentials);
-      if (response.data.token) {
+      console.log('API yanıtı:', response.data);
+      
+      if (response.data && response.data.token) {
+        console.log('Token alındı:', response.data.token);
         await storeToken(response.data.token);
+        return response.data;
+      } else {
+        console.log('Token alınamadı. API yanıtı:', response.data);
+        throw new Error('Token alınamadı');
       }
-      return response.data;
     } catch (error) {
+      console.error('Login hatası:', error.response?.data || error.message);
       throw error;
     }
   },

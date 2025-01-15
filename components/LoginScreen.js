@@ -13,7 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { authService } from '../services/api';
 
-const LoginScreen = ({ onLoginSuccess, onRegisterPress, onForgotPassword }) => {
+const LoginScreen = ({ navigation, route }) => {
+  const { onLoginSuccess } = route.params || {};
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -61,30 +62,48 @@ const LoginScreen = ({ onLoginSuccess, onRegisterPress, onForgotPassword }) => {
     if (!validateForm()) return;
 
     try {
+      console.log('Login denemesi başlatılıyor...');
       const response = await authService.login({
         username: formData.username,
         password: formData.password,
       });
       
-      if (response.token) {
+      console.log('Login yanıtı:', response);
+      
+      if (response && response.token) {
+        console.log('Token başarıyla alındı:', response.token);
         Toast.show({
           type: 'success',
           text1: 'Başarılı',
-          text2: 'Giriş yapıldı',
+          text2: response.message || 'Giriş yapıldı',
           visibilityTime: 3000,
           position: 'top',
         });
-        onLoginSuccess(response.token);
+        if (onLoginSuccess) {
+          onLoginSuccess(response.token);
+        }
+      } else {
+        console.log('Token alınamadı:', response);
+        throw new Error('Token alınamadı');
       }
     } catch (error) {
+      console.error('Login hatası:', error);
       Toast.show({
         type: 'error',
         text1: 'Giriş Başarısız',
-        text2: 'Kullanıcı adı veya şifre hatalı',
+        text2: error.response?.data?.message || 'Kullanıcı adı veya şifre hatalı',
         visibilityTime: 3000,
         position: 'top',
       });
     }
+  };
+
+  const handleRegisterPress = () => {
+    navigation.navigate('Register');
+  };
+
+  const handleForgotPasswordPress = () => {
+    navigation.navigate('ForgotPassword');
   };
 
   const isFormValid = () => {
@@ -143,7 +162,7 @@ const LoginScreen = ({ onLoginSuccess, onRegisterPress, onForgotPassword }) => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword} onPress={onForgotPassword}>
+          <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPasswordPress}>
             <Text style={styles.forgotPasswordText}>Şifremi Unuttum?</Text>
           </TouchableOpacity>
 
@@ -181,7 +200,7 @@ const LoginScreen = ({ onLoginSuccess, onRegisterPress, onForgotPassword }) => {
 
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>Hesabınız yok mu? </Text>
-            <TouchableOpacity onPress={onRegisterPress}>
+            <TouchableOpacity onPress={handleRegisterPress}>
               <Text style={styles.registerLink}>Kayıt Ol</Text>
             </TouchableOpacity>
           </View>

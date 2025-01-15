@@ -7,13 +7,15 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { authService } from '../services/api';
 
-const RegisterScreen = ({ onRegisterSuccess, onLoginPress }) => {
+const RegisterScreen = ({ navigation, route }) => {
+  const { onRegisterSuccess } = route.params || {};
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -92,7 +94,9 @@ const RegisterScreen = ({ onRegisterSuccess, onLoginPress }) => {
           visibilityTime: 3000,
           position: 'top',
         });
-        onRegisterSuccess(response.token);
+        if (onRegisterSuccess) {
+          onRegisterSuccess(response.token);
+        }
       }
     } catch (error) {
       Toast.show({
@@ -105,6 +109,10 @@ const RegisterScreen = ({ onRegisterSuccess, onLoginPress }) => {
     }
   };
 
+  const handleLoginPress = () => {
+    navigation.navigate('Login');
+  };
+
   const isFormValid = () => {
     return formData.username && 
            formData.username.length >= 3 && 
@@ -114,140 +122,164 @@ const RegisterScreen = ({ onRegisterSuccess, onLoginPress }) => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-    >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.logoContainer}>
-          <View style={styles.avatarContainer}>
-            <Ionicons name="person-add-outline" size={40} color="#007AFF" />
-          </View>
-          <Text style={styles.title}>Kayıt Ol</Text>
-          <Text style={styles.subtitle}>Yeni bir hesap oluşturun</Text>
-        </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+      </View>
 
-        <View style={styles.formContainer}>
-          <View style={[styles.inputContainer, styles.requiredInput]}>
-            <Ionicons name="person" size={20} color="#007AFF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Kullanıcı Adı"
-              value={formData.username}
-              onChangeText={(text) => setFormData({ ...formData, username: text })}
-              autoCapitalize="none"
-              placeholderTextColor="#666"
-            />
-            {!formData.username && <Text style={styles.requiredDot}>•</Text>}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.logoContainer}>
+            <View style={styles.avatarContainer}>
+              <Ionicons name="person-add-outline" size={40} color="#007AFF" />
+            </View>
+            <Text style={styles.title}>Kayıt Ol</Text>
+            <Text style={styles.subtitle}>Yeni bir hesap oluşturun</Text>
           </View>
 
-          <View style={[styles.inputContainer, styles.requiredInput]}>
-            <Ionicons name="mail" size={20} color="#007AFF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="E-posta"
-              value={formData.email}
-              onChangeText={(text) => setFormData({ ...formData, email: text })}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholderTextColor="#666"
-            />
-            {!formData.email && <Text style={styles.requiredDot}>•</Text>}
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Ad"
-              value={formData.firstName}
-              onChangeText={(text) => setFormData({ ...formData, firstName: text })}
-              autoCapitalize="words"
-              placeholderTextColor="#666"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Soyad"
-              value={formData.lastName}
-              onChangeText={(text) => setFormData({ ...formData, lastName: text })}
-              autoCapitalize="words"
-              placeholderTextColor="#666"
-            />
-          </View>
-
-          <View style={[styles.inputContainer, styles.requiredInput]}>
-            <Ionicons name="lock-closed" size={20} color="#007AFF" style={styles.inputIcon} />
-            <TextInput
-              style={styles.input}
-              placeholder="Şifre"
-              value={formData.password}
-              onChangeText={(text) => setFormData({ ...formData, password: text })}
-              secureTextEntry={!showPassword}
-              placeholderTextColor="#666"
-            />
-            {!formData.password && <Text style={styles.requiredDot}>•</Text>}
-            <TouchableOpacity 
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
-              <Ionicons 
-                name={showPassword ? "eye-off" : "eye"} 
-                size={20} 
-                color="#666" 
+          <View style={styles.formContainer}>
+            <View style={[styles.inputContainer, styles.requiredInput]}>
+              <Ionicons name="person" size={20} color="#007AFF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Kullanıcı Adı"
+                value={formData.username}
+                onChangeText={(text) => setFormData({ ...formData, username: text })}
+                autoCapitalize="none"
+                placeholderTextColor="#666"
               />
-            </TouchableOpacity>
-          </View>
+              {!formData.username && <Text style={styles.requiredDot}>•</Text>}
+            </View>
 
-          <TouchableOpacity 
-            style={[
-              styles.registerButton, 
-              !isFormValid() && styles.disabledButton
-            ]} 
-            onPress={handleRegister}
-            disabled={!isFormValid()}
-          >
-            <Text style={[
-              styles.registerButtonText,
-              !isFormValid() && styles.disabledButtonText
-            ]}>Kayıt Ol</Text>
-          </TouchableOpacity>
+            <View style={[styles.inputContainer, styles.requiredInput]}>
+              <Ionicons name="mail" size={20} color="#007AFF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="E-posta"
+                value={formData.email}
+                onChangeText={(text) => setFormData({ ...formData, email: text })}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#666"
+              />
+              {!formData.email && <Text style={styles.requiredDot}>•</Text>}
+            </View>
 
-          <View style={styles.orContainer}>
-            <View style={styles.orLine} />
-            <Text style={styles.orText}>veya</Text>
-            <View style={styles.orLine} />
-          </View>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Ad"
+                value={formData.firstName}
+                onChangeText={(text) => setFormData({ ...formData, firstName: text })}
+                autoCapitalize="words"
+                placeholderTextColor="#666"
+              />
+            </View>
 
-          <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-google" size={24} color="#DB4437" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-apple" size={24} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialButton}>
-              <Ionicons name="logo-facebook" size={24} color="#4267B2" />
-            </TouchableOpacity>
-          </View>
+            <View style={styles.inputContainer}>
+              <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Soyad"
+                value={formData.lastName}
+                onChangeText={(text) => setFormData({ ...formData, lastName: text })}
+                autoCapitalize="words"
+                placeholderTextColor="#666"
+              />
+            </View>
 
-          <View style={styles.loginContainer}>
-            <Text style={styles.loginText}>Zaten hesabınız var mı? </Text>
-            <TouchableOpacity onPress={onLoginPress}>
-              <Text style={styles.loginLink}>Giriş Yap</Text>
+            <View style={[styles.inputContainer, styles.requiredInput]}>
+              <Ionicons name="lock-closed" size={20} color="#007AFF" style={styles.inputIcon} />
+              <TextInput
+                style={styles.input}
+                placeholder="Şifre"
+                value={formData.password}
+                onChangeText={(text) => setFormData({ ...formData, password: text })}
+                secureTextEntry={!showPassword}
+                placeholderTextColor="#666"
+              />
+              {!formData.password && <Text style={styles.requiredDot}>•</Text>}
+              <TouchableOpacity 
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                <Ionicons 
+                  name={showPassword ? "eye-off" : "eye"} 
+                  size={20} 
+                  color="#666" 
+                />
+              </TouchableOpacity>
+            </View>
+
+            <TouchableOpacity 
+              style={[
+                styles.registerButton, 
+                !isFormValid() && styles.disabledButton
+              ]} 
+              onPress={handleRegister}
+              disabled={!isFormValid()}
+            >
+              <Text style={[
+                styles.registerButtonText,
+                !isFormValid() && styles.disabledButtonText
+              ]}>Kayıt Ol</Text>
             </TouchableOpacity>
+
+            <View style={styles.orContainer}>
+              <View style={styles.orLine} />
+              <Text style={styles.orText}>veya</Text>
+              <View style={styles.orLine} />
+            </View>
+
+            <View style={styles.socialContainer}>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="logo-google" size={24} color="#DB4437" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="logo-apple" size={24} color="#000" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton}>
+                <Ionicons name="logo-facebook" size={24} color="#4267B2" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>Zaten hesabınız var mı? </Text>
+              <TouchableOpacity onPress={handleLoginPress}>
+                <Text style={styles.loginLink}>Giriş Yap</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </ScrollView>
-      <Toast />
-    </KeyboardAvoidingView>
+        </ScrollView>
+        <Toast />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  backButton: {
+    padding: 8,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

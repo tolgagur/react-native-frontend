@@ -15,7 +15,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const HomeScreen = ({ onLogout }) => {
+const HomeScreen = ({ navigation, route }) => {
+  const { onLogout } = route.params || {};
   const [categories] = useState([
     { 
       id: 1, 
@@ -197,8 +198,11 @@ const HomeScreen = ({ onLogout }) => {
           >
             <Ionicons name="add" size={24} color="#666666" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={onLogout}>
-            <Ionicons name="folder-outline" size={24} color="#666666" />
+          <TouchableOpacity 
+            style={styles.navItem} 
+            onPress={() => onLogout ? onLogout() : null}
+          >
+            <Ionicons name="log-out-outline" size={24} color="#666666" />
           </TouchableOpacity>
         </View>
 
@@ -253,6 +257,9 @@ const HomeScreen = ({ onLogout }) => {
                     key={option.id}
                     style={styles.optionItem}
                     onPress={() => {
+                      if (option.id === 1) {
+                        navigation.navigate('AddCategory');
+                      }
                       hideModal();
                     }}
                   >
