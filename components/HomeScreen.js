@@ -222,9 +222,9 @@ const HomeScreen = ({ navigation, route }) => {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.navItem} 
-            onPress={() => onLogout ? onLogout() : null}
+            onPress={() => navigation.navigate('Profile', { onLogout })}
           >
-            <Ionicons name="log-out-outline" size={24} color="#666666" />
+            <Ionicons name="person-outline" size={24} color="#666666" />
           </TouchableOpacity>
         </View>
 

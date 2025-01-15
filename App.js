@@ -11,6 +11,9 @@ import HomeScreen from './components/HomeScreen';
 import AddCategoryScreen from './components/AddCategoryScreen';
 import AddStudySetScreen from './components/AddStudySetScreen';
 import AddFlashcardScreen from './components/AddFlashcardScreen';
+import ProfileScreen from './components/ProfileScreen';
+import NotificationSettingsScreen from './components/NotificationSettingsScreen';
+import SettingsScreen from './components/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 const TOKEN_KEY = '@flashcard_token';
@@ -71,55 +74,63 @@ export default function App() {
   }
 
   return (
-    <>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {!token ? (
-            // Auth Stack
-            <>
-              <Stack.Screen 
-                name="Login" 
-                component={LoginScreen}
-                initialParams={{ onLoginSuccess: handleLoginSuccess }}
-              />
-              <Stack.Screen 
-                name="Register" 
-                component={RegisterScreen}
-                initialParams={{ onRegisterSuccess: handleLoginSuccess }}
-              />
-              <Stack.Screen 
-                name="ForgotPassword" 
-                component={ForgotPasswordScreen}
-              />
-            </>
-          ) : (
-            // App Stack
-            <>
-              <Stack.Screen 
-                name="Home" 
-                component={HomeScreen}
-                initialParams={{ onLogout: handleLogout }}
-              />
-              <Stack.Screen 
-                name="AddCategory" 
-                component={AddCategoryScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="AddStudySet" 
-                component={AddStudySetScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="AddFlashcard" 
-                component={AddFlashcardScreen} 
-                options={{ headerShown: false }}
-              />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!token ? (
+          // Auth screens
+          <>
+            <Stack.Screen 
+              name="Login" 
+              component={LoginScreen}
+              initialParams={{ onLoginSuccess: handleLoginSuccess }}
+            />
+            <Stack.Screen 
+              name="Register" 
+              component={RegisterScreen}
+              initialParams={{ onRegisterSuccess: handleLoginSuccess }}
+            />
+            <Stack.Screen 
+              name="ForgotPassword" 
+              component={ForgotPasswordScreen}
+            />
+          </>
+        ) : (
+          // App screens
+          <>
+            <Stack.Screen 
+              name="Home" 
+              component={HomeScreen}
+              initialParams={{ onLogout: handleLogout }}
+            />
+            <Stack.Screen 
+              name="AddCategory" 
+              component={AddCategoryScreen}
+            />
+            <Stack.Screen 
+              name="AddStudySet" 
+              component={AddStudySetScreen}
+            />
+            <Stack.Screen 
+              name="AddFlashcard" 
+              component={AddFlashcardScreen}
+            />
+            <Stack.Screen 
+              name="Profile" 
+              component={ProfileScreen}
+              initialParams={{ onLogout: handleLogout }}
+            />
+            <Stack.Screen 
+              name="NotificationSettings" 
+              component={NotificationSettingsScreen}
+            />
+            <Stack.Screen 
+              name="Settings" 
+              component={SettingsScreen}
+            />
+          </>
+        )}
+      </Stack.Navigator>
       <Toast />
-    </>
+    </NavigationContainer>
   );
 } 
