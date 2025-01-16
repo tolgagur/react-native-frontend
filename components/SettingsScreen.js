@@ -11,13 +11,14 @@ import {
   TouchableWithoutFeedback,
   SafeAreaView,
   StatusBar,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 import Toast from 'react-native-toast-message';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const MODAL_HEIGHT = SCREEN_HEIGHT * 0.5;
+const MODAL_HEIGHT = SCREEN_HEIGHT * 0.7;
 
 const SettingsScreen = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -82,15 +83,56 @@ const SettingsScreen = ({ navigation }) => {
   };
 
   const languages = [
-    { id: 'tr', name: 'Türkçe', icon: '🇹🇷' },
-    { id: 'en', name: 'English', icon: '🇬🇧' },
-    { id: 'de', name: 'Deutsch', icon: '🇩🇪' },
-    { id: 'fr', name: 'Français', icon: '🇫🇷' },
+    { id: 'TURKISH', name: 'Türkçe', icon: '🇹🇷' },
+    { id: 'ENGLISH', name: 'English', icon: '🇬🇧' },
+    { id: 'GERMAN', name: 'Deutsch', icon: '🇩🇪' },
+    { id: 'FRENCH', name: 'Français', icon: '🇫🇷' },
+    { id: 'SPANISH', name: 'Español', icon: '🇪🇸' },
+    { id: 'ITALIAN', name: 'Italiano', icon: '🇮🇹' },
+    { id: 'RUSSIAN', name: 'Русский', icon: '🇷🇺' },
+    { id: 'CHINESE', name: '中文', icon: '🇨🇳' },
+    { id: 'JAPANESE', name: '日本語', icon: '🇯🇵' },
+    { id: 'KOREAN', name: '한국어', icon: '🇰🇷' },
   ];
 
+  useEffect(() => {
+    fetchCurrentLanguage();
+  }, []);
+
+  const fetchCurrentLanguage = async () => {
+    try {
+      const response = await api.get('users/me');
+      setSelectedLanguage(response.data.preferredLanguage || 'TURKISH');
+    } catch (error) {
+      console.error('Dil bilgisi alınırken hata:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Hata',
+        text2: 'Dil bilgisi alınamadı',
+        visibilityTime: 3000,
+        position: 'top',
+      });
+    }
+  };
+
   const handleLanguageSelect = async (langId) => {
-    setSelectedLanguage(langId);
-    closeModal();
+    setIsLoading(true);
+    try {
+      await api.put(`users/me/language?language=${langId}`);
+      setSelectedLanguage(langId);
+      closeModal();
+    } catch (error) {
+      console.error('Dil güncellenirken hata:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Hata',
+        text2: 'Dil ayarı güncellenemedi',
+        visibilityTime: 3000,
+        position: 'top',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -153,22 +195,34 @@ const SettingsScreen = ({ navigation }) => {
                 <Text style={styles.modalTitle}>Dil Seçimi</Text>
               </View>
 
-              {languages.map((language) => (
-                <TouchableOpacity
-                  key={language.id}
-                  style={[
-                    styles.languageOption,
-                    selectedLanguage === language.id && styles.selectedLanguage,
-                  ]}
-                  onPress={() => handleLanguageSelect(language.id)}
-                >
-                  <Text style={styles.languageIcon}>{language.icon}</Text>
-                  <Text style={styles.languageName}>{language.name}</Text>
-                  {selectedLanguage === language.id && (
-                    <Ionicons name="checkmark" size={24} color="#007AFF" />
-                  )}
-                </TouchableOpacity>
-              ))}
+              <ScrollView style={styles.modalScroll}>
+                {languages.map((language) => (
+                  <TouchableOpacity
+                    key={language.id}
+                    style={[
+                      styles.languageOption,
+                      selectedLanguage === language.id && styles.selectedLanguage,
+                    ]}
+                    onPress={() => handleLanguageSelect(language.id)}
+                    disabled={isLoading}
+                  >
+                    <Text style={styles.languageIcon}>{language.icon}</Text>
+                    <Text style={[
+                      styles.languageName,
+                      isLoading && styles.languageNameDisabled
+                    ]}>
+                      {language.name}
+                    </Text>
+                    {selectedLanguage === language.id && (
+                      <Ionicons 
+                        name="checkmark" 
+                        size={24} 
+                        color={isLoading ? "#B0BEC5" : "#007AFF"} 
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
             </Animated.View>
           </View>
         </Modal>
@@ -272,6 +326,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: '#2C2C2C',
+  },
+  languageNameDisabled: {
+    color: '#B0BEC5',
+  },
+  modalScroll: {
+    flex: 1,
   },
 });
 
