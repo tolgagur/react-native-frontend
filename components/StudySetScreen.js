@@ -90,6 +90,45 @@ const StudySetScreen = ({ navigation, route }) => {
     });
   };
 
+  const createOptions = [
+    {
+      id: 1,
+      title: t('categories.addNew'),
+      subtitle: t('categories.addNewSubtitle'),
+      icon: 'grid-outline',
+      color: '#E3F2FD'
+    },
+    {
+      id: 2,
+      title: t('studySet.addNew'),
+      subtitle: t('studySet.addNewSubtitle'),
+      icon: 'albums-outline',
+      color: '#FFF3E0'
+    },
+    {
+      id: 3,
+      title: t('flashcard.addNew'),
+      subtitle: t('flashcard.addNewSubtitle'),
+      icon: 'documents-outline',
+      color: '#E8F5E9'
+    }
+  ];
+
+  const handleOptionSelect = (optionId) => {
+    switch (optionId) {
+      case 1:
+        navigation.navigate('AddCategory');
+        break;
+      case 2:
+        navigation.navigate('AddStudySet');
+        break;
+      case 3:
+        navigation.navigate('AddFlashcard');
+        break;
+    }
+    hideModal();
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -107,7 +146,13 @@ const StudySetScreen = ({ navigation, route }) => {
         >
           <Ionicons name="chevron-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{category.name}</Text>
+        <Text 
+          style={styles.headerTitle}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {category.name}
+        </Text>
         <TouchableOpacity 
           style={styles.notificationButton}
           onPress={() => navigation.navigate('NotificationSettings')}
@@ -160,7 +205,7 @@ const StudySetScreen = ({ navigation, route }) => {
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => navigation.navigate('AddStudySet', { categoryId: category.id })}
+          onPress={showModal}
         >
           <Ionicons name="add" size={24} color="#007AFF" />
         </TouchableOpacity>
@@ -171,6 +216,67 @@ const StudySetScreen = ({ navigation, route }) => {
           <Ionicons name="person-outline" size={24} color="#666666" />
         </TouchableOpacity>
       </View>
+
+      {/* Create Modal */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="none"
+        onRequestClose={hideModal}
+      >
+        <Animated.View 
+          style={[
+            styles.modalOverlay,
+            {
+              opacity: fadeAnim,
+            }
+          ]}
+        >
+          <TouchableOpacity 
+            style={{ flex: 1 }}
+            onPress={hideModal}
+          />
+        </Animated.View>
+
+        <Animated.View
+          style={[
+            styles.modalContainer,
+            {
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [screenHeight, 0],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalIndicator} />
+            </View>
+
+            {createOptions.map((option) => (
+              <TouchableOpacity
+                key={option.id}
+                style={styles.optionItem}
+                onPress={() => handleOptionSelect(option.id)}
+              >
+                <View style={[styles.optionIcon, { backgroundColor: option.color }]}>
+                  <Ionicons name={option.icon} size={24} color="#007AFF" />
+                </View>
+                <View style={styles.optionText}>
+                  <Text style={styles.optionTitle}>{option.title}</Text>
+                  <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#999" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Animated.View>
+      </Modal>
       <Toast />
     </SafeAreaView>
   );
@@ -203,12 +309,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#000000',
     flex: 1,
     textAlign: 'center',
-    marginHorizontal: 16,
+    marginHorizontal: 8,
   },
   notificationButton: {
     width: 40,
@@ -290,6 +396,70 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#999',
     marginTop: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 8,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 20,
+  },
+  modalContent: {
+    padding: 20,
+  },
+  modalHeader: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalIndicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2,
+  },
+  optionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 16,
+    marginBottom: 8,
+  },
+  optionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  optionText: {
+    flex: 1,
+  },
+  optionTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  optionSubtitle: {
+    fontSize: 14,
+    color: '#666',
   },
 });
 
