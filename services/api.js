@@ -14,12 +14,21 @@ const api = axios.create({
 
 // Token işlemleri için yardımcı fonksiyonlar
 const TOKEN_KEY = '@flashcard_token';
+const REFRESH_TOKEN_KEY = '@flashcard_refresh_token';
 
 const storeToken = async (token) => {
   try {
     await AsyncStorage.setItem(TOKEN_KEY, token);
   } catch (error) {
     console.error('Token kaydetme hatası:', error);
+  }
+};
+
+const storeRefreshToken = async (refreshToken) => {
+  try {
+    await AsyncStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+  } catch (error) {
+    console.error('Refresh token kaydetme hatası:', error);
   }
 };
 
@@ -32,6 +41,15 @@ const getToken = async () => {
   }
 };
 
+const getRefreshToken = async () => {
+  try {
+    return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
+  } catch (error) {
+    console.error('Refresh token okuma hatası:', error);
+    return null;
+  }
+};
+
 // İstek interceptor'ı - token eklemek için
 api.interceptors.request.use(
   async (config) => {
@@ -39,6 +57,20 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Eğer logout isteği ise refresh token'ı ekle
+    if (config.url === '/auth/logout') {
+      console.log('Çıkış isteği tespit edildi');
+      const refreshToken = await getRefreshToken();
+      console.log('Alınan refresh token:', refreshToken);
+      if (refreshToken) {
+        config.headers['Refresh-Token'] = refreshToken;
+        console.log('Refresh token header\'a eklendi');
+      } else {
+        console.log('Refresh token bulunamadı, header\'a eklenemedi');
+      }
+    }
+
     return config;
   },
   (error) => {
@@ -60,6 +92,9 @@ export const authService = {
       });
       if (response.data.token) {
         await storeToken(response.data.token);
+        if (response.data.refreshToken) {
+          await storeRefreshToken(response.data.refreshToken);
+        }
       }
       return response.data;
     } catch (error) {
@@ -76,6 +111,10 @@ export const authService = {
       if (response.data && response.data.token) {
         console.log('Token alındı:', response.data.token);
         await storeToken(response.data.token);
+        if (response.data.refreshToken) {
+          console.log('Refresh token alındı:', response.data.refreshToken);
+          await storeRefreshToken(response.data.refreshToken);
+        }
         return response.data;
       } else {
         console.log('Token alınamadı. API yanıtı:', response.data);
@@ -83,6 +122,23 @@ export const authService = {
       }
     } catch (error) {
       console.error('Login hatası:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+
+  logout: async () => {
+    try {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) {
+        throw new Error('Refresh token bulunamadı');
+      }
+
+      await api.post('/auth/logout', null);
+      await AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_TOKEN_KEY]);
+      
+      return true;
+    } catch (error) {
+      console.error('Çıkış hatası:', error);
       throw error;
     }
   },

@@ -95,7 +95,7 @@ const RegisterScreen = ({ navigation, route }) => {
           position: 'top',
         });
         if (onRegisterSuccess) {
-          onRegisterSuccess(response.token);
+          onRegisterSuccess(response.token, response.refreshToken);
         }
       }
     } catch (error) {

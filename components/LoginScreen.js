@@ -80,7 +80,7 @@ const LoginScreen = ({ navigation, route }) => {
           position: 'top',
         });
         if (onLoginSuccess) {
-          onLoginSuccess(response.token);
+          onLoginSuccess(response.token, response.refreshToken);
         }
       } else {
         console.log('Token alınamadı:', response);

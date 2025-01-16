@@ -3,14 +3,18 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicat
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import Toast from 'react-native-toast-message';
-import api from '../services/api';
+import { useTranslation } from 'react-i18next';
+import api, { TOKEN_KEY, REFRESH_TOKEN_KEY, authService } from '../services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const languages = [
-  { id: 'TURKISH', name: 'Türkçe', icon: '🇹🇷' },
-  { id: 'ENGLISH', name: 'English', icon: '🇬🇧' },
+  { id: 'TURKISH', name: 'Türkçe', icon: '🇹🇷', i18nCode: 'tr' },
+  { id: 'ENGLISH', name: 'English', icon: '🇬🇧', i18nCode: 'en' },
 ];
 
-const ProfileScreen = ({ navigation }) => {
+const ProfileScreen = ({ navigation, route }) => {
+  const { onLogout } = route.params;
+  const { t, i18n } = useTranslation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,12 +54,17 @@ const ProfileScreen = ({ navigation }) => {
       const response = await api.get('/users/me');
       console.log('Kullanıcı bilgileri detaylı:', {
         tümVeri: response.data,
-        dil: response.data.language,
+        dil: response.data.preferredLanguage,
         seçiliDil: selectedLanguage
       });
       setUser(response.data);
-      if (response.data.language) {
-        setSelectedLanguage(response.data.language);
+      if (response.data.preferredLanguage) {
+        setSelectedLanguage(response.data.preferredLanguage);
+        // i18n dilini de güncelle
+        const lang = languages.find(l => l.id === response.data.preferredLanguage);
+        if (lang) {
+          await i18n.changeLanguage(lang.i18nCode);
+        }
       }
       setError(null);
     } catch (err) {
@@ -73,9 +82,14 @@ const ProfileScreen = ({ navigation }) => {
     }
 
     const previousLanguage = selectedLanguage;
+    const selectedLang = languages.find(l => l.id === langId);
+    
     try {
       setChangingLanguage(true);
       setSelectedLanguage(langId);
+      
+      // i18n dilini güncelle
+      await i18n.changeLanguage(selectedLang.i18nCode);
       
       const updateResponse = await api.put(`/users/me/language?language=${langId}`);
       console.log('Dil güncelleme yanıtı:', updateResponse.data);
@@ -87,8 +101,8 @@ const ProfileScreen = ({ navigation }) => {
       
       Toast.show({
         type: 'success',
-        text1: 'Başarılı',
-        text2: 'Dil ayarı güncellendi',
+        text1: t('common.success'),
+        text2: t('messages.languageUpdated'),
         visibilityTime: 2000,
       });
 
@@ -98,10 +112,14 @@ const ProfileScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Dil değiştirme hatası:', error);
       setSelectedLanguage(previousLanguage);
+      const prevLang = languages.find(l => l.id === previousLanguage);
+      if (prevLang) {
+        await i18n.changeLanguage(prevLang.i18nCode);
+      }
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Dil değiştirilemedi',
+        text1: t('common.error'),
+        text2: t('messages.languageError'),
         visibilityTime: 3000,
       });
     } finally {
@@ -131,6 +149,27 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      console.log('Çıkış işlemi başlatılıyor...');
+      await authService.logout();
+      
+      if (onLogout) {
+        console.log('onLogout callback çağrılıyor...');
+        onLogout();
+      }
+    } catch (error) {
+      console.error('Çıkış yapılırken hata:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Hata',
+        text2: 'Çıkış yapılırken bir hata oluştu',
+        visibilityTime: 3000,
+        position: 'top',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
@@ -144,7 +183,7 @@ const ProfileScreen = ({ navigation }) => {
       <View style={[styles.container, styles.centerContent]}>
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={fetchUserData}>
-          <Text style={styles.retryButtonText}>Tekrar Dene</Text>
+          <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -158,7 +197,7 @@ const ProfileScreen = ({ navigation }) => {
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Ionicons name="chevron-back" size={24} color="black" />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Profil</Text>
+            <Text style={styles.headerTitle}>{t('profile.title')}</Text>
           </View>
           <TouchableOpacity>
             <Ionicons name="notifications-outline" size={24} color="black" />
@@ -170,14 +209,14 @@ const ProfileScreen = ({ navigation }) => {
             <Text style={styles.avatarText}>{initial}</Text>
           </View>
           <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{user?.username || 'Misafir Kullanıcı'}</Text>
-            <Text style={styles.profileSubtext}>{user?.email || 'Profili göster'}</Text>
+            <Text style={styles.profileName}>{user?.username || t('profile.guestUser')}</Text>
+            <Text style={styles.profileSubtext}>{user?.email || t('profile.showProfile')}</Text>
           </View>
           <Ionicons name="chevron-forward" size={24} color="gray" />
         </TouchableOpacity>
 
         <View style={styles.settingsSection}>
-          <Text style={styles.settingsTitle}>Ayarlar</Text>
+          <Text style={styles.settingsTitle}>{t('profile.settings')}</Text>
           
           <TouchableOpacity 
             style={styles.settingsItem} 
@@ -185,7 +224,7 @@ const ProfileScreen = ({ navigation }) => {
           >
             <View style={styles.settingsItemLeft}>
               <Ionicons name="person-outline" size={24} color="black" />
-              <Text style={styles.settingsItemText}>Kişisel bilgiler</Text>
+              <Text style={styles.settingsItemText}>{t('profile.personalInfo')}</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color="gray" />
           </TouchableOpacity>
@@ -196,7 +235,7 @@ const ProfileScreen = ({ navigation }) => {
           >
             <View style={styles.settingsItemLeft}>
               <Ionicons name="notifications-outline" size={24} color="black" />
-              <Text style={styles.settingsItemText}>Bildirim ayarları</Text>
+              <Text style={styles.settingsItemText}>{t('profile.notificationSettings')}</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color="gray" />
           </TouchableOpacity>
@@ -207,13 +246,23 @@ const ProfileScreen = ({ navigation }) => {
           >
             <View style={styles.settingsItemLeft}>
               <Ionicons name="language-outline" size={24} color="black" />
-              <Text style={styles.settingsItemText}>Dil Seçimi</Text>
+              <Text style={styles.settingsItemText}>{t('profile.languageSettings')}</Text>
             </View>
             <View style={styles.settingsItemRight}>
               <Text style={styles.settingsItemValue}>
-                {selectedLanguage === 'TURKISH' ? 'Türkçe' : 'English'}
+                {t(`languages.${selectedLanguage === 'TURKISH' ? 'turkish' : 'english'}`)}
               </Text>
               <Ionicons name="chevron-forward" size={24} color="gray" />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.settingsItem, styles.logoutButton]} 
+            onPress={handleLogout}
+          >
+            <View style={styles.settingsItemLeft}>
+              <Ionicons name="log-out-outline" size={24} color="red" />
+              <Text style={[styles.settingsItemText, styles.logoutText]}>{t('common.logout')}</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -443,6 +492,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'gray',
     marginTop: 2,
+  },
+  logoutButton: {
+    marginTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  logoutText: {
+    color: 'red',
   },
 });
 
