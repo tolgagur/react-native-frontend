@@ -1,345 +1,448 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-  StatusBar,
-  Platform,
-  Image,
-  ActivityIndicator,
-} from 'react-native';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import api from '../services/api';
+import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import Toast from 'react-native-toast-message';
+import api from '../services/api';
 
-const ProfileScreen = ({ navigation, route }) => {
-  const { onLogout } = route.params || {};
-  const [userInfo, setUserInfo] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+const languages = [
+  { id: 'TURKISH', name: 'Türkçe', icon: '🇹🇷' },
+  { id: 'ENGLISH', name: 'English', icon: '🇬🇧' },
+];
+
+const ProfileScreen = ({ navigation }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [changingLanguage, setChangingLanguage] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
+
+  // Bottom Sheet
+  const bottomSheetModalRef = useRef(null);
+  const snapPoints = useMemo(() => ['35%'], []);
+
+  const renderBackdrop = useCallback(
+    props => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+      />
+    ),
+    []
+  );
 
   useEffect(() => {
-    fetchUserInfo();
+    fetchUserData();
   }, []);
 
-  const fetchUserInfo = async () => {
+  // Kullanıcı bilgileri değiştiğinde dil seçimini güncelle
+  useEffect(() => {
+    if (user?.language) {
+      setSelectedLanguage(user.language);
+    }
+  }, [user]);
+
+  const fetchUserData = async () => {
     try {
-      const response = await api.get('users/me');
-      console.log('Kullanıcı bilgileri alındı:', response.data);
-      setUserInfo(response.data);
-    } catch (error) {
-      console.error('Kullanıcı bilgileri yüklenirken hata:', error.response?.data || error);
-      Toast.show({
-        type: 'error',
-        text1: 'Hata',
-        text2: error.response?.data?.message || 'Kullanıcı bilgileri yüklenemedi',
-        visibilityTime: 3000,
-        position: 'top',
+      setLoading(true);
+      const response = await api.get('/users/me');
+      console.log('Kullanıcı bilgileri detaylı:', {
+        tümVeri: response.data,
+        dil: response.data.language,
+        seçiliDil: selectedLanguage
       });
+      setUser(response.data);
+      if (response.data.language) {
+        setSelectedLanguage(response.data.language);
+      }
+      setError(null);
+    } catch (err) {
+      console.error('Kullanıcı bilgileri yüklenirken hata:', err.response?.data || err.message);
+      setError('Kullanıcı bilgileri alınamadı');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const menuItems = [
-    {
-      id: 2,
-      title: 'Bildirimler',
-      icon: 'notifications-outline',
-      status: userInfo?.notificationEnabled ? 'Açık' : 'Kapalı',
-      statusColor: userInfo?.notificationEnabled ? '#4CAF50' : '#999',
-    },
-    {
-      id: 5,
-      title: 'Ayarlar',
-      icon: 'settings-outline',
-    },
-  ];
+  const handleLanguageSelect = async (langId) => {
+    if (langId === selectedLanguage) {
+      bottomSheetModalRef.current?.dismiss();
+      return;
+    }
 
-  const stats = [
-    {
-      id: 1,
-      value: userInfo?.level || 0,
-      label: 'Seviye',
-      icon: 'trophy-outline',
-    },
-    {
-      id: 2,
-      value: userInfo?.totalFlashcards || 0,
-      label: 'Toplam Kart',
-      icon: 'documents-outline',
-    },
-    {
-      id: 3,
-      value: `%${userInfo?.successRate || 0}`,
-      label: 'Başarı',
-      icon: 'trending-up-outline',
-    },
-  ];
+    const previousLanguage = selectedLanguage;
+    try {
+      setChangingLanguage(true);
+      setSelectedLanguage(langId);
+      
+      const updateResponse = await api.put(`/users/me/language?language=${langId}`);
+      console.log('Dil güncelleme yanıtı:', updateResponse.data);
+      
+      const userResponse = await api.get('/users/me');
+      console.log('Güncel kullanıcı bilgileri:', userResponse.data);
+      
+      setUser(userResponse.data);
+      
+      Toast.show({
+        type: 'success',
+        text1: 'Başarılı',
+        text2: 'Dil ayarı güncellendi',
+        visibilityTime: 2000,
+      });
 
-  if (isLoading) {
+      setTimeout(() => {
+        bottomSheetModalRef.current?.dismiss();
+      }, 1000);
+    } catch (error) {
+      console.error('Dil değiştirme hatası:', error);
+      setSelectedLanguage(previousLanguage);
+      Toast.show({
+        type: 'error',
+        text1: 'Hata',
+        text2: 'Dil değiştirilemedi',
+        visibilityTime: 3000,
+      });
+    } finally {
+      setChangingLanguage(false);
+    }
+  };
+
+  const initial = user?.username ? user.username.charAt(0).toUpperCase() : '?';
+
+  const handleProfilePress = () => {
+    navigation.navigate('EditProfile', { user });
+  };
+
+  const handleSettingsPress = (settingType) => {
+    switch (settingType) {
+      case 'personal':
+        navigation.navigate('PersonalInfo', { user });
+        break;
+      case 'notifications':
+        navigation.navigate('NotificationSettings');
+        break;
+      case 'language':
+        bottomSheetModalRef.current?.present();
+        break;
+      default:
+        break;
+    }
+  };
+
+  if (loading) {
     return (
-      <View style={[styles.container, styles.loadingContainer]}>
+      <View style={[styles.container, styles.centerContent]}>
         <ActivityIndicator size="large" color="#007AFF" />
       </View>
     );
   }
 
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={fetchUserData}>
+          <Text style={styles.retryButtonText}>Tekrar Dene</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <SafeAreaView style={{ flex: 1 }}>
+    <>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="chevron-back" size={24} color="#2C2C2C" />
+          <View style={styles.headerLeft}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <Ionicons name="chevron-back" size={24} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Profil</Text>
+          </View>
+          <TouchableOpacity>
+            <Ionicons name="notifications-outline" size={24} color="black" />
           </TouchableOpacity>
         </View>
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-          {/* Profil Başlığı */}
-          <View style={styles.profileHeader}>
-            <View style={styles.profileInfo}>
-              {userInfo?.profileImageUrl ? (
-                <Image 
-                  source={{ uri: userInfo.profileImageUrl }} 
-                  style={styles.avatarContainer}
-                />
-              ) : (
-                <View style={styles.avatarContainer}>
-                  <Ionicons name="person" size={40} color="#007AFF" />
-                </View>
-              )}
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>
-                  {userInfo?.firstName} {userInfo?.lastName}
-                </Text>
-                <Text style={styles.userEmail}>{userInfo?.email}</Text>
-                {userInfo?.bio && (
-                  <Text style={styles.userBio} numberOfLines={2}>
-                    {userInfo.bio}
-                  </Text>
-                )}
-              </View>
-            </View>
-            {(userInfo?.location || userInfo?.website) && (
-              <View style={styles.additionalInfo}>
-                {userInfo?.location && (
-                  <View style={styles.infoItem}>
-                    <Ionicons name="location-outline" size={16} color="#666666" />
-                    <Text style={styles.infoText}>{userInfo.location}</Text>
-                  </View>
-                )}
-                {userInfo?.website && (
-                  <View style={styles.infoItem}>
-                    <Ionicons name="link-outline" size={16} color="#666666" />
-                    <Text style={styles.infoText}>{userInfo.website}</Text>
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
 
-          {/* İstatistikler */}
-          <View style={styles.statsContainer}>
-            {stats.map((stat) => (
-              <View key={stat.id} style={styles.statItem}>
-                <Text style={styles.statValue}>{stat.value}</Text>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-              </View>
-            ))}
+        <TouchableOpacity style={styles.profileSection} onPress={handleProfilePress}>
+          <View style={styles.avatarContainer}>
+            <Text style={styles.avatarText}>{initial}</Text>
           </View>
-
-          {/* Menü Öğeleri */}
-          <View style={styles.menuContainer}>
-            {menuItems.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.menuItem}
-                onPress={() => {
-                  if (item.title === 'Bildirimler') {
-                    navigation.navigate('NotificationSettings');
-                  } else if (item.title === 'Ayarlar') {
-                    navigation.navigate('Settings');
-                  }
-                }}
-              >
-                <View style={styles.menuItemLeft}>
-                  <Ionicons name={item.icon} size={24} color="#333" />
-                  <Text style={styles.menuItemTitle}>{item.title}</Text>
-                </View>
-                <View style={styles.menuItemRight}>
-                  {item.status && (
-                    <Text style={[styles.statusText, { color: item.statusColor }]}>
-                      {item.status}
-                    </Text>
-                  )}
-                  <Ionicons name="chevron-forward" size={20} color="#999" />
-                </View>
-              </TouchableOpacity>
-            ))}
+          <View style={styles.profileInfo}>
+            <Text style={styles.profileName}>{user?.username || 'Misafir Kullanıcı'}</Text>
+            <Text style={styles.profileSubtext}>{user?.email || 'Profili göster'}</Text>
           </View>
+          <Ionicons name="chevron-forward" size={24} color="gray" />
+        </TouchableOpacity>
 
-          {/* Çıkış Yap Butonu */}
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={() => {
-              if (onLogout) {
-                onLogout();
-              }
-            }}
+        <View style={styles.settingsSection}>
+          <Text style={styles.settingsTitle}>Ayarlar</Text>
+          
+          <TouchableOpacity 
+            style={styles.settingsItem} 
+            onPress={() => handleSettingsPress('personal')}
           >
-            <Ionicons name="log-out-outline" size={24} color="#FF3B30" />
-            <Text style={styles.logoutText}>Çıkış Yap</Text>
+            <View style={styles.settingsItemLeft}>
+              <Ionicons name="person-outline" size={24} color="black" />
+              <Text style={styles.settingsItemText}>Kişisel bilgiler</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="gray" />
           </TouchableOpacity>
-        </ScrollView>
+
+          <TouchableOpacity 
+            style={styles.settingsItem}
+            onPress={() => handleSettingsPress('notifications')}
+          >
+            <View style={styles.settingsItemLeft}>
+              <Ionicons name="notifications-outline" size={24} color="black" />
+              <Text style={styles.settingsItemText}>Bildirim ayarları</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="gray" />
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.settingsItem}
+            onPress={() => handleSettingsPress('language')}
+          >
+            <View style={styles.settingsItemLeft}>
+              <Ionicons name="language-outline" size={24} color="black" />
+              <Text style={styles.settingsItemText}>Dil Seçimi</Text>
+            </View>
+            <View style={styles.settingsItemRight}>
+              <Text style={styles.settingsItemValue}>
+                {selectedLanguage === 'TURKISH' ? 'Türkçe' : 'English'}
+              </Text>
+              <Ionicons name="chevron-forward" size={24} color="gray" />
+            </View>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
+
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={0}
+        snapPoints={snapPoints}
+        backdropComponent={renderBackdrop}
+        enablePanDownToClose
+        enableDismissOnClose
+        backgroundStyle={styles.bottomSheetBackground}
+        handleIndicatorStyle={styles.handleIndicator}
+      >
+        <BottomSheetView style={styles.bottomSheetContent}>
+          {changingLanguage ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#007AFF" />
+            </View>
+          ) : (
+            <View style={styles.languageList}>
+              {languages.map((lang) => {
+                const isSelected = selectedLanguage === lang.id;
+                return (
+                  <TouchableOpacity
+                    key={lang.id}
+                    style={[
+                      styles.languageItem,
+                      isSelected && styles.selectedLanguageItem
+                    ]}
+                    onPress={() => handleLanguageSelect(lang.id)}
+                  >
+                    <View style={styles.languageInfo}>
+                      <Text style={styles.languageIcon}>{lang.icon}</Text>
+                      <Text style={styles.languageName}>{lang.name}</Text>
+                    </View>
+                    {isSelected && (
+                      <Ionicons name="checkmark" size={24} color="gray" />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </BottomSheetView>
+      </BottomSheetModal>
       <Toast />
-    </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: '#fff',
   },
-  loadingContainer: {
+  centerContent: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  scrollView: {
-    flex: 1,
+  errorText: {
+    color: 'red',
+    marginBottom: 15,
+  },
+  retryButton: {
+    padding: 10,
+    backgroundColor: '#007AFF',
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontWeight: '600',
   },
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    paddingVertical: 15,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   backButton: {
-    padding: 8,
+    marginRight: 8,
+    padding: 4,
   },
-  profileHeader: {
-    padding: 20,
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
   },
-  profileInfo: {
+  profileSection: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
   avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#F0F7FF',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
   },
-  userInfo: {
+  avatarText: {
+    color: '#FFFFFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  profileInfo: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  profileName: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  profileSubtext: {
+    color: 'gray',
+    marginTop: 4,
+  },
+  settingsSection: {
+    paddingTop: 20,
+  },
+  settingsTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    paddingHorizontal: 20,
+    marginBottom: 15,
+  },
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  settingsItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingsItemText: {
+    fontSize: 16,
+    marginLeft: 15,
+  },
+  settingsItemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingsItemValue: {
+    marginRight: 8,
+    color: 'gray',
+  },
+  bottomSheetBackground: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -4,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  handleIndicator: {
+    backgroundColor: '#DADADA',
+    width: 40,
+  },
+  bottomSheetContent: {
     flex: 1,
   },
-  userName: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#2C2C2C',
-    marginBottom: 4,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 200,
   },
-  userEmail: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 8,
-  },
-  userBio: {
-    fontSize: 14,
-    color: '#444444',
-    lineHeight: 20,
-  },
-  additionalInfo: {
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-  },
-  infoItem: {
+  bottomSheetHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#666666',
-    marginLeft: 8,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 20,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#F0F0F0',
-    marginBottom: 20,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2C2C2C',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666666',
-  },
-  menuContainer: {
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  menuItem: {
+  bottomSheetTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+  },
+  languageList: {
+    paddingTop: 8,
+  },
+  languageItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 16,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#eee',
   },
-  menuItemLeft: {
+  languageInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  menuItemTitle: {
+  languageIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  languageName: {
     fontSize: 16,
-    color: '#2C2C2C',
-    marginLeft: 16,
   },
-  menuItemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusText: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  logoutText: {
+  settingsItemTitle: {
     fontSize: 16,
-    color: '#FF3B30',
-    marginLeft: 8,
     fontWeight: '500',
+  },
+  settingsItemSubtext: {
+    fontSize: 14,
+    color: 'gray',
+    marginTop: 2,
   },
 });
 
