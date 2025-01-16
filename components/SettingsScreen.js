@@ -16,11 +16,13 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const MODAL_HEIGHT = SCREEN_HEIGHT * 0.7;
 
 const SettingsScreen = ({ navigation }) => {
+  const { t, i18n } = useTranslation();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('tr');
   const [isLoading, setIsLoading] = useState(false);
@@ -107,8 +109,8 @@ const SettingsScreen = ({ navigation }) => {
       console.error('Dil bilgisi alınırken hata:', error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Dil bilgisi alınamadı',
+        text1: t('common.error'),
+        text2: t('settings.languageError'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -120,13 +122,17 @@ const SettingsScreen = ({ navigation }) => {
     try {
       await api.put(`users/me/language?language=${langId}`);
       setSelectedLanguage(langId);
+      
+      const languageCode = langId === 'TURKISH' ? 'tr' : 'en';
+      await i18n.changeLanguage(languageCode);
+      
       closeModal();
     } catch (error) {
       console.error('Dil güncellenirken hata:', error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Dil ayarı güncellenemedi',
+        text1: t('common.error'),
+        text2: t('settings.languageError'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -146,7 +152,7 @@ const SettingsScreen = ({ navigation }) => {
           >
             <Ionicons name="chevron-back" size={24} color="#2C2C2C" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Ayarlar</Text>
+          <Text style={styles.headerTitle}>{t('settings.title')}</Text>
         </View>
 
         <TouchableOpacity 
@@ -156,7 +162,7 @@ const SettingsScreen = ({ navigation }) => {
           <View style={styles.buttonContent}>
             <Ionicons name="language" size={24} color="#2C2C2C" />
             <View style={styles.buttonTextContainer}>
-              <Text style={styles.buttonTitle}>Dil Seçimi</Text>
+              <Text style={styles.buttonTitle}>{t('settings.language')}</Text>
               <Text style={styles.buttonSubtitle}>
                 {languages.find(lang => lang.id === selectedLanguage)?.name}
               </Text>
@@ -192,7 +198,7 @@ const SettingsScreen = ({ navigation }) => {
             >
               <View style={styles.modalHeader}>
                 <View style={styles.modalHeaderLine} />
-                <Text style={styles.modalTitle}>Dil Seçimi</Text>
+                <Text style={styles.modalTitle}>{t('settings.selectLanguage')}</Text>
               </View>
 
               <ScrollView style={styles.modalScroll}>
