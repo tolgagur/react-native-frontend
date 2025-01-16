@@ -87,6 +87,11 @@ export default {
     name: 'Category Name',
     description: 'Description',
     color: 'Color',
+    studySetCount: {
+      zero: 'No study sets',
+      one: '1 study set',
+      other: '{{count}} study sets'
+    },
     errors: {
       nameRequired: 'Category name is required',
       nameTooShort: 'Category name must be at least 3 characters',
@@ -101,26 +106,24 @@ export default {
     },
   },
   studySet: {
-    title: 'Study Set',
-    addNew: 'Study Set',
-    addNewSubtitle: 'Create new set',
-    name: 'Set Name',
+    title: 'Study Sets',
+    empty: 'No study sets yet',
+    emptySubtext: 'Create your first study set to start learning',
+    addNew: 'New Study Set',
+    addNewSubtitle: 'Create a new study set',
+    name: 'Study Set Name',
     description: 'Description',
     category: 'Category',
-    selectCategory: 'Select Category',
     errors: {
-      nameRequired: 'Set name is required',
-      nameTooShort: 'Set name must be at least 3 characters',
-      descriptionRequired: 'Description is required',
-      categoryRequired: 'Category selection is required',
-      createError: 'Error creating set',
-      loadCategories: 'Error loading categories',
+      loadStudySets: 'Failed to load study sets',
+      createError: 'Failed to create study set',
+      nameRequired: 'Study set name is required',
+      categoryRequired: 'Please select a category',
+      loadCategories: 'Failed to load categories'
     },
     success: {
-      created: 'Study set created successfully',
-      updated: 'Study set updated successfully',
-      deleted: 'Study set deleted successfully',
-    },
+      created: 'Study set created successfully'
+    }
   },
   flashcard: {
     title: 'Flashcards',

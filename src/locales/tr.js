@@ -87,6 +87,11 @@ export default {
     name: 'Kategori Adı',
     description: 'Açıklama',
     color: 'Renk',
+    studySetCount: {
+      zero: 'Çalışma seti yok',
+      one: '1 çalışma seti',
+      other: '{{count}} çalışma seti'
+    },
     errors: {
       nameRequired: 'Kategori adı zorunludur',
       nameTooShort: 'Kategori adı en az 3 karakter olmalıdır',
@@ -101,26 +106,24 @@ export default {
     },
   },
   studySet: {
-    title: 'Çalışma Seti',
-    addNew: 'Çalışma Seti',
-    addNewSubtitle: 'Yeni set oluştur',
-    name: 'Set Adı',
+    title: 'Çalışma Setleri',
+    empty: 'Henüz çalışma seti oluşturmadınız',
+    emptySubtext: 'Öğrenmeye başlamak için ilk çalışma setinizi oluşturun',
+    addNew: 'Yeni Çalışma Seti',
+    addNewSubtitle: 'Yeni bir çalışma seti oluştur',
+    name: 'Çalışma Seti Adı',
     description: 'Açıklama',
     category: 'Kategori',
-    selectCategory: 'Kategori Seç',
     errors: {
-      nameRequired: 'Set adı zorunludur',
-      nameTooShort: 'Set adı en az 3 karakter olmalıdır',
-      descriptionRequired: 'Açıklama zorunludur',
-      categoryRequired: 'Kategori seçimi zorunludur',
-      createError: 'Set oluşturulurken bir hata oluştu',
-      loadCategories: 'Kategoriler yüklenirken bir hata oluştu',
+      loadStudySets: 'Çalışma setleri yüklenirken bir hata oluştu',
+      createError: 'Çalışma seti oluşturulurken bir hata oluştu',
+      nameRequired: 'Çalışma seti adı gereklidir',
+      categoryRequired: 'Lütfen bir kategori seçin',
+      loadCategories: 'Kategoriler yüklenirken bir hata oluştu'
     },
     success: {
-      created: 'Çalışma seti başarıyla oluşturuldu',
-      updated: 'Çalışma seti başarıyla güncellendi',
-      deleted: 'Çalışma seti başarıyla silindi',
-    },
+      created: 'Çalışma seti başarıyla oluşturuldu'
+    }
   },
   flashcard: {
     title: 'Kartlar',
