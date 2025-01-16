@@ -98,17 +98,10 @@ const ProfileScreen = ({ navigation, route }) => {
       console.log('Güncel kullanıcı bilgileri:', userResponse.data);
       
       setUser(userResponse.data);
-      
-      Toast.show({
-        type: 'success',
-        text1: t('common.success'),
-        text2: t('messages.languageUpdated'),
-        visibilityTime: 2000,
-      });
 
       setTimeout(() => {
         bottomSheetModalRef.current?.dismiss();
-      }, 1000);
+      }, 300);
     } catch (error) {
       console.error('Dil değiştirme hatası:', error);
       setSelectedLanguage(previousLanguage);
@@ -116,12 +109,6 @@ const ProfileScreen = ({ navigation, route }) => {
       if (prevLang) {
         await i18n.changeLanguage(prevLang.i18nCode);
       }
-      Toast.show({
-        type: 'error',
-        text1: t('common.error'),
-        text2: t('messages.languageError'),
-        visibilityTime: 3000,
-      });
     } finally {
       setChangingLanguage(false);
     }

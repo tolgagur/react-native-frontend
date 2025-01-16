@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Platform, NativeModules } from 'react-native';
 import Toast from 'react-native-toast-message';
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { useTranslation } from 'react-i18next';
 import LoginScreen from './components/LoginScreen';
 import RegisterScreen from './components/RegisterScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
@@ -18,18 +19,92 @@ import AddFlashcardScreen from './components/AddFlashcardScreen';
 import ProfileScreen from './components/ProfileScreen';
 import NotificationSettingsScreen from './components/NotificationSettingsScreen';
 import SettingsScreen from './components/SettingsScreen';
+import CategoryScreen from './components/CategoryScreen';
+import StudySetScreen from './components/StudySetScreen';
 import './src/i18n';
 
 const Stack = createNativeStackNavigator();
 const TOKEN_KEY = '@flashcard_token';
 
+// Desteklenen diller
+const SUPPORTED_LANGUAGES = ['tr', 'en'];
+
 export default function App() {
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     checkInitialToken();
+    setupDefaultLanguage();
   }, []);
+
+  const getDeviceLanguage = () => {
+    try {
+      // Expo'da doğrudan Platform.OS'i kontrol ediyoruz
+      if (Platform.OS === 'ios' || Platform.OS === 'android') {
+        // Locale'i al
+        const locale = Platform.select({
+          ios: NativeModules.SettingsManager?.settings?.AppleLocale,
+          android: NativeModules.I18nManager?.localeIdentifier,
+        });
+
+        // Eğer locale alınamazsa varsayılan dili döndür
+        if (!locale) {
+          console.log('Locale alınamadı, varsayılan dil kullanılıyor');
+          return 'en';
+        }
+
+        // Locale'den dil kodunu çıkar
+        const languageCode = locale.split(/[-_]/)[0].toLowerCase();
+        console.log('Tespit edilen dil kodu:', languageCode);
+        return languageCode;
+      }
+    } catch (error) {
+      console.log('Dil tespiti sırasında hata:', error);
+    }
+
+    // Hata durumunda veya desteklenmeyen platform için varsayılan dil
+    return 'en';
+  };
+
+  const setupDefaultLanguage = async () => {
+    try {
+      console.log('Varsayılan dil ayarlanıyor...');
+      
+      // Daha önce seçilmiş bir dil var mı kontrol et
+      const savedLanguage = await AsyncStorage.getItem('@app_language');
+      console.log('Kaydedilmiş dil:', savedLanguage);
+      
+      if (savedLanguage && SUPPORTED_LANGUAGES.includes(savedLanguage)) {
+        console.log('Kaydedilmiş dil kullanılıyor:', savedLanguage);
+        await i18n.changeLanguage(savedLanguage);
+        return;
+      }
+
+      // Sistem dilini al
+      const deviceLang = getDeviceLanguage();
+      console.log('Cihaz dili:', deviceLang);
+
+      // Sistem dili desteklenen diller arasında mı kontrol et
+      const languageToUse = SUPPORTED_LANGUAGES.includes(deviceLang) ? deviceLang : 'en';
+      console.log('Kullanılacak dil:', languageToUse);
+
+      // Dili ayarla ve kaydet
+      await i18n.changeLanguage(languageToUse);
+      await AsyncStorage.setItem('@app_language', languageToUse);
+      
+    } catch (error) {
+      console.error('Dil ayarlama hatası:', error);
+      // Hata durumunda varsayılan olarak İngilizce'yi ayarla
+      try {
+        await i18n.changeLanguage('en');
+        await AsyncStorage.setItem('@app_language', 'en');
+      } catch (innerError) {
+        console.error('Varsayılan dil ayarlama hatası:', innerError);
+      }
+    }
+  };
 
   const checkInitialToken = async () => {
     try {
@@ -142,6 +217,14 @@ export default function App() {
                 <Stack.Screen 
                   name="Settings" 
                   component={SettingsScreen}
+                />
+                <Stack.Screen 
+                  name="Category" 
+                  component={CategoryScreen}
+                />
+                <Stack.Screen 
+                  name="StudySet" 
+                  component={StudySetScreen}
                 />
               </>
             )}

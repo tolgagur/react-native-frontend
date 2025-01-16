@@ -12,9 +12,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 
 const AddStudySetScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [categories, setCategories] = useState([]);
@@ -34,8 +36,8 @@ const AddStudySetScreen = ({ navigation, route }) => {
       console.error('Kategori yükleme hatası:', error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Kategoriler yüklenirken bir hata oluştu',
+        text1: t('common.error'),
+        text2: t('studySet.errors.loadCategories'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -46,8 +48,8 @@ const AddStudySetScreen = ({ navigation, route }) => {
     if (!name.trim() || !selectedCategory || isSubmitted) {
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Lütfen set adını ve kategori seçin',
+        text1: t('common.error'),
+        text2: t('studySet.errors.nameRequired'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -67,9 +69,9 @@ const AddStudySetScreen = ({ navigation, route }) => {
       setIsSubmitted(true);
 
       Toast.show({
-        type: 'info',
-        text1: 'Set Oluşturuldu',
-        text2: `${name.trim()} seti başarıyla oluşturuldu`,
+        type: 'success',
+        text1: t('common.success'),
+        text2: t('studySet.success.created'),
         visibilityTime: 2000,
         position: 'top',
         topOffset: 50
@@ -83,8 +85,8 @@ const AddStudySetScreen = ({ navigation, route }) => {
       console.error('Set oluşturma hatası:', error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: error.response?.data?.message || 'Set oluşturulurken bir hata oluştu',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('studySet.errors.createError'),
         visibilityTime: 2000,
         position: 'top',
         topOffset: 50
@@ -112,15 +114,15 @@ const AddStudySetScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.headerTitle}>Yeni Çalışma Seti</Text>
+          <Text style={styles.headerTitle}>{t('studySet.addNew')}</Text>
         </View>
 
         <ScrollView style={styles.content}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Set Adı</Text>
+            <Text style={styles.label}>{t('studySet.name')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Set adını giriniz"
+              placeholder={t('studySet.name')}
               value={name}
               onChangeText={setName}
               placeholderTextColor="#999"
@@ -129,10 +131,10 @@ const AddStudySetScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Açıklama</Text>
+            <Text style={styles.label}>{t('studySet.description')}</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Açıklama giriniz"
+              placeholder={t('studySet.description')}
               value={description}
               onChangeText={setDescription}
               multiline
@@ -143,7 +145,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Kategori</Text>
+            <Text style={styles.label}>{t('studySet.category')}</Text>
             <ScrollView 
               horizontal 
               showsHorizontalScrollIndicator={false}
@@ -181,7 +183,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
           disabled={!name.trim() || !selectedCategory || isLoading || isSubmitted}
         >
           <Text style={styles.submitButtonText}>
-            {isLoading ? 'Oluşturuluyor...' : isSubmitted ? 'Oluşturuldu' : 'Oluştur'}
+            {isLoading ? t('common.loading') : isSubmitted ? t('studySet.success.created') : t('common.add')}
           </Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>

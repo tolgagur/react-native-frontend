@@ -11,10 +11,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 import { authService } from '../services/api';
 
 const LoginScreen = ({ navigation, route }) => {
   const { onLoginSuccess } = route.params || {};
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -25,8 +27,8 @@ const LoginScreen = ({ navigation, route }) => {
     if (!formData.username || !formData.password) {
       Toast.show({
         type: 'error',
-        text1: 'Zorunlu Alanlar',
-        text2: 'Kullanıcı adı ve şifre gerekli',
+        text1: t('common.error'),
+        text2: t('auth.login.errors.requiredFields'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -36,8 +38,8 @@ const LoginScreen = ({ navigation, route }) => {
     if (formData.username.length < 3) {
       Toast.show({
         type: 'error',
-        text1: 'Kullanıcı Adı',
-        text2: 'En az 3 karakter olmalı',
+        text1: t('common.error'),
+        text2: t('auth.login.errors.usernameLength'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -47,8 +49,8 @@ const LoginScreen = ({ navigation, route }) => {
     if (formData.password.length < 6) {
       Toast.show({
         type: 'error',
-        text1: 'Şifre',
-        text2: 'En az 6 karakter olmalı',
+        text1: t('common.error'),
+        text2: t('auth.login.errors.passwordLength'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -74,8 +76,8 @@ const LoginScreen = ({ navigation, route }) => {
         console.log('Token başarıyla alındı:', response.token);
         Toast.show({
           type: 'success',
-          text1: 'Başarılı',
-          text2: response.message || 'Giriş yapıldı',
+          text1: t('common.success'),
+          text2: response.message || t('auth.login.loginSuccess'),
           visibilityTime: 3000,
           position: 'top',
         });
@@ -90,8 +92,8 @@ const LoginScreen = ({ navigation, route }) => {
       console.error('Login hatası:', error);
       Toast.show({
         type: 'error',
-        text1: 'Giriş Başarısız',
-        text2: error.response?.data?.message || 'Kullanıcı adı veya şifre hatalı',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('auth.login.errors.invalidCredentials'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -123,8 +125,8 @@ const LoginScreen = ({ navigation, route }) => {
           <View style={styles.avatarContainer}>
             <Ionicons name="person" size={40} color="#007AFF" />
           </View>
-          <Text style={styles.title}>Giriş Yap</Text>
-          <Text style={styles.subtitle}>Hesabınıza giriş yapın</Text>
+          <Text style={styles.title}>{t('auth.login.title')}</Text>
+          <Text style={styles.subtitle}>{t('auth.login.subtitle')}</Text>
         </View>
 
         <View style={styles.formContainer}>
@@ -132,7 +134,7 @@ const LoginScreen = ({ navigation, route }) => {
             <Ionicons name="person" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Kullanıcı Adı"
+              placeholder={t('auth.login.username')}
               value={formData.username}
               onChangeText={(text) => setFormData({ ...formData, username: text })}
               autoCapitalize="none"
@@ -144,7 +146,7 @@ const LoginScreen = ({ navigation, route }) => {
             <Ionicons name="lock-closed" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Şifre"
+              placeholder={t('auth.login.password')}
               value={formData.password}
               onChangeText={(text) => setFormData({ ...formData, password: text })}
               secureTextEntry={!showPassword}
@@ -163,7 +165,7 @@ const LoginScreen = ({ navigation, route }) => {
           </View>
 
           <TouchableOpacity style={styles.forgotPassword} onPress={handleForgotPasswordPress}>
-            <Text style={styles.forgotPasswordText}>Şifremi Unuttum?</Text>
+            <Text style={styles.forgotPasswordText}>{t('auth.login.forgotPassword')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -177,12 +179,12 @@ const LoginScreen = ({ navigation, route }) => {
             <Text style={[
               styles.loginButtonText,
               !isFormValid() && styles.disabledButtonText
-            ]}>Giriş Yap</Text>
+            ]}>{t('auth.login.loginButton')}</Text>
           </TouchableOpacity>
 
           <View style={styles.orContainer}>
             <View style={styles.orLine} />
-            <Text style={styles.orText}>veya</Text>
+            <Text style={styles.orText}>{t('auth.login.or')}</Text>
             <View style={styles.orLine} />
           </View>
 
@@ -199,9 +201,9 @@ const LoginScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.registerContainer}>
-            <Text style={styles.registerText}>Hesabınız yok mu? </Text>
+            <Text style={styles.registerText}>{t('auth.login.noAccount')} </Text>
             <TouchableOpacity onPress={handleRegisterPress}>
-              <Text style={styles.registerLink}>Kayıt Ol</Text>
+              <Text style={styles.registerLink}>{t('auth.login.register')}</Text>
             </TouchableOpacity>
           </View>
         </View>

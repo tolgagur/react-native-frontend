@@ -12,9 +12,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 
 const AddFlashcardScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
   const [frontTitle, setFrontTitle] = useState('');
   const [frontContent, setFrontContent] = useState('');
   const [backContent, setBackContent] = useState('');
@@ -43,8 +45,8 @@ const AddFlashcardScreen = ({ navigation, route }) => {
       console.error('Kategori yükleme hatası:', error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Kategoriler yüklenirken bir hata oluştu',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.loadCategories'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -57,7 +59,6 @@ const AddFlashcardScreen = ({ navigation, route }) => {
       const response = await api.get(`/study-sets/by-category/${categoryId}`);
       console.log('Çalışma Setleri API Yanıtı:', response.data);
       
-      // API yanıtını kontrol et ve setleri ayarla
       if (response.data && Array.isArray(response.data)) {
         console.log('Setler array olarak ayarlanıyor:', response.data);
         setStudySets(response.data);
@@ -73,8 +74,8 @@ const AddFlashcardScreen = ({ navigation, route }) => {
       setStudySets([]);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: error.response?.data?.message || 'Çalışma setleri yüklenirken bir hata oluştu',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.loadStudySets'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -85,8 +86,8 @@ const AddFlashcardScreen = ({ navigation, route }) => {
     if (!frontTitle.trim() || !frontContent.trim() || !backContent.trim() || !selectedCategory || !selectedStudySet) {
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Lütfen gerekli alanları doldurun',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.requiredFields'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -109,8 +110,8 @@ const AddFlashcardScreen = ({ navigation, route }) => {
 
       Toast.show({
         type: 'success',
-        text1: 'Kart Oluşturuldu',
-        text2: 'Kart başarıyla oluşturuldu',
+        text1: t('common.success'),
+        text2: t('flashcard.success.created'),
         visibilityTime: 2000,
         position: 'top',
       });
@@ -123,8 +124,8 @@ const AddFlashcardScreen = ({ navigation, route }) => {
       console.error('Kart oluşturma hatası:', error.response?.data || error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: error.response?.data?.message || 'Kart oluşturulurken bir hata oluştu',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('flashcard.errors.createError'),
         visibilityTime: 2000,
         position: 'top',
       });
@@ -151,17 +152,17 @@ const AddFlashcardScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.headerTitle}>Yeni Kart</Text>
+          <Text style={styles.headerTitle}>{t('flashcard.addNew')}</Text>
         </View>
 
         <ScrollView style={styles.content}>
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Ön Yüz</Text>
+            <Text style={styles.sectionTitle}>{t('flashcard.front')}</Text>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Başlık</Text>
+              <Text style={styles.label}>{t('flashcard.title')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Kart başlığını giriniz"
+                placeholder={t('flashcard.titlePlaceholder')}
                 value={frontTitle}
                 onChangeText={setFrontTitle}
                 placeholderTextColor="#999"
@@ -170,10 +171,10 @@ const AddFlashcardScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>İçerik</Text>
+              <Text style={styles.label}>{t('flashcard.content')}</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="Kart içeriğini giriniz"
+                placeholder={t('flashcard.contentPlaceholder')}
                 value={frontContent}
                 onChangeText={setFrontContent}
                 multiline
@@ -185,12 +186,12 @@ const AddFlashcardScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Arka Yüz</Text>
+            <Text style={styles.sectionTitle}>{t('flashcard.back')}</Text>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>İçerik</Text>
+              <Text style={styles.label}>{t('flashcard.content')}</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="Cevap içeriğini giriniz"
+                placeholder={t('flashcard.answerPlaceholder')}
                 value={backContent}
                 onChangeText={setBackContent}
                 multiline
@@ -202,9 +203,9 @@ const AddFlashcardScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Detaylar</Text>
+            <Text style={styles.sectionTitle}>{t('flashcard.details')}</Text>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Kategori</Text>
+              <Text style={styles.label}>{t('flashcard.category')}</Text>
               <ScrollView 
                 horizontal 
                 showsHorizontalScrollIndicator={false}
@@ -239,7 +240,7 @@ const AddFlashcardScreen = ({ navigation, route }) => {
 
             {selectedCategory && studySets && studySets.length > 0 ? (
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Çalışma Seti</Text>
+                <Text style={styles.label}>{t('flashcard.studySet')}</Text>
                 <ScrollView 
                   horizontal 
                   showsHorizontalScrollIndicator={false}
@@ -268,8 +269,8 @@ const AddFlashcardScreen = ({ navigation, route }) => {
               </View>
             ) : selectedCategory ? (
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Çalışma Seti</Text>
-                <Text style={styles.emptyText}>Bu kategoride henüz çalışma seti bulunmuyor</Text>
+                <Text style={styles.label}>{t('flashcard.studySet')}</Text>
+                <Text style={styles.emptyText}>{t('flashcard.noStudySets')}</Text>
               </View>
             ) : null}
           </View>
@@ -287,7 +288,7 @@ const AddFlashcardScreen = ({ navigation, route }) => {
                    !selectedCategory || !selectedStudySet || isLoading || isSubmitted}
         >
           <Text style={styles.submitButtonText}>
-            {isLoading ? 'Oluşturuluyor...' : isSubmitted ? 'Oluşturuldu' : 'Oluştur'}
+            {isLoading ? t('common.loading') : isSubmitted ? t('flashcard.success.created') : t('common.add')}
           </Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>

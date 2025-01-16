@@ -11,9 +11,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 
 const AddCategoryScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -23,8 +25,8 @@ const AddCategoryScreen = ({ navigation, route }) => {
     if (!name.trim() || isSubmitted) {
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Kategori adı boş olamaz',
+        text1: t('common.error'),
+        text2: t('categories.errors.nameRequired'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -44,9 +46,9 @@ const AddCategoryScreen = ({ navigation, route }) => {
       setIsSubmitted(true);
 
       Toast.show({
-        type: 'info',
-        text1: 'Kategori Oluşturuldu',
-        text2: `${name.trim()} kategorisi başarıyla oluşturuldu`,
+        type: 'success',
+        text1: t('common.success'),
+        text2: t('categories.success.created'),
         visibilityTime: 2000,
         position: 'top',
         topOffset: 50
@@ -60,8 +62,8 @@ const AddCategoryScreen = ({ navigation, route }) => {
       console.error('Kategori oluşturma hatası:', error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: error.response?.data?.message || 'Kategori oluşturulurken bir hata oluştu',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('categories.errors.createError'),
         visibilityTime: 2000,
         position: 'top',
         topOffset: 50
@@ -89,15 +91,15 @@ const AddCategoryScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.headerTitle}>Yeni Kategori Ekle</Text>
+          <Text style={styles.headerTitle}>{t('categories.addNew')}</Text>
         </View>
 
         <View style={styles.content}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Kategori Adı</Text>
+            <Text style={styles.label}>{t('categories.name')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Kategori adını giriniz"
+              placeholder={t('categories.name')}
               value={name}
               onChangeText={setName}
               placeholderTextColor="#999"
@@ -106,10 +108,10 @@ const AddCategoryScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Açıklama</Text>
+            <Text style={styles.label}>{t('categories.description')}</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Açıklama giriniz"
+              placeholder={t('categories.description')}
               value={description}
               onChangeText={setDescription}
               multiline
@@ -129,7 +131,7 @@ const AddCategoryScreen = ({ navigation, route }) => {
           disabled={!name.trim() || isLoading || isSubmitted}
         >
           <Text style={styles.submitButtonText}>
-            {isLoading ? 'Oluşturuluyor...' : isSubmitted ? 'Oluşturuldu' : 'Oluştur'}
+            {isLoading ? t('common.loading') : isSubmitted ? t('categories.success.created') : t('common.add')}
           </Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>

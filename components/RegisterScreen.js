@@ -12,10 +12,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 import { authService } from '../services/api';
 
 const RegisterScreen = ({ navigation, route }) => {
   const { onRegisterSuccess } = route.params || {};
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -29,8 +31,8 @@ const RegisterScreen = ({ navigation, route }) => {
     if (!formData.username || !formData.email || !formData.password) {
       Toast.show({
         type: 'error',
-        text1: 'Zorunlu Alanlar',
-        text2: 'Lütfen tüm zorunlu alanları doldurun',
+        text1: t('common.error'),
+        text2: t('auth.register.errors.requiredFields'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -40,8 +42,8 @@ const RegisterScreen = ({ navigation, route }) => {
     if (formData.username.length < 3 || formData.username.length > 50) {
       Toast.show({
         type: 'error',
-        text1: 'Kullanıcı Adı',
-        text2: '3-50 karakter arasında olmalı',
+        text1: t('common.error'),
+        text2: t('auth.register.errors.usernameLength'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -52,8 +54,8 @@ const RegisterScreen = ({ navigation, route }) => {
     if (!emailRegex.test(formData.email)) {
       Toast.show({
         type: 'error',
-        text1: 'E-posta',
-        text2: 'Geçerli bir e-posta adresi girin',
+        text1: t('common.error'),
+        text2: t('auth.register.errors.invalidEmail'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -63,8 +65,8 @@ const RegisterScreen = ({ navigation, route }) => {
     if (formData.password.length < 6) {
       Toast.show({
         type: 'error',
-        text1: 'Şifre',
-        text2: 'En az 6 karakter olmalı',
+        text1: t('common.error'),
+        text2: t('auth.register.errors.passwordLength'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -89,8 +91,8 @@ const RegisterScreen = ({ navigation, route }) => {
       if (response.token) {
         Toast.show({
           type: 'success',
-          text1: 'Başarılı',
-          text2: 'Hesabınız oluşturuldu',
+          text1: t('common.success'),
+          text2: t('auth.register.success'),
           visibilityTime: 3000,
           position: 'top',
         });
@@ -101,8 +103,8 @@ const RegisterScreen = ({ navigation, route }) => {
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: error.response?.data?.message || 'Kayıt işlemi başarısız',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('auth.register.error'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -141,8 +143,8 @@ const RegisterScreen = ({ navigation, route }) => {
             <View style={styles.avatarContainer}>
               <Ionicons name="person-add-outline" size={40} color="#007AFF" />
             </View>
-            <Text style={styles.title}>Kayıt Ol</Text>
-            <Text style={styles.subtitle}>Yeni bir hesap oluşturun</Text>
+            <Text style={styles.title}>{t('auth.register.title')}</Text>
+            <Text style={styles.subtitle}>{t('auth.register.subtitle')}</Text>
           </View>
 
           <View style={styles.formContainer}>
@@ -150,7 +152,7 @@ const RegisterScreen = ({ navigation, route }) => {
               <Ionicons name="person" size={20} color="#007AFF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Kullanıcı Adı"
+                placeholder={t('auth.register.username')}
                 value={formData.username}
                 onChangeText={(text) => setFormData({ ...formData, username: text })}
                 autoCapitalize="none"
@@ -163,7 +165,7 @@ const RegisterScreen = ({ navigation, route }) => {
               <Ionicons name="mail" size={20} color="#007AFF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="E-posta"
+                placeholder={t('auth.register.email')}
                 value={formData.email}
                 onChangeText={(text) => setFormData({ ...formData, email: text })}
                 keyboardType="email-address"
@@ -177,7 +179,7 @@ const RegisterScreen = ({ navigation, route }) => {
               <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Ad"
+                placeholder={t('auth.register.firstName')}
                 value={formData.firstName}
                 onChangeText={(text) => setFormData({ ...formData, firstName: text })}
                 autoCapitalize="words"
@@ -189,7 +191,7 @@ const RegisterScreen = ({ navigation, route }) => {
               <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Soyad"
+                placeholder={t('auth.register.lastName')}
                 value={formData.lastName}
                 onChangeText={(text) => setFormData({ ...formData, lastName: text })}
                 autoCapitalize="words"
@@ -201,7 +203,7 @@ const RegisterScreen = ({ navigation, route }) => {
               <Ionicons name="lock-closed" size={20} color="#007AFF" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Şifre"
+                placeholder={t('auth.register.password')}
                 value={formData.password}
                 onChangeText={(text) => setFormData({ ...formData, password: text })}
                 secureTextEntry={!showPassword}
@@ -231,12 +233,12 @@ const RegisterScreen = ({ navigation, route }) => {
               <Text style={[
                 styles.registerButtonText,
                 !isFormValid() && styles.disabledButtonText
-              ]}>Kayıt Ol</Text>
+              ]}>{t('auth.register.registerButton')}</Text>
             </TouchableOpacity>
 
             <View style={styles.orContainer}>
               <View style={styles.orLine} />
-              <Text style={styles.orText}>veya</Text>
+              <Text style={styles.orText}>{t('auth.register.or')}</Text>
               <View style={styles.orLine} />
             </View>
 
@@ -253,9 +255,9 @@ const RegisterScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.loginContainer}>
-              <Text style={styles.loginText}>Zaten hesabınız var mı? </Text>
+              <Text style={styles.loginText}>{t('auth.register.haveAccount')} </Text>
               <TouchableOpacity onPress={handleLoginPress}>
-                <Text style={styles.loginLink}>Giriş Yap</Text>
+                <Text style={styles.loginLink}>{t('auth.register.login')}</Text>
               </TouchableOpacity>
             </View>
           </View>

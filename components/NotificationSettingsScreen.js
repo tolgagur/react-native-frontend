@@ -13,8 +13,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 
 const NotificationSettingsScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [settings, setSettings] = useState({
     emailNotificationEnabled: false,
     notificationEnabled: false,
@@ -44,8 +46,8 @@ const NotificationSettingsScreen = ({ navigation }) => {
       console.error('Bildirim ayarları yüklenirken hata:', error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Bildirim ayarları yüklenemedi',
+        text1: t('common.error'),
+        text2: t('notifications.loadError'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -84,21 +86,13 @@ const NotificationSettingsScreen = ({ navigation }) => {
         };
         
         setSettings(updatedSettings);
-
-        Toast.show({
-          type: 'success',
-          text1: 'Başarılı',
-          text2: 'Bildirim ayarları güncellendi',
-          visibilityTime: 2000,
-          position: 'top',
-        });
       }
     } catch (error) {
       console.error('Ayarlar güncellenirken hata:', error.response?.data || error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: error.response?.data?.message || 'Ayarlar güncellenemedi',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('notifications.updateError'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -112,39 +106,39 @@ const NotificationSettingsScreen = ({ navigation }) => {
   const notificationItems = [
     {
       id: 'emailNotificationEnabled',
-      title: 'E-posta Bildirimleri',
+      title: t('notifications.emailNotifications'),
       icon: 'mail-outline',
-      description: 'Önemli güncellemeler ve bildirimler için e-posta al',
+      description: t('notifications.emailNotificationsDesc'),
     },
     {
       id: 'notificationEnabled',
-      title: 'Mobil Bildirimler',
+      title: t('notifications.pushNotifications'),
       icon: 'phone-portrait-outline',
-      description: 'Anlık bildirimler ve uyarılar',
+      description: t('notifications.pushNotificationsDesc'),
     },
     {
       id: 'weeklyDigest',
-      title: 'Haftalık Özet',
+      title: t('notifications.weeklyDigest'),
       icon: 'calendar-outline',
-      description: 'Haftalık ilerleme ve aktivite özeti',
+      description: t('notifications.weeklyDigestDesc'),
     },
     {
       id: 'marketingEmails',
-      title: 'Pazarlama E-postaları',
+      title: t('notifications.marketingEmails'),
       icon: 'megaphone-outline',
-      description: 'Özel teklifler ve kampanyalar hakkında bilgi al',
+      description: t('notifications.marketingEmailsDesc'),
     },
     {
       id: 'systemUpdates',
-      title: 'Sistem Güncellemeleri',
+      title: t('notifications.systemUpdates'),
       icon: 'refresh-outline',
-      description: 'Yeni özellikler ve sistem güncellemeleri',
+      description: t('notifications.systemUpdatesDesc'),
     },
     {
       id: 'securityAlerts',
-      title: 'Güvenlik Uyarıları',
+      title: t('notifications.securityAlerts'),
       icon: 'shield-checkmark-outline',
-      description: 'Hesap güvenliği ile ilgili önemli bildirimler',
+      description: t('notifications.securityAlertsDesc'),
     },
   ];
 
@@ -159,7 +153,7 @@ const NotificationSettingsScreen = ({ navigation }) => {
           >
             <Ionicons name="chevron-back" size={24} color="#2C2C2C" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Bildirim Ayarları</Text>
+          <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
         </View>
 
         <ScrollView style={styles.content}>
@@ -194,7 +188,7 @@ const NotificationSettingsScreen = ({ navigation }) => {
             disabled={isLoading}
           >
             <Text style={styles.updateButtonText}>
-              {isLoading ? 'Güncelleniyor...' : 'Güncelle'}
+              {isLoading ? t('common.loading') : t('common.update')}
             </Text>
           </TouchableOpacity>
         </View>

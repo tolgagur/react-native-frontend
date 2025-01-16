@@ -11,17 +11,19 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
+import { useTranslation } from 'react-i18next';
 import { authService } from '../services/api';
 
 const ForgotPasswordScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
+  const { t } = useTranslation();
 
   const handleSubmit = async () => {
     if (!email) {
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Lütfen e-posta adresinizi girin',
+        text1: t('common.error'),
+        text2: t('auth.forgotPassword.emailRequired'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -32,8 +34,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
       const response = await authService.forgotPassword({ email });
       Toast.show({
         type: 'success',
-        text1: 'Başarılı',
-        text2: 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi',
+        text1: t('common.success'),
+        text2: t('auth.forgotPassword.success'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -41,8 +43,8 @@ const ForgotPasswordScreen = ({ navigation }) => {
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: error.response?.data?.message || 'Şifre sıfırlama işlemi başarısız',
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('auth.forgotPassword.error'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -58,7 +60,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
         >
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Şifremi Unuttum</Text>
+        <Text style={styles.headerTitle}>{t('auth.forgotPassword.title')}</Text>
       </View>
 
       <KeyboardAvoidingView
@@ -70,16 +72,16 @@ const ForgotPasswordScreen = ({ navigation }) => {
             <Ionicons name="lock-open-outline" size={50} color="#007AFF" />
           </View>
           
-          <Text style={styles.title}>Şifrenizi mi unuttunuz?</Text>
+          <Text style={styles.title}>{t('auth.forgotPassword.title')}</Text>
           <Text style={styles.subtitle}>
-            E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.
+            {t('auth.forgotPassword.subtitle')}
           </Text>
 
           <View style={styles.inputContainer}>
             <Ionicons name="mail" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="E-posta"
+              placeholder={t('auth.forgotPassword.email')}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -93,14 +95,14 @@ const ForgotPasswordScreen = ({ navigation }) => {
             onPress={handleSubmit}
             disabled={!email}
           >
-            <Text style={styles.submitButtonText}>Gönder</Text>
+            <Text style={styles.submitButtonText}>{t('auth.forgotPassword.sendButton')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.loginButton}
             onPress={() => navigation.navigate('Login')}
           >
-            <Text style={styles.loginButtonText}>Giriş sayfasına dön</Text>
+            <Text style={styles.loginButtonText}>{t('auth.forgotPassword.backToLogin')}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
