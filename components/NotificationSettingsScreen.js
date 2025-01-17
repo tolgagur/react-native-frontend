@@ -87,6 +87,13 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
         };
         
         setSettings(updatedSettings);
+        navigation.reset({
+          index: 1,
+          routes: [
+            { name: 'Home' },
+            { name: 'Profile' }
+          ],
+        });
       }
     } catch (error) {
       console.error('Ayarlar güncellenirken hata:', error.response?.data || error);
@@ -161,6 +168,34 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
       description: t('notifications.securityAlertsDesc'),
     },
   ];
+
+  const handleUpdate = async () => {
+    try {
+      setUpdating(true);
+      await api.put('/users/me/notifications', {
+        notificationEnabled,
+        emailNotificationEnabled,
+        weeklyDigestEnabled,
+        marketingEmailsEnabled,
+        systemUpdatesEnabled,
+        securityAlertsEnabled,
+      });
+      
+      Toast.show({
+        type: 'success',
+        text1: t('notifications.updateSuccess'),
+      });
+      
+      navigation.navigate('Profile');
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: t('notifications.updateError'),
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
