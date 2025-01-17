@@ -21,6 +21,7 @@ import NotificationSettingsScreen from './components/NotificationSettingsScreen'
 import SettingsScreen from './components/SettingsScreen';
 import CategoryScreen from './components/CategoryScreen';
 import StudySetScreen from './components/StudySetScreen';
+import PersonalInfoScreen from './components/PersonalInfoScreen';
 import './src/i18n';
 
 const Stack = createNativeStackNavigator();
@@ -234,6 +235,7 @@ export default function App() {
                   name="StudySet" 
                   component={StudySetScreen}
                 />
+                <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} options={{ headerShown: false }} />
               </>
             )}
           </Stack.Navigator>
