@@ -208,20 +208,31 @@ const HomeScreen = ({ navigation, route }) => {
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={24} color="#007AFF" />
+        <TouchableOpacity 
+          style={[styles.navItem, styles.navItemActive]}
+          onPress={() => {}}
+        >
+          <View style={[styles.iconBackground, styles.activeIconBackground]}>
+            <Ionicons name="home" size={24} color="#000000" />
+          </View>
         </TouchableOpacity>
+
         <TouchableOpacity 
           style={styles.navItem}
           onPress={showModal}
         >
-          <Ionicons name="add" size={24} color="#666666" />
+          <View style={styles.iconBackground}>
+            <Ionicons name="add" size={24} color="#000000" />
+          </View>
         </TouchableOpacity>
+
         <TouchableOpacity 
-          style={styles.navItem} 
+          style={styles.navItem}
           onPress={() => navigation.navigate('Profile', { onLogout })}
         >
-          <Ionicons name="person-outline" size={24} color="#666666" />
+          <View style={styles.iconBackground}>
+            <Ionicons name="person-outline" size={24} color="#000000" />
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -374,10 +385,30 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 40,
+    paddingHorizontal: 30,
   },
   navItem: {
-    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    position: 'relative',
+  },
+  navItemActive: {
+    transform: [{ scale: 1.1 }],
+  },
+  iconBackground: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  activeIconBackground: {
+    backgroundColor: '#F8F8F8',
+    borderColor: '#E0E0E0',
   },
   modalOverlay: {
     flex: 1,

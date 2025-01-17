@@ -169,16 +169,26 @@ export default {
     contentPlaceholder: 'Enter card content',
     answerPlaceholder: 'Enter answer content',
     noStudySets: 'No study sets available in this category',
+    card: 'Card',
+    frontTitle: 'Front Title',
+    frontContent: 'Front Content',
+    frontHint: 'Hint',
+    backContent: 'Back Content',
+    backExplanation: 'Explanation',
+    hintPlaceholder: 'Enter hint (optional)',
+    explanationPlaceholder: 'Enter explanation (optional)',
+    addMore: 'Add Another Card',
     errors: {
       frontRequired: 'Front side is required',
       backRequired: 'Back side is required',
       requiredFields: 'Please fill in all required fields',
       loadCategories: 'Error loading categories',
       loadStudySets: 'Error loading study sets',
-      createError: 'Error creating card'
+      createError: 'Error creating card',
+      fillRequired: 'Please fill in the required fields of the current card before adding a new one'
     },
     success: {
-      created: 'Card created successfully',
+      created: 'Cards created successfully',
       updated: 'Card updated successfully',
       deleted: 'Card deleted successfully',
     },

@@ -169,16 +169,26 @@ export default {
     contentPlaceholder: 'Kart içeriğini giriniz',
     answerPlaceholder: 'Cevap içeriğini giriniz',
     noStudySets: 'Bu kategoride henüz çalışma seti bulunmuyor',
+    card: 'Kart',
+    frontTitle: 'Ön Başlık',
+    frontContent: 'Ön İçerik',
+    frontHint: 'İpucu',
+    backContent: 'Arka İçerik',
+    backExplanation: 'Açıklama',
+    hintPlaceholder: 'İpucu giriniz (opsiyonel)',
+    explanationPlaceholder: 'Açıklama giriniz (opsiyonel)',
+    addMore: 'Yeni Kart Ekle',
     errors: {
       frontRequired: 'Ön yüz zorunludur',
       backRequired: 'Arka yüz zorunludur',
       requiredFields: 'Lütfen tüm zorunlu alanları doldurun',
       loadCategories: 'Kategoriler yüklenirken bir hata oluştu',
       loadStudySets: 'Çalışma setleri yüklenirken bir hata oluştu',
-      createError: 'Kart oluşturulurken bir hata oluştu'
+      createError: 'Kart oluşturulurken bir hata oluştu',
+      fillRequired: 'Yeni kart eklemeden önce mevcut kartın zorunlu alanlarını doldurun'
     },
     success: {
-      created: 'Kart başarıyla oluşturuldu',
+      created: 'Kartlar başarıyla oluşturuldu',
       updated: 'Kart başarıyla güncellendi',
       deleted: 'Kart başarıyla silindi',
     },
