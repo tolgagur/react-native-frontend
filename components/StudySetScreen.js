@@ -11,7 +11,8 @@ import {
   ActivityIndicator,
   Modal,
   Animated,
-  Dimensions
+  Dimensions,
+  PanResponder
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
@@ -27,6 +28,27 @@ const StudySetScreen = ({ navigation, route }) => {
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const { height: screenHeight } = Dimensions.get('window');
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          slideAnim.setValue(1 - (gestureState.dy / screenHeight));
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > screenHeight / 3) {
+          hideModal();
+        } else {
+          Animated.spring(slideAnim, {
+            toValue: 1,
+            useNativeDriver: true,
+          }).start();
+        }
+      },
+    })
+  ).current;
 
   const fetchStudySets = async () => {
     try {
@@ -59,6 +81,7 @@ const StudySetScreen = ({ navigation, route }) => {
 
   const showModal = () => {
     setIsModalVisible(true);
+    slideAnim.setValue(0);
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 1,
@@ -252,6 +275,7 @@ const StudySetScreen = ({ navigation, route }) => {
               ],
             },
           ]}
+          {...panResponder.panHandlers}
         >
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>

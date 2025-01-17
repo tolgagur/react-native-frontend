@@ -52,6 +52,7 @@ const SettingsScreen = ({ navigation }) => {
   ).current;
 
   const showModal = () => {
+    modalY.setValue(SCREEN_HEIGHT);
     setIsModalVisible(true);
     Animated.parallel([
       Animated.timing(modalY, {
@@ -81,6 +82,7 @@ const SettingsScreen = ({ navigation }) => {
       }),
     ]).start(() => {
       setIsModalVisible(false);
+      modalY.setValue(SCREEN_HEIGHT);
     });
   };
 
