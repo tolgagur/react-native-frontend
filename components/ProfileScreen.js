@@ -191,15 +191,14 @@ const ProfileScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.profileSection} onPress={handleProfilePress}>
+        <TouchableOpacity style={styles.profileSection}>
           <View style={styles.avatarContainer}>
             <Text style={styles.avatarText}>{initial}</Text>
           </View>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{user?.username || t('profile.guestUser')}</Text>
-            <Text style={styles.profileSubtext}>{user?.email || t('profile.showProfile')}</Text>
+            <Text style={styles.profileSubtext}>{user?.email || ''}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={24} color="gray" />
         </TouchableOpacity>
 
         <View style={styles.settingsSection}>
@@ -344,33 +343,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    marginTop: 8,
   },
   avatarContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
   avatarText: {
     color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '600',
   },
   profileInfo: {
     flex: 1,
-    marginLeft: 15,
+    marginLeft: 16,
   },
   profileName: {
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: '600',
+    color: '#000000',
   },
   profileSubtext: {
-    color: 'gray',
-    marginTop: 4,
+    fontSize: 18,
+    color: '#666666',
+    marginTop: 6,
   },
   settingsSection: {
     paddingTop: 20,
