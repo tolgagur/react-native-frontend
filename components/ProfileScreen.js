@@ -131,6 +131,9 @@ const ProfileScreen = ({ navigation, route }) => {
       case 'language':
         bottomSheetModalRef.current?.present();
         break;
+      case 'password':
+        navigation.navigate('ChangePassword');
+        break;
       default:
         break;
     }
@@ -240,6 +243,17 @@ const ProfileScreen = ({ navigation, route }) => {
               </Text>
               <Ionicons name="chevron-forward" size={24} color="gray" />
             </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.settingsItem}
+            onPress={() => handleSettingsPress('password')}
+          >
+            <View style={styles.settingsItemLeft}>
+              <Ionicons name="lock-closed-outline" size={24} color="black" />
+              <Text style={styles.settingsItemText}>{t('profile.changePassword')}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="gray" />
           </TouchableOpacity>
 
           <View style={styles.logoutContainer}>

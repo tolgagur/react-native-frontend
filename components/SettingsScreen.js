@@ -171,6 +171,22 @@ const SettingsScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
 
+        <TouchableOpacity 
+          style={styles.languageButton} 
+          onPress={() => navigation.navigate('ChangePassword')}
+        >
+          <View style={styles.buttonContent}>
+            <Ionicons name="lock-closed" size={24} color="#2C2C2C" />
+            <View style={styles.buttonTextContainer}>
+              <Text style={styles.buttonTitle}>{t('settings.changePassword')}</Text>
+              <Text style={styles.buttonSubtitle}>
+                {t('settings.changePasswordDescription')}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#2C2C2C" />
+          </View>
+        </TouchableOpacity>
+
         <Modal
           visible={isModalVisible}
           transparent

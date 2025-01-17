@@ -22,6 +22,7 @@ import SettingsScreen from './components/SettingsScreen';
 import CategoryScreen from './components/CategoryScreen';
 import StudySetScreen from './components/StudySetScreen';
 import PersonalInfoScreen from './components/PersonalInfoScreen';
+import ChangePasswordScreen from './components/ChangePasswordScreen';
 import './src/i18n';
 
 const Stack = createNativeStackNavigator();
@@ -236,6 +237,7 @@ export default function App() {
                   component={StudySetScreen}
                 />
                 <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} options={{ headerShown: false }} />
+                <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ headerShown: false }} />
               </>
             )}
           </Stack.Navigator>

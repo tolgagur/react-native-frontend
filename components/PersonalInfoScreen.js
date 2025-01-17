@@ -18,6 +18,7 @@ const PersonalInfoScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [initialUserData, setInitialUserData] = useState(null);
   const [userData, setUserData] = useState({
     username: '',
     email: '',
@@ -40,6 +41,7 @@ const PersonalInfoScreen = ({ navigation, route }) => {
       setLoading(true);
       const response = await api.get('/users/me');
       setUserData(response.data);
+      setInitialUserData(response.data);
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -51,7 +53,17 @@ const PersonalInfoScreen = ({ navigation, route }) => {
     }
   };
 
+  const hasChanges = () => {
+    if (!initialUserData) return false;
+    return (
+      initialUserData.firstName !== userData.firstName ||
+      initialUserData.lastName !== userData.lastName
+    );
+  };
+
   const handleSave = async () => {
+    if (!hasChanges()) return;
+
     try {
       setSaving(true);
       await api.put('/users/me', {
@@ -59,6 +71,14 @@ const PersonalInfoScreen = ({ navigation, route }) => {
         lastName: userData.lastName,
       });
       
+      Toast.show({
+        type: 'success',
+        text1: t('common.success'),
+        text2: t('profile.updateSuccess'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+
       navigation.goBack();
     } catch (error) {
       Toast.show({
@@ -152,9 +172,12 @@ const PersonalInfoScreen = ({ navigation, route }) => {
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.updateButton, saving && styles.updateButtonDisabled]}
+          style={[
+            styles.updateButton, 
+            (!hasChanges() || saving) && styles.updateButtonDisabled
+          ]}
           onPress={handleSave}
-          disabled={saving}
+          disabled={!hasChanges() || saving}
         >
           <Text style={styles.updateButtonText}>
             {saving ? t('common.loading') : t('common.update')}

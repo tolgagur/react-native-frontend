@@ -26,6 +26,7 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
     systemUpdates: false,
     securityAlerts: false,
   });
+  const [initialSettings, setInitialSettings] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -35,14 +36,16 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
   const fetchNotificationSettings = async () => {
     try {
       const response = await api.get('users/me/notifications');
-      setSettings({
+      const newSettings = {
         emailNotificationEnabled: response.data.emailNotifications || false,
         notificationEnabled: response.data.pushNotifications || false,
         weeklyDigest: response.data.weeklyDigest || false,
         marketingEmails: response.data.marketingEmails || false,
         systemUpdates: response.data.systemUpdates || false,
         securityAlerts: response.data.securityAlerts || false,
-      });
+      };
+      setSettings(newSettings);
+      setInitialSettings(newSettings);
     } catch (error) {
       console.error('Bildirim ayarları yüklenirken hata:', error);
       Toast.show({
@@ -55,6 +58,11 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
     }
   };
 
+  const hasChanges = () => {
+    if (!initialSettings) return false;
+    return Object.keys(settings).some(key => settings[key] !== initialSettings[key]);
+  };
+
   const toggleSwitch = (key) => {
     if (isLoading) return;
     
@@ -65,6 +73,8 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
   };
 
   const updateSettings = async () => {
+    if (!hasChanges()) return;
+
     setIsLoading(true);
     try {
       const updateResponse = await api.put('users/me/notifications', {
@@ -87,6 +97,7 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
         };
         
         setSettings(updatedSettings);
+        setInitialSettings(updatedSettings);
         navigation.goBack();
       }
     } catch (error) {
@@ -235,10 +246,10 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
           <TouchableOpacity
             style={[
               styles.updateButton,
-              isLoading && styles.updateButtonDisabled
+              (!hasChanges() || isLoading) && styles.updateButtonDisabled
             ]}
             onPress={updateSettings}
-            disabled={isLoading}
+            disabled={!hasChanges() || isLoading}
           >
             <Text style={styles.updateButtonText}>
               {isLoading ? t('common.loading') : t('common.update')}
