@@ -243,15 +243,12 @@ const ProfileScreen = ({ navigation, route }) => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.settingsItem, styles.logoutButton]} 
-            onPress={handleLogout}
-          >
-            <View style={styles.settingsItemLeft}>
-              <Ionicons name="log-out-outline" size={24} color="red" />
-              <Text style={[styles.settingsItemText, styles.logoutText]}>{t('common.logout')}</Text>
-            </View>
-          </TouchableOpacity>
+          <View style={styles.logoutContainer}>
+            <TouchableOpacity onPress={handleLogout}>
+              <Text style={styles.logoutText}>{t('common.logout')}</Text>
+            </TouchableOpacity>
+            <Text style={styles.versionText}>SÜRÜM 0.0.1</Text>
+          </View>
         </View>
       </SafeAreaView>
 
@@ -487,6 +484,22 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: 'red',
+  },
+  logoutContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 30,
+  },
+  settingsItemText: {
+    fontSize: 16,
+    marginLeft: 15,
+  },
+  logoutText: {
+    color: '#000',
+    marginBottom: 8,
+  },
+  versionText: {
+    color: '#666',
+    fontSize: 12,
   },
 });
 

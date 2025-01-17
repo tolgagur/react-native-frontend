@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,15 +7,16 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
-  Platform,
   Switch,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import { components } from '../src/theme/components';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const NotificationSettingsScreen = ({ navigation }) => {
+const NotificationSettingsScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
   const [settings, setSettings] = useState({
     emailNotificationEnabled: false,
@@ -103,6 +104,25 @@ const NotificationSettingsScreen = ({ navigation }) => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.clear();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
+    } catch (error) {
+      console.error('Çıkış yapılırken hata:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Hata',
+        text2: 'Çıkış yapılırken bir hata oluştu',
+        visibilityTime: 3000,
+        position: 'top',
+      });
+    }
+  };
+
   const notificationItems = [
     {
       id: 'emailNotificationEnabled',
@@ -153,7 +173,10 @@ const NotificationSettingsScreen = ({ navigation }) => {
           <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
         </View>
 
-        <ScrollView style={styles.content}>
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={{ paddingBottom: 24 }}
+        >
           {notificationItems.map((item) => (
             <View key={item.id} style={styles.notificationItem}>
               <View style={styles.iconContainer}>
@@ -164,12 +187,16 @@ const NotificationSettingsScreen = ({ navigation }) => {
                 <Text style={styles.description}>{item.description}</Text>
               </View>
               <Switch
-                trackColor={{ false: '#E0E0E0', true: '#A7C8FF' }}
-                thumbColor={settings[item.id] ? '#007AFF' : '#F4F4F4'}
-                ios_backgroundColor="#E0E0E0"
+                trackColor={components.switch.track}
+                thumbColor={settings[item.id] ? components.switch.thumb.true : components.switch.thumb.false}
+                ios_backgroundColor={components.switch.ios_background}
                 onValueChange={() => toggleSwitch(item.id)}
                 value={settings[item.id]}
                 disabled={isLoading}
+                style={[
+                  components.switch.style,
+                  { transform: components.switch.transform }
+                ]}
               />
             </View>
           ))}
@@ -210,8 +237,7 @@ const styles = StyleSheet.create({
     width: 30,
   },
   headerTitle: {
-    fontSize: 34,
-    fontWeight: '700',
+    ...components.text.header
   },
   content: {
     flex: 1,
@@ -224,47 +250,54 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e1e1e1',
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    borderRadius: 20,
-    marginRight: 12,
+    ...components.iconContainer
   },
   textContainer: {
     flex: 1,
     marginRight: 12,
   },
   title: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#2C2C2C',
-    marginBottom: 4,
+    ...components.text.title
   },
   description: {
-    fontSize: 14,
-    color: '#666666',
+    ...components.text.description
   },
   footer: {
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+    paddingTop: 16,
     backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#e1e1e1',
   },
   updateButton: {
-    backgroundColor: '#2196F3',
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: '#000',
+    height: 56,
+    borderRadius: 12,
+    justifyContent: 'center',
     alignItems: 'center',
   },
   updateButtonDisabled: {
-    backgroundColor: '#B0BEC5',
+    backgroundColor: '#666666',
   },
   updateButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  settingsItemText: {
+    fontSize: 16,
+    marginLeft: 15,
+  },
+  logoutContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 30,
+  },
+  logoutText: {
+    color: '#000',
+    marginBottom: 8,
+  },
+  versionText: {
+    color: '#666',
+    fontSize: 12,
   },
 });
 
