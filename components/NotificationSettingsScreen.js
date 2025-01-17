@@ -246,21 +246,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e1e1e1',
+    marginBottom: 8,
   },
   iconContainer: {
-    ...components.iconContainer
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
   textContainer: {
     flex: 1,
     marginRight: 12,
   },
   title: {
-    ...components.text.title
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
+    marginBottom: 4,
   },
   description: {
-    ...components.text.description
+    fontSize: 14,
+    color: '#666',
   },
   footer: {
     paddingHorizontal: 20,
@@ -276,7 +283,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   updateButtonDisabled: {
-    backgroundColor: '#666666',
+    backgroundColor: '#E0E0E0',
   },
   updateButtonText: {
     color: '#fff',
