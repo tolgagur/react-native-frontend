@@ -87,13 +87,7 @@ const NotificationSettingsScreen = ({ navigation, route }) => {
         };
         
         setSettings(updatedSettings);
-        navigation.reset({
-          index: 1,
-          routes: [
-            { name: 'Home' },
-            { name: 'Profile' }
-          ],
-        });
+        navigation.goBack();
       }
     } catch (error) {
       console.error('Ayarlar güncellenirken hata:', error.response?.data || error);
