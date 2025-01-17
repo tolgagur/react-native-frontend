@@ -2,297 +2,379 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
+  TouchableOpacity,
   SafeAreaView,
-  KeyboardAvoidingView,
+  ScrollView,
+  TextInput,
+  ActivityIndicator,
   Platform,
-  ScrollView
+  KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
 import api from '../services/api';
 
-const AddFlashcardScreen = ({ navigation, route }) => {
+const AddFlashcardScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  const [frontTitle, setFrontTitle] = useState('');
-  const [frontContent, setFrontContent] = useState('');
-  const [backContent, setBackContent] = useState('');
+  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [studySets, setStudySets] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedStudySet, setSelectedStudySet] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [flashcards, setFlashcards] = useState([{
+    frontTitle: '',
+    frontContent: '',
+    frontHint: '',
+    backContent: '',
+    backExplanation: '',
+    difficultyLevel: 1,
+    tags: []
+  }]);
 
   useEffect(() => {
     fetchCategories();
   }, []);
-
-  useEffect(() => {
-    if (selectedCategory) {
-      fetchStudySets(selectedCategory.id);
-    }
-  }, [selectedCategory]);
 
   const fetchCategories = async () => {
     try {
       const response = await api.get('/categories');
       setCategories(response.data);
     } catch (error) {
-      console.error('Kategori yükleme hatası:', error);
       Toast.show({
         type: 'error',
         text1: t('common.error'),
         text2: t('flashcard.errors.loadCategories'),
-        visibilityTime: 3000,
-        position: 'top',
       });
     }
   };
 
   const fetchStudySets = async (categoryId) => {
     try {
-      console.log('Kategori ID ile çalışma setleri getiriliyor:', categoryId);
       const response = await api.get(`/study-sets/by-category/${categoryId}`);
-      console.log('Çalışma Setleri API Yanıtı:', response.data);
-      
-      if (response.data && Array.isArray(response.data)) {
-        console.log('Setler array olarak ayarlanıyor:', response.data);
-        setStudySets(response.data);
-      } else if (response.data && Array.isArray(response.data.content)) {
-        console.log('Setler content array olarak ayarlanıyor:', response.data.content);
-        setStudySets(response.data.content);
-      } else {
-        console.warn('API yanıtı beklenen formatta değil:', response.data);
-        setStudySets([]);
-      }
+      setStudySets(response.data);
     } catch (error) {
-      console.error('Set yükleme hatası:', error.response || error);
-      setStudySets([]);
       Toast.show({
         type: 'error',
         text1: t('common.error'),
         text2: t('flashcard.errors.loadStudySets'),
-        visibilityTime: 3000,
-        position: 'top',
       });
     }
   };
 
-  const handleSubmit = async () => {
-    if (!frontTitle.trim() || !frontContent.trim() || !backContent.trim() || !selectedCategory || !selectedStudySet) {
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setSelectedStudySet(null);
+    fetchStudySets(category.id);
+  };
+
+  const handleStudySetSelect = (studySet) => {
+    setSelectedStudySet(studySet);
+  };
+
+  const addNewCard = () => {
+    const lastCard = flashcards[flashcards.length - 1];
+    
+    // Zorunlu alanların kontrolü
+    if (!lastCard.frontContent.trim() || !lastCard.backContent.trim()) {
       Toast.show({
         type: 'error',
         text1: t('common.error'),
-        text2: t('flashcard.errors.requiredFields'),
-        visibilityTime: 3000,
-        position: 'top',
+        text2: t('flashcard.errors.fillRequired'),
       });
       return;
     }
 
-    setIsLoading(true);
+    setFlashcards([...flashcards, {
+      frontTitle: '',
+      frontContent: '',
+      frontHint: '',
+      backContent: '',
+      backExplanation: '',
+      difficultyLevel: 1,
+      tags: [],
+      categoryId: selectedCategory?.id,
+      studySetId: selectedStudySet?.id
+    }]);
+  };
 
-    try {
-      const response = await api.post('/flashcards', {
-        frontTitle: frontTitle.trim(),
-        frontContent: frontContent.trim(),
-        backContent: backContent.trim(),
+  const removeCard = (index) => {
+    const newFlashcards = flashcards.filter((_, i) => i !== index);
+    setFlashcards(newFlashcards);
+  };
+
+  const updateCard = (index, field, value) => {
+    const newFlashcards = [...flashcards];
+    newFlashcards[index] = {
+      ...newFlashcards[index],
+      [field]: value
+    };
+    setFlashcards(newFlashcards);
+  };
+
+  const handleSave = async () => {
+    // Seçili kategori ve çalışma seti kontrolü
+    if (!selectedCategory || !selectedStudySet) {
+      console.log('Kategori veya çalışma seti seçili değil:', { selectedCategory, selectedStudySet });
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.requiredFields'),
+      });
+      return;
+    }
+
+    // Geçerli kartları filtrele ve formatla
+    const validFlashcards = flashcards
+      .filter(card => card.frontContent.trim() !== '' && card.backContent.trim() !== '')
+      .map(card => ({
+        frontTitle: card.frontTitle.trim(),
+        frontContent: card.frontContent.trim(),
+        frontHint: card.frontHint.trim(),
+        backContent: card.backContent.trim(),
+        backExplanation: card.backExplanation.trim(),
+        difficultyLevel: 1,
+        tags: [],
         categoryId: selectedCategory.id,
         studySetId: selectedStudySet.id
-      });
+      }));
 
-      console.log('Kart oluşturuldu:', response.data);
-      setIsSubmitted(true);
+    console.log('Gönderilecek kartlar:', validFlashcards);
+
+    if (validFlashcards.length === 0) {
+      console.log('Geçerli kart bulunamadı');
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.frontRequired'),
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      console.log('API isteği başlatılıyor...');
+      
+      const requestData = {
+        flashcards: validFlashcards.map(card => ({
+          ...card,
+          categoryId: parseInt(selectedCategory.id),
+          studySetId: parseInt(selectedStudySet.id)
+        }))
+      };
+
+      console.log('API isteği verisi:', JSON.stringify(requestData, null, 2));
+      
+      const response = await api.post('/flashcards/bulk', requestData);
+
+      console.log('API yanıtı:', response.data);
 
       Toast.show({
         type: 'success',
         text1: t('common.success'),
         text2: t('flashcard.success.created'),
-        visibilityTime: 2000,
-        position: 'top',
       });
-      
-      setTimeout(() => {
-        navigation.goBack();
-      }, 2000);
 
+      navigation.goBack();
     } catch (error) {
-      console.error('Kart oluşturma hatası:', error.response?.data || error);
+      console.error('Kart kaydetme hatası:', error.response?.data || error.message);
       Toast.show({
         type: 'error',
         text1: t('common.error'),
         text2: error.response?.data?.message || t('flashcard.errors.createError'),
-        visibilityTime: 2000,
-        position: 'top',
       });
-      setIsSubmitted(false);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
+  };
+
+  const renderCard = (card, index) => (
+    <View key={index} style={styles.cardContainer}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.cardNumber}>{t('flashcard.card')} {index + 1}</Text>
+        {index > 0 && (
+          <TouchableOpacity 
+            onPress={() => removeCard(index)}
+            style={styles.removeButton}
+          >
+            <Ionicons name="trash-outline" size={20} color="red" />
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>{t('flashcard.frontTitle')}</Text>
+        <TextInput
+          style={styles.input}
+          value={card.frontTitle}
+          onChangeText={(text) => updateCard(index, 'frontTitle', text)}
+          placeholder={t('flashcard.titlePlaceholder')}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>{t('flashcard.frontContent')}</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={card.frontContent}
+          onChangeText={(text) => updateCard(index, 'frontContent', text)}
+          placeholder={t('flashcard.contentPlaceholder')}
+          multiline
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>{t('flashcard.frontHint')}</Text>
+        <TextInput
+          style={styles.input}
+          value={card.frontHint}
+          onChangeText={(text) => updateCard(index, 'frontHint', text)}
+          placeholder={t('flashcard.hintPlaceholder')}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>{t('flashcard.backContent')}</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={card.backContent}
+          onChangeText={(text) => updateCard(index, 'backContent', text)}
+          placeholder={t('flashcard.answerPlaceholder')}
+          multiline
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>{t('flashcard.backExplanation')}</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={card.backExplanation}
+          onChangeText={(text) => updateCard(index, 'backExplanation', text)}
+          placeholder={t('flashcard.explanationPlaceholder')}
+          multiline
+        />
+      </View>
+    </View>
+  );
+
+  // Kartların geçerliliğini kontrol eden fonksiyon
+  const areAllCardsValid = () => {
+    return flashcards.every(card => 
+      card.frontContent.trim() !== '' && 
+      card.backContent.trim() !== ''
+    );
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.closeButton} 
-            onPress={() => navigation.goBack()}
-          >
-            <View style={styles.closeButtonContainer}>
-              <Ionicons name="close" size={20} color="#000" />
-            </View>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={24} color="black" />
           </TouchableOpacity>
-        </View>
-        <View style={styles.titleContainer}>
           <Text style={styles.headerTitle}>{t('flashcard.addNew')}</Text>
         </View>
 
         <ScrollView style={styles.content}>
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('flashcard.front')}</Text>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('flashcard.title')}</Text>
-              <TextInput
-                style={styles.input}
-                placeholder={t('flashcard.titlePlaceholder')}
-                value={frontTitle}
-                onChangeText={setFrontTitle}
-                placeholderTextColor="#999"
-                editable={!isLoading}
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('flashcard.content')}</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder={t('flashcard.contentPlaceholder')}
-                value={frontContent}
-                onChangeText={setFrontContent}
-                multiline
-                numberOfLines={4}
-                placeholderTextColor="#999"
-                editable={!isLoading}
-              />
-            </View>
+            <Text style={styles.sectionTitle}>{t('flashcard.category')}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryList}>
+              {categories.map((category) => (
+                <TouchableOpacity
+                  key={category.id}
+                  style={[
+                    styles.categoryButton,
+                    selectedCategory?.id === category.id && styles.selectedCategory
+                  ]}
+                  onPress={() => handleCategorySelect(category)}
+                >
+                  <Text style={[
+                    styles.categoryButtonText,
+                    selectedCategory?.id === category.id && styles.selectedCategoryText
+                  ]}>
+                    {category.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('flashcard.back')}</Text>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('flashcard.content')}</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                placeholder={t('flashcard.answerPlaceholder')}
-                value={backContent}
-                onChangeText={setBackContent}
-                multiline
-                numberOfLines={4}
-                placeholderTextColor="#999"
-                editable={!isLoading}
-              />
-            </View>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('flashcard.details')}</Text>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>{t('flashcard.category')}</Text>
-              <ScrollView 
-                horizontal 
-                showsHorizontalScrollIndicator={false}
-                style={styles.categoryList}
-              >
-                {categories.map((category) => (
+          {selectedCategory && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>{t('flashcard.studySet')}</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryList}>
+                {studySets.map((studySet) => (
                   <TouchableOpacity
-                    key={category.id}
+                    key={studySet.id}
                     style={[
-                      styles.categoryItem,
-                      selectedCategory?.id === category.id && styles.categoryItemSelected
+                      styles.categoryButton,
+                      selectedStudySet?.id === studySet.id && styles.selectedCategory
                     ]}
-                    onPress={() => {
-                      console.log('Kategori seçildi:', category);
-                      setSelectedCategory(category);
-                      setSelectedStudySet(null);
-                      fetchStudySets(category.id);
-                    }}
+                    onPress={() => handleStudySetSelect(studySet)}
                   >
-                    <Text 
-                      style={[
-                        styles.categoryItemText,
-                        selectedCategory?.id === category.id && styles.categoryItemTextSelected
-                      ]}
-                    >
-                      {category.name}
+                    <Text style={[
+                      styles.categoryButtonText,
+                      selectedStudySet?.id === studySet.id && styles.selectedCategoryText
+                    ]}>
+                      {studySet.name}
                     </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             </View>
+          )}
 
-            {selectedCategory && studySets && studySets.length > 0 ? (
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t('flashcard.studySet')}</Text>
-                <ScrollView 
-                  horizontal 
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.categoryList}
-                >
-                  {studySets.map((studySet) => (
-                    <TouchableOpacity
-                      key={studySet.id}
-                      style={[
-                        styles.categoryItem,
-                        selectedStudySet?.id === studySet.id && styles.categoryItemSelected
-                      ]}
-                      onPress={() => setSelectedStudySet(studySet)}
-                    >
-                      <Text 
-                        style={[
-                          styles.categoryItemText,
-                          selectedStudySet?.id === studySet.id && styles.categoryItemTextSelected
-                        ]}
-                      >
-                        {studySet.name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            ) : selectedCategory ? (
-              <View style={styles.inputGroup}>
-                <Text style={styles.label}>{t('flashcard.studySet')}</Text>
-                <Text style={styles.emptyText}>{t('flashcard.noStudySets')}</Text>
-              </View>
-            ) : null}
-          </View>
+          {selectedStudySet && (
+            <>
+              {flashcards.map((card, index) => renderCard(card, index))}
+              
+              <TouchableOpacity 
+                style={[
+                  styles.addButton,
+                  (!areAllCardsValid()) && styles.addButtonDisabled
+                ]}
+                onPress={addNewCard}
+                disabled={!areAllCardsValid()}
+              >
+                <Ionicons 
+                  name="add-circle-outline" 
+                  size={24} 
+                  color={areAllCardsValid() ? "#007AFF" : "#999999"} 
+                />
+                <Text style={[
+                  styles.addButtonText,
+                  (!areAllCardsValid()) && styles.addButtonTextDisabled
+                ]}>
+                  {t('flashcard.addMore')}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
         </ScrollView>
 
-        <TouchableOpacity 
-          style={[
-            styles.submitButton, 
-            (!frontTitle.trim() || !frontContent.trim() || !backContent.trim() || 
-             !selectedCategory || !selectedStudySet || isLoading || isSubmitted) && 
-            styles.submitButtonDisabled
-          ]}
-          onPress={handleSubmit}
-          disabled={!frontTitle.trim() || !frontContent.trim() || !backContent.trim() || 
-                   !selectedCategory || !selectedStudySet || isLoading || isSubmitted}
-        >
-          <Text style={styles.submitButtonText}>
-            {isLoading ? t('common.loading') : isSubmitted ? t('flashcard.success.created') : t('common.add')}
-          </Text>
-        </TouchableOpacity>
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[
+              styles.saveButton,
+              (!selectedCategory || !selectedStudySet || loading || !areAllCardsValid()) && styles.saveButtonDisabled
+            ]}
+            onPress={handleSave}
+            disabled={!selectedCategory || !selectedStudySet || loading || !areAllCardsValid()}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.saveButtonText}>
+                {t('common.save')}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
-      <Toast />
     </SafeAreaView>
   );
 };
@@ -300,120 +382,140 @@ const AddFlashcardScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  keyboardView: {
-    flex: 1,
+    backgroundColor: '#FFFFFF',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    backgroundColor: '#fff',
-  },
-  closeButton: {
-    padding: 4,
-  },
-  closeButtonContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F0F0F0',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
   },
-  titleContainer: {
-    paddingHorizontal: 24,
-    paddingTop: 4,
-    paddingBottom: 20,
+  backButton: {
+    padding: 4,
+    marginRight: 8,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 16,
   },
   section: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
-  },
-  inputGroup: {
     marginBottom: 20,
   },
-  label: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 8,
-  },
-  input: {
-    height: 56,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#333',
-    backgroundColor: '#fff',
-  },
-  textArea: {
-    height: 120,
-    textAlignVertical: 'top',
-    paddingTop: 16,
-    paddingBottom: 16,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 12,
   },
   categoryList: {
     flexDirection: 'row',
-    marginHorizontal: -4,
+    marginBottom: 8,
   },
-  categoryItem: {
+  categoryButton: {
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 20,
     backgroundColor: '#F5F5F5',
-    marginHorizontal: 4,
+    marginRight: 8,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
+    borderColor: '#E0E0E0',
   },
-  categoryItemSelected: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
-  },
-  categoryItemText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  categoryItemTextSelected: {
-    color: '#FFF',
-  },
-  submitButton: {
+  selectedCategory: {
     backgroundColor: '#000000',
-    margin: 20,
-    height: 56,
+    borderColor: '#000000',
+  },
+  categoryButtonText: {
+    color: '#000000',
+    fontSize: 14,
+  },
+  selectedCategoryText: {
+    color: '#FFFFFF',
+  },
+  cardContainer: {
+    backgroundColor: '#F8F8F8',
     borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: 16,
   },
-  submitButtonDisabled: {
-    backgroundColor: '#E0E0E0',
-  },
-  submitButtonText: {
-    color: '#fff',
+  cardNumber: {
     fontSize: 16,
     fontWeight: '600',
   },
-  emptyText: {
+  removeButton: {
+    padding: 4,
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  label: {
     fontSize: 14,
-    color: '#999',
-    fontWeight: '500',
+    color: '#666',
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    backgroundColor: '#F0F7FF',
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  addButtonDisabled: {
+    backgroundColor: '#F5F5F5',
+  },
+  addButtonText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  addButtonTextDisabled: {
+    color: '#999999',
+  },
+  footer: {
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  saveButton: {
+    backgroundColor: '#000000',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  saveButtonDisabled: {
+    backgroundColor: '#E0E0E0',
+  },
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
