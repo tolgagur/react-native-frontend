@@ -226,11 +226,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF',
   },
   updateButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#000000',
     padding: 16,
     margin: 16,
     borderRadius: 8,
     alignItems: 'center',
+  },
+  updateButtonDisabled: {
+    backgroundColor: '#E0E0E0',
   },
   updateButtonText: {
     color: '#fff',
@@ -238,7 +241,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   disabledButton: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#E0E0E0',
   },
   disabledButtonText: {
     color: '#666',

@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   registerButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#000000',
     borderRadius: 10,
     height: 50,
     justifyContent: 'center',
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   disabledButton: {
-    backgroundColor: '#E1E1E1',
+    backgroundColor: '#E0E0E0',
   },
   registerButtonText: {
     color: '#fff',

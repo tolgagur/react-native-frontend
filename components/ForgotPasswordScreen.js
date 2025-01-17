@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   submitButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#000000',
     borderRadius: 10,
     height: 50,
     width: '100%',
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   submitButtonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#E0E0E0',
   },
   submitButtonText: {
     color: '#fff',
