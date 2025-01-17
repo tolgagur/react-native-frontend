@@ -147,11 +147,8 @@ const NotificationSettingsScreen = ({ navigation }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="chevron-back" size={24} color="#2C2C2C" />
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <Ionicons name="chevron-back" size={24} color="black" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
         </View>
@@ -203,20 +200,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e1e1e1',
+    flexDirection: 'column',
+    paddingHorizontal: 16,
+    paddingTop: 15,
+    gap: 20,
   },
   backButton: {
-    padding: 8,
-    marginRight: 8,
+    padding: 4,
+    width: 30,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#2C2C2C',
+    fontSize: 34,
+    fontWeight: '700',
   },
   content: {
     flex: 1,
