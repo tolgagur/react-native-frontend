@@ -50,34 +50,16 @@ const getRefreshToken = async () => {
   }
 };
 
-// İstek interceptor'ı - token eklemek için
+// Request interceptor
 api.interceptors.request.use(
   async (config) => {
     const token = await getToken();
-    console.log('İstek detayları:', {
-      url: config.url,
-      method: config.method,
-      baseURL: config.baseURL,
-      token: token
-    });
-    
     if (token) {
-      // Mevcut header'ları koru ve yenilerini ekle
-      config.headers = {
-        ...config.headers,
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      };
-      console.log('Request headers:', config.headers);
-    } else {
-      console.warn('Token bulunamadı! İstek header\'ları:', config.headers);
+      config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => {
-    console.error('İstek interceptor hatası:', error);
     return Promise.reject(error);
   }
 );
@@ -158,12 +140,23 @@ export const authService = {
 
   logout: async () => {
     try {
-      const refreshToken = await getRefreshToken();
-      if (!refreshToken) {
-        throw new Error('Refresh token bulunamadı');
+      const [token, refreshToken] = await Promise.all([
+        getToken(),
+        getRefreshToken()
+      ]);
+
+      if (!token || !refreshToken) {
+        throw new Error('Token veya Refresh token bulunamadı');
       }
 
-      await api.post('/auth/logout', null);
+      await api.post('/auth/logout', null, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Refresh-Token': refreshToken
+        }
+      });
+
+      // Token'ları temizle
       await AsyncStorage.multiRemove([TOKEN_KEY, REFRESH_TOKEN_KEY]);
       
       return true;
