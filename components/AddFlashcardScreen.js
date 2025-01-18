@@ -674,10 +674,11 @@ const AddFlashcardScreen = ({ navigation }) => {
             >
               <View style={[
                 styles.categoryIcon,
+                { backgroundColor: category.color || '#F5F5F5' },
                 selectedCategory?.id === category.id && styles.selectedCategoryIcon
               ]}>
                 <Ionicons 
-                  name="folder-outline" 
+                  name={category.icon || 'folder-outline'} 
                   size={24} 
                   color={selectedCategory?.id === category.id ? "#FFFFFF" : "#000000"} 
                 />
@@ -1086,48 +1087,47 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   selectionSection: {
-    marginBottom: 32,
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    marginBottom: 12,
+    paddingHorizontal: 16,
   },
   selectionTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: '#000000',
-    marginBottom: 20,
-    paddingHorizontal: 16,
+    marginBottom: 4,
+  },
+  selectionDescription: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 8,
   },
   categoriesContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingVertical: 4,
   },
   categoryCard: {
     width: 140,
     height: 160,
     marginRight: 16,
     borderRadius: 20,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#FFFFFF',
     padding: 16,
     justifyContent: 'space-between',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E0E0E0',
   },
   selectedCategoryCard: {
     backgroundColor: '#000000',
     borderColor: '#000000',
-    transform: [{ scale: 1.02 }],
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
   },
   categoryIcon: {
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -1139,6 +1139,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#000000',
+    textAlign: 'center',
     marginBottom: 8,
   },
   selectedCategoryName: {
@@ -1258,17 +1259,20 @@ const styles = StyleSheet.create({
     color: '#000000',
     fontWeight: '600',
   },
-  sectionHeader: {
-    marginBottom: 16,
-    paddingHorizontal: 16,
-  },
-  selectionDescription: {
-    fontSize: 14,
-    color: '#666666',
-    marginTop: 4,
-  },
   studySetsScrollView: {
     maxHeight: 400,
+  },
+  selectedInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 8,
+  },
+  selectedText: {
+    fontSize: 13,
+    color: '#666666',
+    marginLeft: 4,
   },
 });
 
