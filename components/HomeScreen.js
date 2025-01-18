@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HomeScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
@@ -91,6 +92,15 @@ const HomeScreen = ({ navigation, route }) => {
       clearTimeout(timer);
     };
   }, [navigation]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      navigation.setOptions({
+        gestureEnabled: false,
+        swipeEnabled: false,
+      });
+    }, [navigation])
+  );
 
   const createOptions = [
     {
