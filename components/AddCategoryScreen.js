@@ -17,21 +17,21 @@ import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 
 const COLORS = [
-  { id: 1, color: '#E3F2FD', name: 'Açık Mavi' },
-  { id: 2, color: '#FFF3E0', name: 'Açık Turuncu' },
-  { id: 3, color: '#E8F5E9', name: 'Açık Yeşil' },
-  { id: 4, color: '#F3E5F5', name: 'Açık Mor' },
-  { id: 5, color: '#FBE9E7', name: 'Açık Kırmızı' },
-  { id: 6, color: '#F5F5F5', name: 'Gri' },
+  { id: 1, color: '#E3F2FD', name: 'lightBlue' },
+  { id: 2, color: '#FFF3E0', name: 'lightOrange' },
+  { id: 3, color: '#E8F5E9', name: 'lightGreen' },
+  { id: 4, color: '#F3E5F5', name: 'lightPurple' },
+  { id: 5, color: '#FBE9E7', name: 'lightRed' },
+  { id: 6, color: '#F5F5F5', name: 'gray' },
 ];
 
 const ICONS = [
-  { id: 1, name: 'book-outline', label: 'Kitap' },
-  { id: 2, name: 'school-outline', label: 'Okul' },
-  { id: 3, name: 'language-outline', label: 'Dil' },
-  { id: 4, name: 'calculator-outline', label: 'Matematik' },
-  { id: 5, name: 'flask-outline', label: 'Bilim' },
-  { id: 6, name: 'brush-outline', label: 'Sanat' },
+  { id: 1, name: 'book-outline', label: 'book' },
+  { id: 2, name: 'school-outline', label: 'school' },
+  { id: 3, name: 'language-outline', label: 'language' },
+  { id: 4, name: 'calculator-outline', label: 'math' },
+  { id: 5, name: 'flask-outline', label: 'science' },
+  { id: 6, name: 'brush-outline', label: 'art' },
 ];
 
 const AddCategoryScreen = ({ navigation }) => {
@@ -48,11 +48,11 @@ const AddCategoryScreen = ({ navigation }) => {
 
   const validateName = () => {
     if (!name.trim()) {
-      setNameError('Kategori adı boş olamaz');
+      setNameError(t('categories.errors.nameRequired'));
       return false;
     }
     if (name.length < 3) {
-      setNameError('Kategori adı en az 3 karakter olmalıdır');
+      setNameError(t('categories.errors.nameTooShort'));
       return false;
     }
     setNameError('');
@@ -61,11 +61,11 @@ const AddCategoryScreen = ({ navigation }) => {
 
   const validateDescription = () => {
     if (!description.trim()) {
-      setDescriptionError('Açıklama boş olamaz');
+      setDescriptionError(t('categories.errors.descriptionRequired'));
       return false;
     }
     if (description.length < 10) {
-      setDescriptionError('Açıklama en az 10 karakter olmalıdır');
+      setDescriptionError(t('categories.errors.descriptionTooShort'));
       return false;
     }
     setDescriptionError('');
@@ -170,16 +170,16 @@ const AddCategoryScreen = ({ navigation }) => {
   const renderStep1 = () => (
     <Animated.View style={[styles.step, { opacity: fadeAnim }]}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>Kategori Adı</Text>
+        <Text style={styles.stepTitle}>{t('categories.steps.name.title')}</Text>
         <Text style={styles.stepDescription}>
-          Kategoriniz için akılda kalıcı bir isim belirleyin
+          {t('categories.steps.name.description')}
         </Text>
       </View>
       <View style={styles.inputContainer}>
         <Ionicons name="folder-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
           style={styles.input}
-          placeholder="Örn: İngilizce Dersleri"
+          placeholder={t('categories.steps.name.placeholder')}
           value={name}
           onChangeText={setName}
           placeholderTextColor="#999"
@@ -194,16 +194,16 @@ const AddCategoryScreen = ({ navigation }) => {
   const renderStep2 = () => (
     <Animated.View style={[styles.step, { opacity: fadeAnim }]}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>Kategori Açıklaması</Text>
+        <Text style={styles.stepTitle}>{t('categories.steps.description.title')}</Text>
         <Text style={styles.stepDescription}>
-          Kategorinizin amacını ve içeriğini açıklayın
+          {t('categories.steps.description.description')}
         </Text>
       </View>
       <View style={styles.inputContainer}>
         <Ionicons name="document-text-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="Kategorinizin amacını ve içeriğini açıklayın..."
+          placeholder={t('categories.steps.description.placeholder')}
           value={description}
           onChangeText={setDescription}
           multiline
@@ -220,23 +220,23 @@ const AddCategoryScreen = ({ navigation }) => {
   const renderStep3 = () => (
     <Animated.View style={[styles.step, { opacity: fadeAnim }]}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>Görünüm</Text>
+        <Text style={styles.stepTitle}>{t('categories.steps.appearance.title')}</Text>
         <Text style={styles.stepDescription}>
-          Kategoriniz için bir renk ve ikon seçebilirsiniz (Opsiyonel)
+          {t('categories.steps.appearance.description')}
         </Text>
       </View>
 
       <View style={styles.appearanceContainer}>
         <View style={styles.sectionContainer}>
           <View style={styles.sectionTitle}>
-            <Text style={styles.sectionTitleText}>Renk Seçimi</Text>
+            <Text style={styles.sectionTitleText}>{t('categories.steps.appearance.colorSelection')}</Text>
             <View style={styles.clearSelectionWrapper}>
               {selectedColor ? (
                 <TouchableOpacity 
                   onPress={() => setSelectedColor(null)}
                   style={styles.clearSelection}
                 >
-                  <Text style={styles.clearSelectionText}>Seçimi Temizle</Text>
+                  <Text style={styles.clearSelectionText}>{t('categories.steps.appearance.clearSelection')}</Text>
                 </TouchableOpacity>
               ) : <View style={styles.clearSelectionPlaceholder} />}
             </View>
@@ -267,14 +267,14 @@ const AddCategoryScreen = ({ navigation }) => {
 
         <View style={styles.iconSectionContainer}>
           <View style={styles.sectionTitle}>
-            <Text style={styles.sectionTitleText}>İkon Seçimi</Text>
+            <Text style={styles.sectionTitleText}>{t('categories.steps.appearance.iconSelection')}</Text>
             <View style={styles.clearSelectionWrapper}>
               {selectedIcon ? (
                 <TouchableOpacity 
                   onPress={() => setSelectedIcon(null)}
                   style={styles.clearSelection}
                 >
-                  <Text style={styles.clearSelectionText}>Seçimi Temizle</Text>
+                  <Text style={styles.clearSelectionText}>{t('categories.steps.appearance.clearSelection')}</Text>
                 </TouchableOpacity>
               ) : <View style={styles.clearSelectionPlaceholder} />}
             </View>
@@ -295,7 +295,7 @@ const AddCategoryScreen = ({ navigation }) => {
                 ]}>
                   <Ionicons name={icon.name} size={24} color="#666666" />
                 </View>
-                <Text style={styles.iconLabel}>{icon.label}</Text>
+                <Text style={styles.iconLabel}>{t(`categories.icons.${icon.label}`)}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -342,7 +342,7 @@ const AddCategoryScreen = ({ navigation }) => {
               onPress={nextStep}
               disabled={!name.trim() && step === 1}
             >
-              <Text style={styles.nextButtonText}>Devam</Text>
+              <Text style={styles.nextButtonText}>{t('categories.buttons.continue')}</Text>
               <Ionicons name="arrow-forward" size={24} color="#FFF" />
             </TouchableOpacity>
           ) : (
@@ -352,7 +352,7 @@ const AddCategoryScreen = ({ navigation }) => {
               disabled={isLoading}
             >
               <Text style={styles.submitButtonText}>
-                {isLoading ? 'Oluşturuluyor...' : 'Kategori Oluştur'}
+                {isLoading ? t('categories.buttons.creating') : t('categories.buttons.create')}
               </Text>
               {!isLoading && <Ionicons name="checkmark" size={24} color="#FFF" />}
             </TouchableOpacity>
