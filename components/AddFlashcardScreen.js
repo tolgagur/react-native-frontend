@@ -526,8 +526,30 @@ const AddFlashcardScreen = ({ navigation }) => {
 
   const renderSelectionScreen = () => (
     <View style={styles.selectionScreen}>
+      <View style={styles.stepHeader}>
+        <View style={styles.stepIndicatorContainer}>
+          <View style={[styles.stepDot, !selectedCategory && styles.activeStepDot]} />
+          <View style={[styles.stepLine, selectedCategory && styles.activeStepLine]} />
+          <View style={[styles.stepDot, selectedCategory && !selectedStudySet && styles.activeStepDot]} />
+          <View style={[styles.stepLine, selectedStudySet && styles.activeStepLine]} />
+          <View style={[styles.stepDot, selectedStudySet && styles.activeStepDot]} />
+        </View>
+        <View style={styles.stepTextContainer}>
+          <Text style={[styles.stepText, !selectedCategory && styles.activeStepText]}>Kategori</Text>
+          <Text style={[styles.stepText, selectedCategory && !selectedStudySet && styles.activeStepText]}>Çalışma Seti</Text>
+          <Text style={[styles.stepText, selectedStudySet && styles.activeStepText]}>Kartlar</Text>
+        </View>
+      </View>
+
       <View style={styles.selectionSection}>
-        <Text style={styles.selectionTitle}>{t('flashcard.category')}</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.selectionTitle}>{t('flashcard.category')}</Text>
+          <Text style={styles.selectionDescription}>
+            {!selectedCategory 
+              ? 'Kartlarınızı eklemek istediğiniz kategoriyi seçin'
+              : 'Seçilen kategori:'}
+          </Text>
+        </View>
         <ScrollView 
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -569,45 +591,57 @@ const AddFlashcardScreen = ({ navigation }) => {
 
       {selectedCategory && (
         <View style={styles.selectionSection}>
-          <Text style={styles.selectionTitle}>{t('flashcard.studySet')}</Text>
-          <View style={styles.studySetsContainer}>
-            {studySets.map((studySet) => (
-              <TouchableOpacity
-                key={studySet.id}
-                style={[
-                  styles.studySetCard,
-                  selectedStudySet?.id === studySet.id && styles.selectedStudySetCard
-                ]}
-                onPress={() => handleStudySetSelect(studySet)}
-              >
-                <View style={styles.studySetContent}>
-                  <View style={[
-                    styles.studySetIcon,
-                    selectedStudySet?.id === studySet.id && styles.selectedStudySetIcon
-                  ]}>
-                    <Ionicons 
-                      name="book-outline" 
-                      size={20} 
-                      color={selectedStudySet?.id === studySet.id ? "#FFFFFF" : "#000000"} 
-                    />
-                  </View>
-                  <View style={styles.studySetInfo}>
-                    <Text style={[
-                      styles.studySetName,
-                      selectedStudySet?.id === studySet.id && styles.selectedStudySetName
-                    ]}>
-                      {studySet.name}
-                    </Text>
-                  </View>
-                </View>
-                {selectedStudySet?.id === studySet.id && (
-                  <View style={styles.checkmarkContainer}>
-                    <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            ))}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.selectionTitle}>{t('flashcard.studySet')}</Text>
+            <Text style={styles.selectionDescription}>
+              {!selectedStudySet 
+                ? 'Kartlarınızı hangi çalışma setine eklemek istediğinizi seçin'
+                : 'Seçilen çalışma seti:'}
+            </Text>
           </View>
+          <ScrollView 
+            style={styles.studySetsScrollView}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.studySetsContainer}>
+              {studySets.map((studySet) => (
+                <TouchableOpacity
+                  key={studySet.id}
+                  style={[
+                    styles.studySetCard,
+                    selectedStudySet?.id === studySet.id && styles.selectedStudySetCard
+                  ]}
+                  onPress={() => handleStudySetSelect(studySet)}
+                >
+                  <View style={styles.studySetContent}>
+                    <View style={[
+                      styles.studySetIcon,
+                      selectedStudySet?.id === studySet.id && styles.selectedStudySetIcon
+                    ]}>
+                      <Ionicons 
+                        name="book-outline" 
+                        size={20} 
+                        color={selectedStudySet?.id === studySet.id ? "#FFFFFF" : "#000000"} 
+                      />
+                    </View>
+                    <View style={styles.studySetInfo}>
+                      <Text style={[
+                        styles.studySetName,
+                        selectedStudySet?.id === studySet.id && styles.selectedStudySetName
+                      ]}>
+                        {studySet.name}
+                      </Text>
+                    </View>
+                  </View>
+                  {selectedStudySet?.id === studySet.id && (
+                    <View style={styles.checkmarkContainer}>
+                      <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
         </View>
       )}
     </View>
@@ -638,9 +672,6 @@ const AddFlashcardScreen = ({ navigation }) => {
               </TouchableOpacity>
             )}
           </View>
-          <View style={styles.titleContainer}>
-            <Text style={styles.headerTitle}>{t('flashcard.addNew')}</Text>
-          </View>
 
           <View style={styles.content}>
             <Animated.View 
@@ -668,24 +699,26 @@ const AddFlashcardScreen = ({ navigation }) => {
             )}
           </View>
 
-          <View style={styles.footer}>
-            <TouchableOpacity
-              style={[
-                styles.saveButton,
-                (!selectedCategory || !selectedStudySet || loading || !areAllCardsValid()) && styles.saveButtonDisabled
-              ]}
-              onPress={handleSave}
-              disabled={!selectedCategory || !selectedStudySet || loading || !areAllCardsValid()}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.saveButtonText}>
-                  {t('common.save')}
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
+          {selectedCategory && selectedStudySet && (
+            <View style={styles.footer}>
+              <TouchableOpacity
+                style={[
+                  styles.saveButton,
+                  (!selectedCategory || !selectedStudySet || loading || !areAllCardsValid()) && styles.saveButtonDisabled
+                ]}
+                onPress={handleSave}
+                disabled={!selectedCategory || !selectedStudySet || loading || !areAllCardsValid()}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.saveButtonText}>
+                    {t('common.save')}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -1065,6 +1098,64 @@ const styles = StyleSheet.create({
   },
   checkmarkContainer: {
     marginLeft: 12,
+  },
+  stepHeader: {
+    marginBottom: 24,
+    paddingHorizontal: 16,
+  },
+  stepIndicatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  stepDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#E0E0E0',
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+  },
+  activeStepDot: {
+    backgroundColor: '#000000',
+    borderColor: '#000000',
+  },
+  stepLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#E0E0E0',
+    marginHorizontal: 4,
+  },
+  activeStepLine: {
+    backgroundColor: '#000000',
+  },
+  stepTextContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+  },
+  stepText: {
+    fontSize: 12,
+    color: '#999999',
+    textAlign: 'center',
+    flex: 1,
+  },
+  activeStepText: {
+    color: '#000000',
+    fontWeight: '600',
+  },
+  sectionHeader: {
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  selectionDescription: {
+    fontSize: 14,
+    color: '#666666',
+    marginTop: 4,
+  },
+  studySetsScrollView: {
+    maxHeight: 400,
   },
 });
 
