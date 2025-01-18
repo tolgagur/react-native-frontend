@@ -209,30 +209,24 @@ const HomeScreen = ({ navigation, route }) => {
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity 
-          style={[styles.navItem, styles.navItemActive]}
+          style={styles.navItem}
           onPress={() => {}}
         >
-          <View style={[styles.iconBackground, styles.activeIconBackground]}>
-            <Ionicons name="home" size={24} color="#000000" />
-          </View>
+          <Ionicons name="home-outline" size={22} color="#666666" />
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.navItem}
+          style={styles.addButton}
           onPress={showModal}
         >
-          <View style={styles.iconBackground}>
-            <Ionicons name="add" size={24} color="#000000" />
-          </View>
+          <Ionicons name="add-outline" size={24} color="#666666" />
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => navigation.navigate('Profile', { onLogout })}
         >
-          <View style={styles.iconBackground}>
-            <Ionicons name="person-outline" size={24} color="#000000" />
-          </View>
+          <Ionicons name="person-outline" size={22} color="#666666" />
         </TouchableOpacity>
       </View>
 
@@ -382,19 +376,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 30,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
   },
   navItem: {
     alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    position: 'relative',
+    minWidth: 64,
   },
-  navItemActive: {
-    transform: [{ scale: 1.1 }],
+  addButton: {
+    alignItems: 'center',
+    minWidth: 64,
   },
   iconBackground: {
     width: 40,
