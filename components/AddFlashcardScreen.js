@@ -10,6 +10,8 @@ import {
   ActivityIndicator,
   Keyboard,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +32,7 @@ const AddFlashcardScreen = ({ navigation }) => {
     difficultyLevel: 1,
     tags: []
   }]);
+  const [isCardScreen, setIsCardScreen] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -69,13 +72,29 @@ const AddFlashcardScreen = ({ navigation }) => {
 
   const handleStudySetSelect = (studySet) => {
     setSelectedStudySet(studySet);
+    setIsCardScreen(false);
   };
 
   const handleContinue = () => {
-    navigation.navigate('AddCard', {
-      categoryId: selectedCategory.id,
-      studySetId: selectedStudySet.id
-    });
+    if (!selectedCategory || !selectedStudySet) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.selectRequired'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    setIsCardScreen(true);
+    setFlashcards([{
+      frontContent: '',
+      backContent: '',
+      difficultyLevel: 1,
+      tags: []
+    }]);
+    setCurrentStep(0);
   };
 
   const updateCard = (index, field, value) => {
@@ -106,6 +125,27 @@ const AddFlashcardScreen = ({ navigation }) => {
     setFlashcards(newFlashcards);
     if (currentStep >= newFlashcards.length) {
       setCurrentStep(newFlashcards.length - 1);
+    }
+  };
+
+  const handleDeleteCard = () => {
+    if (flashcards.length <= 1) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.minimumOneCard'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    const newFlashcards = flashcards.filter((_, index) => index !== currentStep);
+    setFlashcards(newFlashcards);
+    
+    // Eğer silinen kart son karttaysa, bir önceki karta geç
+    if (currentStep === flashcards.length - 1) {
+      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -167,6 +207,34 @@ const AddFlashcardScreen = ({ navigation }) => {
     }
   };
 
+  const handleAddCard = () => {
+    const currentCard = flashcards[currentStep];
+    if (!currentCard.frontContent.trim() || !currentCard.backContent.trim()) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.fillCurrentCard'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    if (flashcards.length >= 50) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('flashcard.errors.maxCards'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    setFlashcards([...flashcards, { frontContent: '', backContent: '', difficultyLevel: 1, tags: [] }]);
+    setCurrentStep(flashcards.length);
+  };
+
   const renderStepIndicator = () => (
     <View style={styles.stepIndicatorContainer}>
       <View style={[styles.stepDot, !selectedCategory && styles.activeStepDot]} />
@@ -179,23 +247,29 @@ const AddFlashcardScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton} 
-              onPress={() => navigation.goBack()}
-            >
-              <Ionicons 
-                name="chevron-back" 
-                size={24} 
-                color="#666666" 
-              />
-            </TouchableOpacity>
-            {renderStepIndicator()}
-          </View>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      >
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="chevron-back" size={24} color="#666666" />
+          </TouchableOpacity>
+          {renderStepIndicator()}
+        </View>
 
-          <ScrollView style={styles.content}>
+        <ScrollView 
+          style={styles.content}
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.scrollContent}
+        >
+          {!isCardScreen ? (
             <View style={styles.selectionSection}>
               <Text style={styles.stepTitle}>{t('flashcard.category')}</Text>
               <Text style={styles.stepDescription}>{t('flashcard.selectCategory')}</Text>
@@ -267,9 +341,70 @@ const AddFlashcardScreen = ({ navigation }) => {
                 </>
               )}
             </View>
-          </ScrollView>
+          ) : (
+            <View style={styles.cardSection}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardCount}>
+                  {currentStep + 1} / {flashcards.length}
+                </Text>
+                <TouchableOpacity
+                  style={[styles.deleteCardButton, flashcards.length <= 1 && styles.disabledButton]}
+                  onPress={handleDeleteCard}
+                  disabled={flashcards.length <= 1}
+                >
+                  <Ionicons 
+                    name="trash-outline" 
+                    size={20} 
+                    color={flashcards.length <= 1 ? "#CCD0D5" : "#1C1C1E"} 
+                  />
+                  <Text style={[
+                    styles.deleteCardText,
+                    flashcards.length <= 1 && styles.disabledButtonText
+                  ]}>
+                    {t('common.delete')}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-          {selectedStudySet && (
+              <View style={styles.cardContent}>
+                <View style={styles.cardSide}>
+                  <Text style={styles.inputLabel}>{t('flashcard.frontSide')}</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={flashcards[currentStep].frontContent}
+                    onChangeText={(text) => updateCard(currentStep, 'frontContent', text)}
+                    placeholder={t('flashcard.frontPlaceholder')}
+                    multiline
+                    maxLength={100}
+                  />
+                </View>
+
+                <View style={styles.divider}>
+                  <View style={styles.dividerLine} />
+                  <View style={styles.dividerIcon}>
+                    <Ionicons name="swap-vertical" size={24} color="#666666" />
+                  </View>
+                  <View style={styles.dividerLine} />
+                </View>
+
+                <View style={styles.cardSide}>
+                  <Text style={styles.inputLabel}>{t('flashcard.backSide')}</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={flashcards[currentStep].backContent}
+                    onChangeText={(text) => updateCard(currentStep, 'backContent', text)}
+                    placeholder={t('flashcard.backPlaceholder')}
+                    multiline
+                    maxLength={100}
+                  />
+                </View>
+              </View>
+            </View>
+          )}
+        </ScrollView>
+
+        {selectedStudySet && !isCardScreen && (
+          <View style={styles.footerContainer}>
             <View style={styles.footer}>
               <TouchableOpacity 
                 style={styles.continueButton}
@@ -279,9 +414,69 @@ const AddFlashcardScreen = ({ navigation }) => {
                 <Ionicons name="arrow-forward" size={24} color="#FFFFFF" style={styles.continueButtonIcon} />
               </TouchableOpacity>
             </View>
-          )}
-        </View>
-      </TouchableWithoutFeedback>
+          </View>
+        )}
+
+        {selectedStudySet && isCardScreen && (
+          <View style={styles.footerContainer}>
+            <View style={styles.footer}>
+              <View style={styles.cardNavigation}>
+                <TouchableOpacity
+                  style={[styles.navigationButton, currentStep === 0 && styles.disabledButton]}
+                  onPress={() => setCurrentStep(currentStep - 1)}
+                  disabled={currentStep === 0}
+                >
+                  <Ionicons 
+                    name="chevron-back" 
+                    size={24} 
+                    color={currentStep === 0 ? "#CCD0D5" : "#1C1C1E"} 
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={handleAddCard}
+                  disabled={!flashcards[currentStep].frontContent.trim() || !flashcards[currentStep].backContent.trim()}
+                >
+                  <Ionicons 
+                    name="add" 
+                    size={24} 
+                    color={!flashcards[currentStep].frontContent.trim() || !flashcards[currentStep].backContent.trim() ? "#CCD0D5" : "#1C1C1E"} 
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.navigationButton, currentStep === flashcards.length - 1 && styles.disabledButton]}
+                  onPress={() => setCurrentStep(currentStep + 1)}
+                  disabled={currentStep === flashcards.length - 1}
+                >
+                  <Ionicons 
+                    name="chevron-forward" 
+                    size={24} 
+                    color={currentStep === flashcards.length - 1 ? "#CCD0D5" : "#1C1C1E"} 
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.saveButton,
+                  (!flashcards.some(card => card.frontContent.trim() && card.backContent.trim())) && styles.disabledButton
+                ]}
+                onPress={handleSave}
+                disabled={!flashcards.some(card => card.frontContent.trim() && card.backContent.trim())}
+              >
+                <Text style={[
+                  styles.saveButtonText,
+                  (!flashcards.some(card => card.frontContent.trim() && card.backContent.trim())) && styles.disabledButtonText
+                ]}>
+                  {t('common.save')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </KeyboardAvoidingView>
       <Toast />
     </SafeAreaView>
   );
@@ -292,6 +487,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  keyboardView: {
+    flex: 1,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -301,6 +499,13 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
+  },
+  deleteButton: {
+    padding: 8,
+    marginLeft: 'auto',
+  },
+  disabledButton: {
+    opacity: 1,
   },
   stepIndicatorContainer: {
     flex: 1,
@@ -330,6 +535,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 100, // Alt kısımda extra padding
   },
   selectionSection: {
     padding: 24,
@@ -443,9 +652,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
-  removeButton: {
-    padding: 8,
-  },
   cardContent: {
     flex: 1,
   },
@@ -492,13 +698,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 24,
+    marginBottom: 16,
   },
   navigationButton: {
     padding: 8,
-  },
-  navigationButtonDisabled: {
-    opacity: 0.5,
   },
   addButton: {
     marginHorizontal: 24,
@@ -509,28 +712,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  footer: {
-    padding: 16,
+  footerContainer: {
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
-  saveButton: {
-    backgroundColor: '#000000',
-    paddingVertical: 16,
-    borderRadius: 12,
+  footer: {
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  deleteCardButton: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
-  saveButtonDisabled: {
-    backgroundColor: '#E0E0E0',
-  },
-  saveButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+  deleteCardText: {
+    fontSize: 14,
+    color: '#1C1C1E',
+    marginLeft: 4,
   },
   continueButton: {
-    backgroundColor: '#000000',
+    backgroundColor: '#1C1C1E',
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -546,6 +755,18 @@ const styles = StyleSheet.create({
   },
   continueButtonIcon: {
     marginLeft: 4,
+  },
+  saveButton: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

@@ -250,6 +250,13 @@ export default {
     backSide: 'Arka Yüz',
     frontPlaceholder: 'Kartın ön yüzünü yazın...',
     backPlaceholder: 'Kartın arka yüzünü yazın...',
+    flip: 'Kartı Çevir',
+    tips: {
+      title: 'İpuçları',
+      shortConcise: 'Kısa ve öz ifadeler kullanın',
+      clearFormat: 'Anlaşılır ve düzenli yazın',
+      examples: 'Mümkünse örnekler ekleyin'
+    },
     selectCategory: 'Kartlarınızı eklemek istediğiniz kategoriyi seçin',
     selectedCategory: 'Seçilen kategori:',
     selectStudySet: 'Kartlarınızı hangi çalışma setine eklemek istediğinizi seçin',
@@ -270,6 +277,9 @@ export default {
     },
     success: {
       created: 'Kartlar başarıyla kaydedildi'
+    },
+    guide: {
+      instruction: 'Her kartın ön ve arka yüzünü doldurun. Ön yüze öğrenmek istediğiniz kelime veya kavramı, arka yüze ise anlamını yazın.'
     }
   },
   notifications: {

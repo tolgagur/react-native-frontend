@@ -338,23 +338,40 @@ const AddCategoryScreen = ({ navigation }) => {
         <View style={styles.footer}>
           {step < 3 ? (
             <TouchableOpacity 
-              style={[styles.nextButton, !name.trim() && step === 1 && styles.buttonDisabled]}
+              style={[
+                styles.nextButton,
+                ((!name.trim() && step === 1) || (!description.trim() && step === 2)) && styles.disabledButton
+              ]}
               onPress={nextStep}
-              disabled={!name.trim() && step === 1}
+              disabled={(!name.trim() && step === 1) || (!description.trim() && step === 2)}
             >
-              <Text style={styles.nextButtonText}>{t('categories.buttons.continue')}</Text>
-              <Ionicons name="arrow-forward" size={24} color="#FFF" />
+              <Text style={[
+                styles.nextButtonText,
+                ((!name.trim() && step === 1) || (!description.trim() && step === 2)) && styles.disabledButtonText
+              ]}>
+                {t('categories.buttons.continue')}
+              </Text>
+              <Ionicons 
+                name="arrow-forward" 
+                size={24} 
+                color={((!name.trim() && step === 1) || (!description.trim() && step === 2)) ? "#CCD0D5" : "#FFFFFF"} 
+              />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity 
-              style={[styles.submitButton, isLoading && styles.buttonDisabled]}
+            <TouchableOpacity
+              style={[
+                styles.submitButton,
+                (isLoading || !name.trim()) && styles.disabledButton
+              ]}
               onPress={handleSubmit}
-              disabled={isLoading}
+              disabled={isLoading || !name.trim()}
             >
-              <Text style={styles.submitButtonText}>
-                {isLoading ? t('categories.buttons.creating') : t('categories.buttons.create')}
+              <Text style={[
+                styles.submitButtonText,
+                (isLoading || !name.trim()) && styles.disabledButtonText
+              ]}>
+                {isLoading ? t('common.loading') : t('common.save')}
               </Text>
-              {!isLoading && <Ionicons name="checkmark" size={24} color="#FFF" />}
             </TouchableOpacity>
           )}
         </View>
@@ -538,7 +555,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#666666',
+    backgroundColor: '#1C1C1E',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -546,23 +563,26 @@ const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#FFF',
+    color: '#FFFFFF',
     marginRight: 8,
   },
   submitButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#666666',
+    backgroundColor: '#1C1C1E',
     borderRadius: 12,
     paddingVertical: 16,
-    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  disabledButton: {
+    backgroundColor: '#F1F2F3',
   },
   submitButtonText: {
-    fontSize: 17,
+    color: '#FFFFFF',
+    fontSize: 16,
     fontWeight: '600',
-    color: '#FFF',
-    marginRight: 8,
+  },
+  disabledButtonText: {
+    color: '#CCD0D5',
   },
   buttonDisabled: {
     opacity: 0.5,

@@ -249,6 +249,13 @@ export default {
     backSide: 'Back Side',
     frontPlaceholder: 'Write the front side of the card...',
     backPlaceholder: 'Write the back side of the card...',
+    flip: 'Flip Card',
+    tips: {
+      title: 'Tips',
+      shortConcise: 'Keep it short and concise',
+      clearFormat: 'Write clearly and organized',
+      examples: 'Add examples when possible'
+    },
     selectCategory: 'Select the category where you want to add your cards',
     selectedCategory: 'Selected category:',
     selectStudySet: 'Select which study set you want to add your cards to',
@@ -269,7 +276,10 @@ export default {
     },
     success: {
       created: 'Cards saved successfully'
-    }
+    },
+    guide: {
+      instruction: 'Fill in both sides of each card. Write the word or concept you want to learn on the front, and its meaning on the back.'
+    },
   },
   notifications: {
     title: 'Notification Settings',
