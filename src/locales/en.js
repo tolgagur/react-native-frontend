@@ -125,11 +125,20 @@ export default {
     steps: {
       name: {
         title: 'Category Name',
-        description: 'Choose a memorable name for your category'
+        description: 'Choose a memorable name for your category',
+        placeholder: 'E.g.: English Vocabulary'
       },
       description: {
         title: 'Category Description',
-        description: 'Explain the purpose and content of your category'
+        description: 'Explain the purpose and content of your category',
+        placeholder: 'E.g.: New words I learn while studying English'
+      },
+      appearance: {
+        title: 'Appearance',
+        description: 'You can choose a color and icon for your category (Optional)',
+        colorSelection: 'Color Selection',
+        iconSelection: 'Icon Selection',
+        clearSelection: 'Clear Selection'
       }
     },
     colors: {

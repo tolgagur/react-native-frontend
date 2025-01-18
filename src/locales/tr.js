@@ -125,11 +125,20 @@ export default {
     steps: {
       name: {
         title: 'Kategori Adı',
-        description: 'Kategoriniz için akılda kalıcı bir isim belirleyin'
+        description: 'Kategoriniz için akılda kalıcı bir isim belirleyin',
+        placeholder: 'Örn: İngilizce Kelimeler'
       },
       description: {
         title: 'Kategori Açıklaması',
-        description: 'Kategorinizin amacını ve içeriğini açıklayın'
+        description: 'Kategorinizin amacını ve içeriğini açıklayın',
+        placeholder: 'Örn: İngilizce öğrenirken öğrendiğim yeni kelimeler'
+      },
+      appearance: {
+        title: 'Görünüm',
+        description: 'Kategoriniz için bir renk ve ikon seçebilirsiniz (Opsiyonel)',
+        colorSelection: 'Renk Seçimi',
+        iconSelection: 'İkon Seçimi',
+        clearSelection: 'Seçimi Temizle'
       }
     },
     colors: {
