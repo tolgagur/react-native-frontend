@@ -15,6 +15,7 @@ import {
   Dimensions,
   Keyboard,
   TouchableWithoutFeedback,
+  Easing,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -56,6 +57,7 @@ const AddFlashcardScreen = ({ navigation }) => {
   const [selectionFadeAnim] = useState(new Animated.Value(1));
   const [cardsFadeAnim] = useState(new Animated.Value(0));
   const [isAddingNewCard, setIsAddingNewCard] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (isAddingNewCard) {
@@ -77,40 +79,59 @@ const AddFlashcardScreen = ({ navigation }) => {
   };
 
   const handleTouchEnd = (e) => {
-    if (!isDragging) return;
+    if (!isDragging || isAnimating) return;
     setIsDragging(false);
     const currentX = e.nativeEvent.pageX;
     const diff = currentX - touchStartX;
     const swipeThreshold = 100;
 
+    const animateTransition = (toValue, onComplete) => {
+      setIsAnimating(true);
+      const animation = Animated.timing(slideAnim, {
+        toValue,
+        duration: 300,
+        useNativeDriver: true,
+        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+      });
+
+      animation.start(({ finished }) => {
+        if (finished) {
+          onComplete?.();
+          setTimeout(() => {
+            slideAnim.setValue(0);
+            setIsAnimating(false);
+          }, 50);
+        }
+      });
+    };
+
+    const resetPosition = () => {
+      setIsAnimating(true);
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 40,
+        friction: 7
+      }).start(() => {
+        setIsAnimating(false);
+      });
+    };
+
     if (Math.abs(diff) > swipeThreshold) {
       if (diff > 0 && currentStep > 0) {
         // Sağa kaydırma - önceki kart
-        Animated.timing(slideAnim, {
-          toValue: Dimensions.get('window').width,
-          duration: 200,
-          useNativeDriver: true,
-        }).start(() => {
-          slideAnim.setValue(0);
-          goToPreviousCard();
+        animateTransition(Dimensions.get('window').width, () => {
+          setCurrentStep(prevStep => prevStep - 1);
         });
       } else if (diff < 0 && currentStep < flashcards.length - 1) {
         // Sola kaydırma - sonraki kart
         const currentCard = flashcards[currentStep];
         if (currentCard.frontContent.trim() && currentCard.backContent.trim()) {
-          Animated.timing(slideAnim, {
-            toValue: -Dimensions.get('window').width,
-            duration: 200,
-            useNativeDriver: true,
-          }).start(() => {
-            slideAnim.setValue(0);
-            goToNextCard();
+          animateTransition(-Dimensions.get('window').width, () => {
+            setCurrentStep(prevStep => prevStep + 1);
           });
         } else {
-          Animated.spring(slideAnim, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
+          resetPosition();
           Toast.show({
             type: 'error',
             text1: t('common.error'),
@@ -118,18 +139,10 @@ const AddFlashcardScreen = ({ navigation }) => {
           });
         }
       } else {
-        // Geçiş yapılamıyorsa geri dön
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
+        resetPosition();
       }
     } else {
-      // Yetersiz kaydırma mesafesi, geri dön
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-      }).start();
+      resetPosition();
     }
   };
 
@@ -229,7 +242,7 @@ const AddFlashcardScreen = ({ navigation }) => {
   };
 
   const goToNextCard = () => {
-    if (currentStep >= flashcards.length - 1) return;
+    if (currentStep >= flashcards.length - 1 || isAnimating) return;
     
     const currentCard = flashcards[currentStep];
     if (!currentCard.frontContent.trim() || !currentCard.backContent.trim()) {
@@ -240,24 +253,90 @@ const AddFlashcardScreen = ({ navigation }) => {
       });
       return;
     }
-    setCurrentStep(prevStep => prevStep + 1);
+
+    setIsAnimating(true);
+    Animated.timing(slideAnim, {
+      toValue: -Dimensions.get('window').width,
+      duration: 300,
+      useNativeDriver: true,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    }).start(({ finished }) => {
+      if (finished) {
+        setCurrentStep(prevStep => prevStep + 1);
+        setTimeout(() => {
+          slideAnim.setValue(0);
+          setIsAnimating(false);
+        }, 50);
+      }
+    });
   };
 
   const goToPreviousCard = () => {
-    if (currentStep <= 0) return;
-    setCurrentStep(prevStep => prevStep - 1);
+    if (currentStep <= 0 || isAnimating) return;
+    
+    setIsAnimating(true);
+    Animated.timing(slideAnim, {
+      toValue: Dimensions.get('window').width,
+      duration: 300,
+      useNativeDriver: true,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    }).start(({ finished }) => {
+      if (finished) {
+        setCurrentStep(prevStep => prevStep - 1);
+        setTimeout(() => {
+          slideAnim.setValue(0);
+          setIsAnimating(false);
+        }, 50);
+      }
+    });
+  };
+
+  const animateTransition = (toValue, onComplete) => {
+    Animated.timing(slideAnim, {
+      toValue,
+      duration: 300,
+      useNativeDriver: true,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    }).start(({ finished }) => {
+      if (finished) {
+        slideAnim.setValue(0);
+        onComplete?.();
+      }
+    });
   };
 
   const renderStepIndicator = () => (
     <View style={styles.stepIndicator}>
       {flashcards.map((_, index) => (
-        <View
+        <TouchableOpacity
           key={index}
-          style={[
-            styles.stepDot,
-            currentStep === index && styles.stepDotActive
-          ]}
-        />
+          onPress={() => {
+            if (index !== currentStep && !isAnimating) {
+              const direction = index > currentStep ? -1 : 1;
+              animateTransition(direction * Dimensions.get('window').width, () => {
+                setCurrentStep(index);
+              });
+            }
+          }}
+        >
+          <Animated.View
+            style={[
+              styles.stepDot,
+              currentStep === index && styles.stepDotActive,
+              {
+                transform: [{
+                  scale: slideAnim.interpolate({
+                    inputRange: [-Dimensions.get('window').width, 0, Dimensions.get('window').width],
+                    outputRange: index === currentStep - 1 ? [1, 0.8, 0.8] : 
+                               index === currentStep ? [0.8, 1, 0.8] : 
+                               index === currentStep + 1 ? [0.8, 0.8, 1] : [0.8, 0.8, 0.8],
+                    extrapolate: 'clamp'
+                  })
+                }]
+              }
+            ]}
+          />
+        </TouchableOpacity>
       ))}
     </View>
   );
@@ -280,14 +359,16 @@ const AddFlashcardScreen = ({ navigation }) => {
         ]}
       >
         <View style={styles.cardHeader}>
-          <Text style={styles.cardNumber}>
-            {index + 1} / {flashcards.length}
-          </Text>
+          <View style={styles.cardHeaderLeft}>
+            <Text style={styles.cardNumber}>
+              {t('flashcard.cardCount', { current: currentStep + 1, total: flashcards.length })}
+            </Text>
+          </View>
           {flashcards.length > 1 && (
             <TouchableOpacity 
               style={styles.removeCardButton}
               onPress={() => {
-                removeCard(index);
+                removeCard(currentStep);
                 if (currentStep >= flashcards.length - 1) {
                   setCurrentStep(flashcards.length - 2);
                 }
@@ -300,51 +381,47 @@ const AddFlashcardScreen = ({ navigation }) => {
 
         <View style={styles.cardContent}>
           <View style={styles.cardSide}>
+            <Text style={styles.inputLabel}>{t('flashcard.frontSide')}</Text>
             <TextInput
               style={[styles.input, styles.frontInput]}
               value={card.frontContent}
               onChangeText={(text) => {
                 if (text.length <= 50) {
-                  updateCard(index, 'frontContent', text);
+                  updateCard(currentStep, 'frontContent', text);
                 }
               }}
               maxLength={50}
-              placeholder={t('flashcard.contentPlaceholder')}
+              placeholder={t('flashcard.frontPlaceholder')}
               multiline
-              editable={index === currentStep}
+              editable={true}
               placeholderTextColor="#999"
             />
-            <Text style={styles.characterCount}>
-              {card.frontContent.length}/50
-            </Text>
           </View>
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
             <View style={styles.dividerIcon}>
-              <Ionicons name="swap-vertical" size={20} color="#666" />
+              <Ionicons name="swap-vertical" size={24} color="#000" />
             </View>
             <View style={styles.dividerLine} />
           </View>
 
           <View style={styles.cardSide}>
+            <Text style={styles.inputLabel}>{t('flashcard.backSide')}</Text>
             <TextInput
               style={[styles.input, styles.backInput]}
               value={card.backContent}
               onChangeText={(text) => {
                 if (text.length <= 50) {
-                  updateCard(index, 'backContent', text);
+                  updateCard(currentStep, 'backContent', text);
                 }
               }}
               maxLength={50}
-              placeholder={t('flashcard.answerPlaceholder')}
+              placeholder={t('flashcard.backPlaceholder')}
               multiline
-              editable={index === currentStep}
+              editable={true}
               placeholderTextColor="#999"
             />
-            <Text style={styles.characterCount}>
-              {card.backContent.length}/50
-            </Text>
           </View>
         </View>
       </Animated.View>
@@ -362,6 +439,19 @@ const AddFlashcardScreen = ({ navigation }) => {
     const nextCard = currentStep < flashcards.length - 1 ? flashcards[currentStep + 1] : null;
     const prevCard = currentStep > 0 ? flashcards[currentStep - 1] : null;
 
+    const translateX = slideAnim;
+    const scale = slideAnim.interpolate({
+      inputRange: [-Dimensions.get('window').width, 0, Dimensions.get('window').width],
+      outputRange: [0.95, 1, 0.95],
+      extrapolate: 'clamp'
+    });
+
+    const opacity = slideAnim.interpolate({
+      inputRange: [-Dimensions.get('window').width, 0, Dimensions.get('window').width],
+      outputRange: [0.5, 1, 0.5],
+      extrapolate: 'clamp'
+    });
+
     return (
       <Animated.View 
         style={[styles.cardsContainer]}
@@ -378,12 +468,16 @@ const AddFlashcardScreen = ({ navigation }) => {
                 left: 0,
                 right: 0,
                 opacity: prevCardOpacity,
-                transform: [{
-                  translateX: slideAnim.interpolate({
-                    inputRange: [-Dimensions.get('window').width, 0, Dimensions.get('window').width],
-                    outputRange: [-Dimensions.get('window').width * 2, -Dimensions.get('window').width, 0]
-                  })
-                }]
+                transform: [
+                  {
+                    translateX: slideAnim.interpolate({
+                      inputRange: [-Dimensions.get('window').width, 0, Dimensions.get('window').width],
+                      outputRange: [-Dimensions.get('window').width * 2, -Dimensions.get('window').width, 0],
+                      extrapolate: 'clamp'
+                    })
+                  },
+                  { scale }
+                ]
               }
             ]}
           >
@@ -399,7 +493,11 @@ const AddFlashcardScreen = ({ navigation }) => {
               left: 0,
               right: 0,
               zIndex: 2,
-              transform: [{ translateX: slideAnim }]
+              opacity,
+              transform: [
+                { translateX },
+                { scale }
+              ]
             }
           ]}
         >
@@ -415,12 +513,16 @@ const AddFlashcardScreen = ({ navigation }) => {
                 left: 0,
                 right: 0,
                 opacity: nextCardOpacity,
-                transform: [{
-                  translateX: slideAnim.interpolate({
-                    inputRange: [-Dimensions.get('window').width, 0, Dimensions.get('window').width],
-                    outputRange: [0, Dimensions.get('window').width, Dimensions.get('window').width * 2]
-                  })
-                }]
+                transform: [
+                  {
+                    translateX: slideAnim.interpolate({
+                      inputRange: [-Dimensions.get('window').width, 0, Dimensions.get('window').width],
+                      outputRange: [0, Dimensions.get('window').width, Dimensions.get('window').width * 2],
+                      extrapolate: 'clamp'
+                    })
+                  },
+                  { scale }
+                ]
               }
             ]}
           >
@@ -535,9 +637,15 @@ const AddFlashcardScreen = ({ navigation }) => {
           <View style={[styles.stepDot, selectedStudySet && styles.activeStepDot]} />
         </View>
         <View style={styles.stepTextContainer}>
-          <Text style={[styles.stepText, !selectedCategory && styles.activeStepText]}>Kategori</Text>
-          <Text style={[styles.stepText, selectedCategory && !selectedStudySet && styles.activeStepText]}>Çalışma Seti</Text>
-          <Text style={[styles.stepText, selectedStudySet && styles.activeStepText]}>Kartlar</Text>
+          <Text style={[styles.stepText, !selectedCategory && styles.activeStepText]}>
+            {t('flashcard.steps.category')}
+          </Text>
+          <Text style={[styles.stepText, selectedCategory && !selectedStudySet && styles.activeStepText]}>
+            {t('flashcard.steps.studySet')}
+          </Text>
+          <Text style={[styles.stepText, selectedStudySet && styles.activeStepText]}>
+            {t('flashcard.steps.cards')}
+          </Text>
         </View>
       </View>
 
@@ -546,8 +654,8 @@ const AddFlashcardScreen = ({ navigation }) => {
           <Text style={styles.selectionTitle}>{t('flashcard.category')}</Text>
           <Text style={styles.selectionDescription}>
             {!selectedCategory 
-              ? 'Kartlarınızı eklemek istediğiniz kategoriyi seçin'
-              : 'Seçilen kategori:'}
+              ? t('flashcard.selectCategory')
+              : t('flashcard.selectedCategory')}
           </Text>
         </View>
         <ScrollView 
@@ -595,8 +703,8 @@ const AddFlashcardScreen = ({ navigation }) => {
             <Text style={styles.selectionTitle}>{t('flashcard.studySet')}</Text>
             <Text style={styles.selectionDescription}>
               {!selectedStudySet 
-                ? 'Kartlarınızı hangi çalışma setine eklemek istediğinizi seçin'
-                : 'Seçilen çalışma seti:'}
+                ? t('flashcard.selectStudySet')
+                : t('flashcard.selectedStudySet')}
             </Text>
           </View>
           <ScrollView 
@@ -788,53 +896,69 @@ const styles = StyleSheet.create({
   cardWrapper: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 24,
     marginHorizontal: 16,
     marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
+  },
+  cardHeaderLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   cardNumber: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#999',
+    color: '#000',
+  },
+  cardProgress: {
+    flex: 1,
+    height: 4,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  cardProgressBar: {
+    height: '100%',
+    borderRadius: 2,
   },
   cardContent: {
     flex: 1,
     padding: 20,
   },
-  cardSide: {
-    flex: 1,
-    justifyContent: 'center',
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 12,
   },
   input: {
     fontSize: 16,
     color: '#333',
     textAlignVertical: 'top',
-    padding: 0,
-  },
-  frontInput: {
+    padding: 16,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 12,
     minHeight: 120,
-    textAlign: 'center',
-  },
-  backInput: {
-    minHeight: 120,
-    textAlign: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   divider: {
     flexDirection: 'row',
@@ -844,43 +968,55 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#E0E0E0',
   },
   dividerIcon: {
-    paddingHorizontal: 12,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F8F8F8',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 12,
   },
-  removeButton: {
-    padding: 4,
+  cardNavigation: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
   },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  addButton: {
+  navButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-    backgroundColor: '#F0F7FF',
-    borderRadius: 12,
-    marginBottom: 16,
+    padding: 8,
   },
-  addButtonDisabled: {
+  navButtonRight: {
+    marginLeft: 'auto',
+  },
+  navButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
+    marginHorizontal: 4,
+  },
+  removeCardButton: {
+    padding: 4,
+  },
+  selectionContainer: {
+    flex: 1,
+  },
+  cardsContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  addCardButton: {
+    padding: 8,
+    borderRadius: 8,
     backgroundColor: '#F5F5F5',
   },
-  addButtonText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  addButtonTextDisabled: {
-    color: '#999999',
+  addCardButtonDisabled: {
+    backgroundColor: '#F0F0F0',
   },
   footer: {
     padding: 16,
@@ -906,18 +1042,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: 12,
+    gap: 4,
   },
   stepDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: '#E0E0E0',
+    margin: 2,
   },
   stepDotActive: {
     backgroundColor: '#000000',
-    transform: [{ scale: 1.2 }],
+    transform: [{ scale: 1 }],
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -943,30 +1080,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#000000',
     marginHorizontal: 8,
-  },
-  selectionContainer: {
-    flex: 1,
-  },
-  cardsContainer: {
-    flex: 1,
-    position: 'relative',
-  },
-  addCardButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: '#F5F5F5',
-  },
-  addCardButtonDisabled: {
-    backgroundColor: '#F0F0F0',
-  },
-  characterCount: {
-    fontSize: 12,
-    color: '#999',
-    textAlign: 'right',
-    marginTop: 4,
-  },
-  removeCardButton: {
-    padding: 4,
   },
   selectionScreen: {
     flex: 1,
