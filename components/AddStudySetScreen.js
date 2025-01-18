@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Animated,
-  Dimensions
+  StatusBar
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
@@ -19,17 +18,15 @@ import api from '../services/api';
 
 const AddStudySetScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
-  const { categoryId } = route.params || {};
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [step, setStep] = useState(1);
   const [nameError, setNameError] = useState('');
   const [descriptionError, setDescriptionError] = useState('');
-  const fadeAnim = useState(new Animated.Value(1))[0];
+  const { categoryId } = route.params || {};
 
   useEffect(() => {
     fetchCategories();
@@ -39,8 +36,6 @@ const AddStudySetScreen = ({ navigation, route }) => {
     try {
       const response = await api.get('/categories');
       setCategories(response.data);
-      
-      // Eğer categoryId varsa, o kategoriyi otomatik seç
       if (categoryId) {
         const category = response.data.find(cat => cat.id === categoryId);
         if (category) {
@@ -48,24 +43,20 @@ const AddStudySetScreen = ({ navigation, route }) => {
         }
       }
     } catch (error) {
-      console.error('Kategori yükleme hatası:', error);
       Toast.show({
         type: 'error',
-        text1: t('common.error'),
-        text2: t('studySet.errors.loadCategories'),
-        visibilityTime: 3000,
-        position: 'top',
+        text1: t('studySet.errors.loadCategories')
       });
     }
   };
 
   const validateName = () => {
     if (!name.trim()) {
-      setNameError('Set adı boş olamaz');
+      setNameError(t('studySet.errors.nameRequired'));
       return false;
     }
     if (name.length < 3) {
-      setNameError('Set adı en az 3 karakter olmalıdır');
+      setNameError(t('studySet.errors.nameTooShort'));
       return false;
     }
     setNameError('');
@@ -74,11 +65,11 @@ const AddStudySetScreen = ({ navigation, route }) => {
 
   const validateDescription = () => {
     if (!description.trim()) {
-      setDescriptionError('Açıklama boş olamaz');
+      setDescriptionError(t('studySet.errors.descriptionRequired'));
       return false;
     }
     if (description.length < 10) {
-      setDescriptionError('Açıklama en az 10 karakter olmalıdır');
+      setDescriptionError(t('studySet.errors.descriptionTooShort'));
       return false;
     }
     setDescriptionError('');
@@ -88,54 +79,23 @@ const AddStudySetScreen = ({ navigation, route }) => {
   const nextStep = () => {
     if (step === 1 && !validateName()) return;
     if (step === 2 && !validateDescription()) return;
-
-    Animated.sequence([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
     setStep(step + 1);
   };
 
   const prevStep = () => {
-    Animated.sequence([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
-
     setStep(step - 1);
   };
 
   const handleSubmit = async () => {
-    if (!name.trim() || !selectedCategory || isSubmitted) {
+    if (!name.trim() || !selectedCategory) {
       Toast.show({
         type: 'error',
-        text1: t('common.error'),
-        text2: t('studySet.errors.nameRequired'),
-        visibilityTime: 3000,
-        position: 'top',
+        text1: t('studySet.errors.nameRequired')
       });
       return;
     }
 
     setIsLoading(true);
-
     try {
       const response = await api.post('/study-sets', {
         name: name.trim(),
@@ -143,16 +103,9 @@ const AddStudySetScreen = ({ navigation, route }) => {
         categoryId: selectedCategory.id
       });
 
-      console.log('Çalışma seti oluşturuldu:', response.data);
-      setIsSubmitted(true);
-
       Toast.show({
         type: 'success',
-        text1: t('common.success'),
-        text2: t('studySet.success.created'),
-        visibilityTime: 2000,
-        position: 'top',
-        topOffset: 50
+        text1: t('studySet.success.created')
       });
       
       navigation.replace('StudySet', { 
@@ -160,18 +113,11 @@ const AddStudySetScreen = ({ navigation, route }) => {
         shouldRefresh: true,
         newStudySet: response.data
       });
-
     } catch (error) {
-      console.error('Set oluşturma hatası:', error);
       Toast.show({
         type: 'error',
-        text1: t('common.error'),
-        text2: error.response?.data?.message || t('studySet.errors.createError'),
-        visibilityTime: 2000,
-        position: 'top',
-        topOffset: 50
+        text1: t('studySet.errors.createError')
       });
-      setIsSubmitted(false);
     } finally {
       setIsLoading(false);
     }
@@ -188,18 +134,18 @@ const AddStudySetScreen = ({ navigation, route }) => {
   );
 
   const renderStep1 = () => (
-    <Animated.View style={[styles.step, { opacity: fadeAnim }]}>
+    <View style={styles.step}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>Çalışma Seti Adı</Text>
+        <Text style={styles.stepTitle}>{t('studySet.steps.name.title')}</Text>
         <Text style={styles.stepDescription}>
-          Çalışma setiniz için akılda kalıcı bir isim belirleyin
+          {t('studySet.steps.name.description')}
         </Text>
       </View>
       <View style={styles.inputContainer}>
         <Ionicons name="book-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
           style={styles.input}
-          placeholder="Örn: İngilizce Kelimeler"
+          placeholder={t('studySet.steps.name.title')}
           value={name}
           onChangeText={setName}
           placeholderTextColor="#999"
@@ -208,22 +154,22 @@ const AddStudySetScreen = ({ navigation, route }) => {
         />
       </View>
       {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
-    </Animated.View>
+    </View>
   );
 
   const renderStep2 = () => (
-    <Animated.View style={[styles.step, { opacity: fadeAnim }]}>
+    <View style={styles.step}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>Set Açıklaması</Text>
+        <Text style={styles.stepTitle}>{t('studySet.steps.description.title')}</Text>
         <Text style={styles.stepDescription}>
-          Setinizin içeriğini kısaca açıklayın
+          {t('studySet.steps.description.description')}
         </Text>
       </View>
       <View style={styles.inputContainer}>
         <Ionicons name="document-text-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
           style={[styles.input, styles.textArea]}
-          placeholder="Setin amacını ve içeriğini açıklayın..."
+          placeholder={t('studySet.steps.description.title')}
           value={description}
           onChangeText={setDescription}
           multiline
@@ -234,15 +180,15 @@ const AddStudySetScreen = ({ navigation, route }) => {
         />
       </View>
       {descriptionError ? <Text style={styles.errorText}>{descriptionError}</Text> : null}
-    </Animated.View>
+    </View>
   );
 
   const renderCategorySelection = () => (
-    <Animated.View style={[styles.step, { opacity: fadeAnim }]}>
+    <View style={styles.step}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>Kategori Seçimi</Text>
+        <Text style={styles.stepTitle}>{t('studySet.steps.category.title')}</Text>
         <Text style={styles.stepDescription}>
-          Çalışma setinizi hangi kategoriye eklemek istediğinizi seçin
+          {t('studySet.steps.category.description')}
         </Text>
       </View>
 
@@ -290,18 +236,20 @@ const AddStudySetScreen = ({ navigation, route }) => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-    </Animated.View>
+    </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
-      >
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton} 
+          <TouchableOpacity
+            style={styles.backButton}
             onPress={() => step > 1 ? prevStep() : navigation.goBack()}
           >
             <View style={styles.backButtonContainer}>
@@ -318,6 +266,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
         <ScrollView 
           style={styles.content}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {step === 1 && renderStep1()}
           {step === 2 && renderStep2()}
@@ -331,7 +280,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
               onPress={nextStep}
               disabled={!name.trim() && step === 1}
             >
-              <Text style={styles.nextButtonText}>Devam</Text>
+              <Text style={styles.nextButtonText}>{t('studySet.buttons.continue')}</Text>
               <Ionicons name="arrow-forward" size={24} color="#FFF" />
             </TouchableOpacity>
           ) : (
@@ -341,15 +290,14 @@ const AddStudySetScreen = ({ navigation, route }) => {
               disabled={!selectedCategory || isLoading}
             >
               <Text style={styles.submitButtonText}>
-                {isLoading ? 'Oluşturuluyor...' : 'Seti Oluştur'}
+                {isLoading ? t('studySet.buttons.creating') : t('studySet.buttons.create')}
               </Text>
               {!isLoading && <Ionicons name="checkmark" size={24} color="#FFF" />}
             </TouchableOpacity>
           )}
         </View>
-      </KeyboardAvoidingView>
-      <Toast />
-    </SafeAreaView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -357,9 +305,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  keyboardView: {
-    flex: 1,
   },
   header: {
     flexDirection: 'row',

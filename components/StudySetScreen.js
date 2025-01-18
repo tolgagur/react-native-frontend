@@ -187,10 +187,10 @@ const StudySetScreen = ({ navigation, route }) => {
       </TouchableOpacity>
       <View style={styles.headerCenter}>
         <Text style={styles.headerTitle} numberOfLines={1}>
-          {category.name}
+          {t('studySet.header.title')}
         </Text>
         <Text style={styles.headerSubtitle}>
-          {studySets.length} çalışma seti
+          {t('studySet.header.subtitle', { count: studySets.length })}
         </Text>
       </View>
       <TouchableOpacity 
@@ -218,7 +218,7 @@ const StudySetScreen = ({ navigation, route }) => {
             <View style={styles.cardTitleContainer}>
               <Text style={styles.studySetName}>{studySet.name}</Text>
               <Text style={styles.username}>
-                <Ionicons name="person-outline" size={14} color="#666" /> {studySet.username}
+                <Ionicons name="person-outline" size={14} color="#666" /> {t('studySet.card.createdBy')}
               </Text>
             </View>
             <View style={styles.statsContainer}>
@@ -235,7 +235,7 @@ const StudySetScreen = ({ navigation, route }) => {
 
           <View style={styles.progressSection}>
             <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>İlerleme</Text>
+              <Text style={styles.progressTitle}>{t('studySet.card.progress')}</Text>
               <Text style={styles.progressPercentage}>{Math.round(progress)}%</Text>
             </View>
             {renderProgress(studySet)}
@@ -243,15 +243,15 @@ const StudySetScreen = ({ navigation, route }) => {
             <View style={styles.statsGrid}>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{studySet.masteredCards || 0}</Text>
-                <Text style={styles.statLabel}>Öğrenildi</Text>
+                <Text style={styles.statLabel}>{t('studySet.card.learned')}</Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{studySet.learningCards || 0}</Text>
-                <Text style={styles.statLabel}>Öğreniliyor</Text>
+                <Text style={styles.statLabel}>{t('studySet.card.learning')}</Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{studySet.notStartedCards || 0}</Text>
-                <Text style={styles.statLabel}>Başlanmadı</Text>
+                <Text style={styles.statLabel}>{t('studySet.card.notStarted')}</Text>
               </View>
             </View>
           </View>

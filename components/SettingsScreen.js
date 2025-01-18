@@ -1,257 +1,120 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
-  Modal,
-  Animated,
-  PanResponder,
-  Dimensions,
-  TouchableWithoutFeedback,
-  SafeAreaView,
-  StatusBar,
+  StyleSheet,
   ScrollView,
+  Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import api from '../services/api';
-import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
-
-const SCREEN_HEIGHT = Dimensions.get('window').height;
-const MODAL_HEIGHT = SCREEN_HEIGHT * 0.7;
+import { changeLanguage } from '../src/utils/language';
 
 const SettingsScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState('tr');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const modalY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
-  const overlayOpacity = useRef(new Animated.Value(0)).current;
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        if (gestureState.dy > 0) {
-          modalY.setValue(gestureState.dy);
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dy > MODAL_HEIGHT / 3) {
-          closeModal();
-        } else {
-          Animated.spring(modalY, {
-            toValue: 0,
-            useNativeDriver: true,
-          }).start();
-        }
-      },
-    })
-  ).current;
-
-  const showModal = () => {
-    modalY.setValue(SCREEN_HEIGHT);
-    setIsModalVisible(true);
-    Animated.parallel([
-      Animated.timing(modalY, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(overlayOpacity, {
-        toValue: 0.5,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start();
+  const handleLanguageChange = async (language) => {
+    const success = await changeLanguage(language);
+    if (success) {
+      // Dil değişikliği başarılı olduğunda ekranı yenile
+      navigation.replace('Settings');
+    }
   };
 
-  const closeModal = () => {
-    Animated.parallel([
-      Animated.timing(modalY, {
-        toValue: SCREEN_HEIGHT,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(overlayOpacity, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setIsModalVisible(false);
-      modalY.setValue(SCREEN_HEIGHT);
-    });
-  };
-
-  const languages = [
-    { id: 'TURKISH', name: 'Türkçe', icon: '🇹🇷' },
-    { id: 'ENGLISH', name: 'English', icon: '🇬🇧' },
-    { id: 'GERMAN', name: 'Deutsch', icon: '🇩🇪' },
-    { id: 'FRENCH', name: 'Français', icon: '🇫🇷' },
-    { id: 'SPANISH', name: 'Español', icon: '🇪🇸' },
-    { id: 'ITALIAN', name: 'Italiano', icon: '🇮🇹' },
-    { id: 'RUSSIAN', name: 'Русский', icon: '🇷🇺' },
-    { id: 'CHINESE', name: '中文', icon: '🇨🇳' },
-    { id: 'JAPANESE', name: '日本語', icon: '🇯🇵' },
-    { id: 'KOREAN', name: '한국어', icon: '🇰🇷' },
+  const settings = [
+    {
+      title: t('profile.personalInfo'),
+      icon: 'person-outline',
+      onPress: () => navigation.navigate('PersonalInfo'),
+    },
+    {
+      title: t('profile.notificationSettings'),
+      icon: 'notifications-outline',
+      onPress: () => navigation.navigate('NotificationSettings'),
+    },
+    {
+      title: t('profile.languageSettings'),
+      icon: 'language-outline',
+      onPress: null,
+      isLanguageSelector: true,
+    },
+    {
+      title: t('profile.changePassword'),
+      icon: 'lock-closed-outline',
+      onPress: () => navigation.navigate('ChangePassword'),
+    },
   ];
 
-  useEffect(() => {
-    fetchCurrentLanguage();
-  }, []);
-
-  const fetchCurrentLanguage = async () => {
-    try {
-      const response = await api.get('users/me');
-      setSelectedLanguage(response.data.preferredLanguage || 'TURKISH');
-    } catch (error) {
-      console.error('Dil bilgisi alınırken hata:', error);
-      Toast.show({
-        type: 'error',
-        text1: t('common.error'),
-        text2: t('settings.languageError'),
-        visibilityTime: 3000,
-        position: 'top',
-      });
-    }
-  };
-
-  const handleLanguageSelect = async (langId) => {
-    setIsLoading(true);
-    try {
-      await api.put(`users/me/language?language=${langId}`);
-      setSelectedLanguage(langId);
-      
-      const languageCode = langId === 'TURKISH' ? 'tr' : 'en';
-      await i18n.changeLanguage(languageCode);
-      
-      closeModal();
-    } catch (error) {
-      console.error('Dil güncellenirken hata:', error);
-      Toast.show({
-        type: 'error',
-        text1: t('common.error'),
-        text2: t('settings.languageError'),
-        visibilityTime: 3000,
-        position: 'top',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="chevron-back" size={24} color="#2C2C2C" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{t('settings.title')}</Text>
-        </View>
-
-        <TouchableOpacity 
-          style={styles.languageButton} 
-          onPress={showModal}
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
         >
-          <View style={styles.buttonContent}>
-            <Ionicons name="language" size={24} color="#2C2C2C" />
-            <View style={styles.buttonTextContainer}>
-              <Text style={styles.buttonTitle}>{t('settings.language')}</Text>
-              <Text style={styles.buttonSubtitle}>
-                {languages.find(lang => lang.id === selectedLanguage)?.name}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#2C2C2C" />
-          </View>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
+        <Text style={styles.title}>{t('profile.settings')}</Text>
+      </View>
 
-        <TouchableOpacity 
-          style={styles.languageButton} 
-          onPress={() => navigation.navigate('ChangePassword')}
-        >
-          <View style={styles.buttonContent}>
-            <Ionicons name="lock-closed" size={24} color="#2C2C2C" />
-            <View style={styles.buttonTextContainer}>
-              <Text style={styles.buttonTitle}>{t('settings.changePassword')}</Text>
-              <Text style={styles.buttonSubtitle}>
-                {t('settings.changePasswordDescription')}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#2C2C2C" />
-          </View>
-        </TouchableOpacity>
-
-        <Modal
-          visible={isModalVisible}
-          transparent
-          animationType="none"
-          onRequestClose={closeModal}
-        >
-          <View style={styles.modalContainer}>
-            <TouchableWithoutFeedback onPress={closeModal}>
-              <Animated.View 
-                style={[
-                  styles.overlay,
-                  { opacity: overlayOpacity }
-                ]} 
-              />
-            </TouchableWithoutFeedback>
-            
-            <Animated.View
-              style={[
-                styles.modalContent,
-                {
-                  transform: [{ translateY: modalY }],
-                },
-              ]}
-              {...panResponder.panHandlers}
-            >
-              <View style={styles.modalHeader}>
-                <View style={styles.modalHeaderLine} />
-                <Text style={styles.modalTitle}>{t('settings.selectLanguage')}</Text>
-              </View>
-
-              <ScrollView style={styles.modalScroll}>
-                {languages.map((language) => (
+      <View style={styles.settingsList}>
+        {settings.map((setting, index) => (
+          <View key={index}>
+            {setting.isLanguageSelector ? (
+              <View style={styles.languageSection}>
+                <View style={styles.settingHeader}>
+                  <Ionicons name={setting.icon} size={24} color="#666" />
+                  <Text style={styles.settingTitle}>{setting.title}</Text>
+                </View>
+                <View style={styles.languageButtons}>
                   <TouchableOpacity
-                    key={language.id}
                     style={[
-                      styles.languageOption,
-                      selectedLanguage === language.id && styles.selectedLanguage,
+                      styles.languageButton,
+                      i18n.language === 'tr' && styles.activeLanguage
                     ]}
-                    onPress={() => handleLanguageSelect(language.id)}
-                    disabled={isLoading}
+                    onPress={() => handleLanguageChange('tr')}
                   >
-                    <Text style={styles.languageIcon}>{language.icon}</Text>
                     <Text style={[
-                      styles.languageName,
-                      isLoading && styles.languageNameDisabled
+                      styles.languageButtonText,
+                      i18n.language === 'tr' && styles.activeLanguageText
                     ]}>
-                      {language.name}
+                      {t('languages.turkish')}
                     </Text>
-                    {selectedLanguage === language.id && (
-                      <Ionicons 
-                        name="checkmark" 
-                        size={24} 
-                        color={isLoading ? "#B0BEC5" : "#007AFF"} 
-                      />
-                    )}
                   </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </Animated.View>
+                  <TouchableOpacity
+                    style={[
+                      styles.languageButton,
+                      i18n.language === 'en' && styles.activeLanguage
+                    ]}
+                    onPress={() => handleLanguageChange('en')}
+                  >
+                    <Text style={[
+                      styles.languageButtonText,
+                      i18n.language === 'en' && styles.activeLanguageText
+                    ]}>
+                      {t('languages.english')}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.settingItem}
+                onPress={setting.onPress}
+              >
+                <View style={styles.settingContent}>
+                  <Ionicons name={setting.icon} size={24} color="#666" />
+                  <Text style={styles.settingTitle}>{setting.title}</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={24} color="#666" />
+              </TouchableOpacity>
+            )}
+            {index < settings.length - 1 && <View style={styles.separator} />}
           </View>
-        </Modal>
-      </SafeAreaView>
-    </View>
+        ))}
+      </View>
+    </ScrollView>
   );
 };
 
@@ -264,98 +127,72 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
+    paddingTop: Platform.OS === 'ios' ? 60 : 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e1e1e1',
+    borderBottomColor: '#F0F0F0',
   },
   backButton: {
-    padding: 8,
-    marginRight: 8,
+    marginRight: 16,
   },
-  headerTitle: {
+  title: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#2C2C2C',
+    color: '#000',
+  },
+  settingsList: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+  },
+  settingContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingTitle: {
+    fontSize: 16,
+    marginLeft: 12,
+    color: '#333',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#F0F0F0',
+  },
+  languageSection: {
+    paddingVertical: 16,
+  },
+  settingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  languageButtons: {
+    flexDirection: 'row',
+    marginLeft: 36,
   },
   languageButton: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#F8F9FA',
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
-  buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  activeLanguage: {
+    backgroundColor: '#666666',
+    borderColor: '#666666',
   },
-  buttonTextContainer: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  buttonTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#2C2C2C',
-  },
-  buttonSubtitle: {
+  languageButtonText: {
     fontSize: 14,
     color: '#666666',
-    marginTop: 2,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#000',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 40,
-    height: MODAL_HEIGHT,
-  },
-  modalHeader: {
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  modalHeaderLine: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 2,
-    marginBottom: 12,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2C2C2C',
-  },
-  languageOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  selectedLanguage: {
-    backgroundColor: '#F5F5F5',
-  },
-  languageIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  languageName: {
-    flex: 1,
-    fontSize: 16,
-    color: '#2C2C2C',
-  },
-  languageNameDisabled: {
-    color: '#B0BEC5',
-  },
-  modalScroll: {
-    flex: 1,
+  activeLanguageText: {
+    color: '#FFFFFF',
   },
 });
 

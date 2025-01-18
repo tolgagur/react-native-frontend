@@ -4,7 +4,7 @@ export default {
     error: 'Error',
     success: 'Success',
     retry: 'Retry',
-    logout: 'Log Out',
+    logout: 'Logout',
     save: 'Save',
     cancel: 'Cancel',
     add: 'Add',
@@ -21,8 +21,8 @@ export default {
       password: 'Password',
       forgotPassword: 'Forgot Password?',
       loginButton: 'Login',
-      noAccount: 'Don\'t have an account?',
-      register: 'Sign Up',
+      noAccount: "Don't have an account?",
+      register: 'Register',
       or: 'or',
       errors: {
         requiredFields: 'Username and password are required',
@@ -32,14 +32,14 @@ export default {
       },
     },
     register: {
-      title: 'Sign Up',
+      title: 'Register',
       subtitle: 'Create a new account',
       username: 'Username',
       email: 'Email',
       password: 'Password',
       firstName: 'First Name',
       lastName: 'Last Name',
-      registerButton: 'Sign Up',
+      registerButton: 'Register',
       haveAccount: 'Already have an account?',
       login: 'Login',
       or: 'or',
@@ -52,12 +52,12 @@ export default {
     },
     forgotPassword: {
       title: 'Forgot Password',
-      subtitle: 'Enter your email address and we\'ll send you a password reset link',
+      subtitle: 'Enter your email address and we will send you a password reset link',
       email: 'Email',
       sendButton: 'Send',
       backToLogin: 'Back to login',
       success: 'Password reset link has been sent to your email',
-      error: 'Password reset failed',
+      error: 'Failed to reset password',
     },
   },
   profile: {
@@ -70,11 +70,11 @@ export default {
     changePasswordDescription: 'Change your password for account security',
     currentPassword: 'Current Password',
     newPassword: 'New Password',
-    confirmPassword: 'Confirm Password',
+    confirmPassword: 'Confirm New Password',
     enterCurrentPassword: 'Enter your current password',
     enterNewPassword: 'Enter your new password',
     enterConfirmPassword: 'Confirm your new password',
-    passwordUpdateSuccess: 'Your password has been updated successfully',
+    passwordUpdateSuccess: 'Password successfully updated',
     passwordUpdateError: 'Failed to update password',
     passwordRequiredFields: 'Please fill in all fields',
     passwordTooShort: 'New password must be at least 6 characters',
@@ -93,28 +93,66 @@ export default {
     studyTime: 'Study Time',
     minutes: 'minutes',
     successRate: 'Success Rate',
-    fetchError: 'An error occurred while loading information',
-    updateSuccess: 'Your information has been updated successfully',
-    updateError: 'An error occurred while updating your information',
+    fetchError: 'Failed to load information',
+    updateSuccess: 'Information updated successfully',
+    updateError: 'Failed to update information',
   },
   languages: {
     turkish: 'Turkish',
     english: 'English',
   },
   messages: {
-    languageUpdated: 'Language settings updated',
-    languageError: 'Could not change language',
-    logoutError: 'An error occurred while logging out',
+    languageUpdated: 'Language setting updated',
+    languageError: 'Failed to change language',
+    logoutError: 'Failed to logout',
   },
   categories: {
     title: 'Categories',
     addNew: 'New Category',
     addNewSubtitle: 'Create category',
-    empty: 'No categories yet',
+    empty: "You haven't created any categories yet",
     emptySubtext: 'Click the + button to add a new category',
     name: 'Category Name',
     description: 'Description',
     color: 'Color',
+    appearance: {
+      title: 'Appearance',
+      description: 'You can choose a color and icon for your category (Optional)',
+      colorSelection: 'Color Selection',
+      iconSelection: 'Icon Selection',
+      clearSelection: 'Clear Selection'
+    },
+    steps: {
+      name: {
+        title: 'Category Name',
+        description: 'Choose a memorable name for your category'
+      },
+      description: {
+        title: 'Category Description',
+        description: 'Explain the purpose and content of your category'
+      }
+    },
+    colors: {
+      lightBlue: 'Light Blue',
+      lightOrange: 'Light Orange',
+      lightGreen: 'Light Green',
+      lightPurple: 'Light Purple',
+      lightRed: 'Light Red',
+      gray: 'Gray'
+    },
+    icons: {
+      book: 'Book',
+      school: 'School',
+      language: 'Language',
+      math: 'Math',
+      science: 'Science',
+      art: 'Art'
+    },
+    buttons: {
+      continue: 'Continue',
+      create: 'Create Category',
+      creating: 'Creating...'
+    },
     studySetCount: {
       zero: 'No study sets',
       one: '1 study set',
@@ -124,8 +162,9 @@ export default {
       nameRequired: 'Category name is required',
       nameTooShort: 'Category name must be at least 3 characters',
       descriptionRequired: 'Description is required',
-      colorRequired: 'Color selection is required',
-      createError: 'Error creating category',
+      descriptionTooShort: 'Description must be at least 10 characters',
+      fieldsRequired: 'Please fill in required fields',
+      createError: 'Failed to create category',
     },
     success: {
       created: 'Category created successfully',
@@ -135,22 +174,60 @@ export default {
   },
   studySet: {
     title: 'Study Sets',
-    empty: 'No study sets yet',
+    empty: "You haven't created any study sets yet",
     emptySubtext: 'Create your first study set to start learning',
     addNew: 'New Study Set',
     addNewSubtitle: 'Create a new study set',
-    name: 'Study Set Name',
-    description: 'Description',
-    category: 'Category',
+    stats: {
+      totalCards: 'Total Cards',
+      progress: 'Progress',
+      mastered: 'Mastered',
+      learning: 'Learning',
+      notStarted: 'Not Started',
+      noCards: 'No cards added yet'
+    },
+    steps: {
+      name: {
+        title: 'Study Set Name',
+        description: 'Choose a memorable name for your study set'
+      },
+      description: {
+        title: 'Set Description',
+        description: 'Briefly explain the content of your set'
+      },
+      category: {
+        title: 'Category Selection',
+        description: 'Select which category you want to add your study set to'
+      }
+    },
+    buttons: {
+      continue: 'Continue',
+      create: 'Create Set',
+      creating: 'Creating...'
+    },
     errors: {
       loadStudySets: 'Failed to load study sets',
       createError: 'Failed to create study set',
-      nameRequired: 'Study set name is required',
+      nameRequired: 'Set name cannot be empty',
+      nameTooShort: 'Set name must be at least 3 characters',
+      descriptionRequired: 'Description cannot be empty',
+      descriptionTooShort: 'Description must be at least 10 characters',
       categoryRequired: 'Please select a category',
       loadCategories: 'Failed to load categories'
     },
     success: {
       created: 'Study set created successfully'
+    },
+    header: {
+      title: 'Demo mobile',
+      subtitle: '{{count}} study sets'
+    },
+    card: {
+      createdBy: 'testuser',
+      progress: 'Progress',
+      learned: 'Learned',
+      learning: 'Learning',
+      notStarted: 'Not Started'
     }
   },
   flashcard: {
@@ -175,12 +252,12 @@ export default {
     },
     cardCount: '{{current}} / {{total}}',
     errors: {
-      loadCategories: 'Error loading categories',
-      loadStudySets: 'Error loading study sets',
+      loadCategories: 'Failed to load categories',
+      loadStudySets: 'Failed to load study sets',
       fillRequired: 'Please fill in both front and back sides of the card',
-      maxCards: 'You can add maximum 50 cards',
+      maxCards: 'You can add up to 50 cards',
       requiredFields: 'Please select a category and study set',
-      createError: 'Error saving cards'
+      createError: 'Failed to save cards'
     },
     success: {
       created: 'Cards saved successfully'
@@ -193,9 +270,9 @@ export default {
     pushNotifications: 'Push Notifications',
     pushNotificationsDesc: 'Instant notifications and alerts',
     weeklyDigest: 'Weekly Digest',
-    weeklyDigestDesc: 'Weekly summary of progress and activity',
+    weeklyDigestDesc: 'Weekly progress and activity summary',
     marketingEmails: 'Marketing Emails',
-    marketingEmailsDesc: 'Receive information about special offers and promotions',
+    marketingEmailsDesc: 'Receive information about special offers and campaigns',
     systemUpdates: 'System Updates',
     systemUpdatesDesc: 'New features and system updates',
     securityAlerts: 'Security Alerts',

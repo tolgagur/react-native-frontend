@@ -115,6 +115,44 @@ export default {
     name: 'Kategori Adı',
     description: 'Açıklama',
     color: 'Renk',
+    appearance: {
+      title: 'Görünüm',
+      description: 'Kategoriniz için bir renk ve ikon seçebilirsiniz (Opsiyonel)',
+      colorSelection: 'Renk Seçimi',
+      iconSelection: 'İkon Seçimi',
+      clearSelection: 'Seçimi Temizle'
+    },
+    steps: {
+      name: {
+        title: 'Kategori Adı',
+        description: 'Kategoriniz için akılda kalıcı bir isim belirleyin'
+      },
+      description: {
+        title: 'Kategori Açıklaması',
+        description: 'Kategorinizin amacını ve içeriğini açıklayın'
+      }
+    },
+    colors: {
+      lightBlue: 'Açık Mavi',
+      lightOrange: 'Açık Turuncu',
+      lightGreen: 'Açık Yeşil',
+      lightPurple: 'Açık Mor',
+      lightRed: 'Açık Kırmızı',
+      gray: 'Gri'
+    },
+    icons: {
+      book: 'Kitap',
+      school: 'Okul',
+      language: 'Dil',
+      math: 'Matematik',
+      science: 'Bilim',
+      art: 'Sanat'
+    },
+    buttons: {
+      continue: 'Devam',
+      create: 'Kategori Oluştur',
+      creating: 'Oluşturuluyor...'
+    },
     studySetCount: {
       zero: 'Çalışma seti yok',
       one: '1 çalışma seti',
@@ -124,7 +162,8 @@ export default {
       nameRequired: 'Kategori adı zorunludur',
       nameTooShort: 'Kategori adı en az 3 karakter olmalıdır',
       descriptionRequired: 'Açıklama zorunludur',
-      colorRequired: 'Renk seçimi zorunludur',
+      descriptionTooShort: 'Açıklama en az 10 karakter olmalıdır',
+      fieldsRequired: 'Lütfen gerekli alanları doldurun',
       createError: 'Kategori oluşturulurken bir hata oluştu',
     },
     success: {
@@ -139,18 +178,56 @@ export default {
     emptySubtext: 'Öğrenmeye başlamak için ilk çalışma setinizi oluşturun',
     addNew: 'Yeni Çalışma Seti',
     addNewSubtitle: 'Yeni bir çalışma seti oluştur',
-    name: 'Çalışma Seti Adı',
-    description: 'Açıklama',
-    category: 'Kategori',
+    stats: {
+      totalCards: 'Toplam Kart',
+      progress: 'İlerleme',
+      mastered: 'Öğrenildi',
+      learning: 'Öğreniliyor',
+      notStarted: 'Başlanmadı',
+      noCards: 'Henüz kart eklenmemiş'
+    },
+    steps: {
+      name: {
+        title: 'Çalışma Seti Adı',
+        description: 'Çalışma setiniz için akılda kalıcı bir isim belirleyin'
+      },
+      description: {
+        title: 'Set Açıklaması',
+        description: 'Setinizin içeriğini kısaca açıklayın'
+      },
+      category: {
+        title: 'Kategori Seçimi',
+        description: 'Çalışma setinizi hangi kategoriye eklemek istediğinizi seçin'
+      }
+    },
+    buttons: {
+      continue: 'Devam',
+      create: 'Seti Oluştur',
+      creating: 'Oluşturuluyor...'
+    },
     errors: {
       loadStudySets: 'Çalışma setleri yüklenirken bir hata oluştu',
       createError: 'Çalışma seti oluşturulurken bir hata oluştu',
-      nameRequired: 'Çalışma seti adı gereklidir',
+      nameRequired: 'Set adı boş olamaz',
+      nameTooShort: 'Set adı en az 3 karakter olmalıdır',
+      descriptionRequired: 'Açıklama boş olamaz',
+      descriptionTooShort: 'Açıklama en az 10 karakter olmalıdır',
       categoryRequired: 'Lütfen bir kategori seçin',
       loadCategories: 'Kategoriler yüklenirken bir hata oluştu'
     },
     success: {
       created: 'Çalışma seti başarıyla oluşturuldu'
+    },
+    header: {
+      title: 'Deneme mobil',
+      subtitle: '{{count}} çalışma seti'
+    },
+    card: {
+      createdBy: 'testuser',
+      progress: 'İlerleme',
+      learned: 'Öğrenildi',
+      learning: 'Öğreniliyor',
+      notStarted: 'Başlanmadı'
     }
   },
   flashcard: {
