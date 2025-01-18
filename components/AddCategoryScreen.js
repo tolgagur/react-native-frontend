@@ -315,15 +315,15 @@ const AddCategoryScreen = ({ navigation }) => {
             style={styles.backButton} 
             onPress={() => step > 1 ? prevStep() : navigation.goBack()}
           >
-            <View style={styles.backButtonContainer}>
-              <Ionicons 
-                name={step > 1 ? "arrow-back" : "close"} 
-                size={24} 
-                color="#000" 
-              />
-            </View>
+            <Ionicons 
+              name="chevron-back" 
+              size={24} 
+              color="#666666" 
+            />
           </TouchableOpacity>
-          {renderStepIndicator()}
+          <View style={styles.stepIndicatorContainer}>
+            {renderStepIndicator()}
+          </View>
         </View>
 
         <ScrollView 
@@ -377,43 +377,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    backgroundColor: '#FFFFFF',
   },
   backButton: {
-    marginRight: 16,
+    padding: 8,
   },
-  backButtonContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F8F9FA',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+  stepIndicatorContainer: {
+    flex: 1,
+    marginLeft: 32,
+    marginRight: 40,
   },
   stepIndicator: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingRight: 56,
   },
   stepDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#E0E0E0',
   },
   stepDotActive: {
     backgroundColor: '#666666',
   },
   stepLine: {
-    width: 40,
-    height: 2,
+    width: 80,
+    height: 1,
     backgroundColor: '#E0E0E0',
-    marginHorizontal: 8,
+    marginHorizontal: 4,
   },
   stepLineActive: {
     backgroundColor: '#666666',

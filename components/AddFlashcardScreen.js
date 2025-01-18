@@ -636,23 +636,12 @@ const AddFlashcardScreen = ({ navigation }) => {
           <View style={[styles.stepLine, selectedStudySet && styles.activeStepLine]} />
           <View style={[styles.stepDot, selectedStudySet && styles.activeStepDot]} />
         </View>
-        <View style={styles.stepTextContainer}>
-          <Text style={[styles.stepText, !selectedCategory && styles.activeStepText]}>
-            {t('flashcard.steps.category')}
-          </Text>
-          <Text style={[styles.stepText, selectedCategory && !selectedStudySet && styles.activeStepText]}>
-            {t('flashcard.steps.studySet')}
-          </Text>
-          <Text style={[styles.stepText, selectedStudySet && styles.activeStepText]}>
-            {t('flashcard.steps.cards')}
-          </Text>
-        </View>
       </View>
 
       <View style={styles.selectionSection}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.selectionTitle}>{t('flashcard.category')}</Text>
-          <Text style={styles.selectionDescription}>
+        <View style={styles.stepHeader}>
+          <Text style={styles.stepTitle}>{t('flashcard.category')}</Text>
+          <Text style={styles.stepDescription}>
             {!selectedCategory 
               ? t('flashcard.selectCategory')
               : t('flashcard.selectedCategory')}
@@ -700,9 +689,9 @@ const AddFlashcardScreen = ({ navigation }) => {
 
       {selectedCategory && (
         <View style={styles.selectionSection}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.selectionTitle}>{t('flashcard.studySet')}</Text>
-            <Text style={styles.selectionDescription}>
+          <View style={styles.stepHeader}>
+            <Text style={styles.stepTitle}>{t('flashcard.studySet')}</Text>
+            <Text style={styles.stepDescription}>
               {!selectedStudySet 
                 ? t('flashcard.selectStudySet')
                 : t('flashcard.selectedStudySet')}
@@ -761,25 +750,24 @@ const AddFlashcardScreen = ({ navigation }) => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButton}>
-              <Ionicons name="close" size={24} color="black" />
+            <TouchableOpacity 
+              style={styles.backButton} 
+              onPress={() => navigation.goBack()}
+            >
+              <Ionicons 
+                name="chevron-back" 
+                size={24} 
+                color="#666666" 
+              />
             </TouchableOpacity>
-            {selectedCategory && selectedStudySet && (
-              <TouchableOpacity 
-                style={[
-                  styles.addCardButton,
-                  (!areAllCardsValid() || flashcards.length >= 50) && styles.addCardButtonDisabled
-                ]} 
-                onPress={addNewCard}
-                disabled={!areAllCardsValid() || flashcards.length >= 50}
-              >
-                <Ionicons 
-                  name="add" 
-                  size={24} 
-                  color={areAllCardsValid() && flashcards.length < 50 ? "#000000" : "#999999"} 
-                />
-              </TouchableOpacity>
-            )}
+
+            <View style={styles.stepIndicatorContainer}>
+              <View style={[styles.stepDot, !selectedCategory && styles.activeStepDot]} />
+              <View style={[styles.stepLine, selectedCategory && styles.activeStepLine]} />
+              <View style={[styles.stepDot, selectedCategory && !selectedStudySet && styles.activeStepDot]} />
+              <View style={[styles.stepLine, selectedStudySet && styles.activeStepLine]} />
+              <View style={[styles.stepDot, selectedStudySet && styles.activeStepDot]} />
+            </View>
           </View>
 
           <View style={styles.content}>
@@ -802,7 +790,6 @@ const AddFlashcardScreen = ({ navigation }) => {
                   opacity: cardsFadeAnim,
                 }}
               >
-                {renderStepIndicator()}
                 {renderCurrentCard()}
               </Animated.View>
             )}
@@ -842,12 +829,22 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingVertical: 12,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   backButton: {
-    padding: 4,
+    padding: 8,
+  },
+  stepIndicatorContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 16,
+    marginRight: 48,
   },
   titleContainer: {
     paddingHorizontal: 16,
@@ -1047,15 +1044,22 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   stepDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
     backgroundColor: '#E0E0E0',
-    margin: 2,
   },
-  stepDotActive: {
+  activeStepDot: {
     backgroundColor: '#000000',
-    transform: [{ scale: 1 }],
+  },
+  stepLine: {
+    width: 24,
+    height: 2,
+    backgroundColor: '#E0E0E0',
+    marginHorizontal: 4,
+  },
+  activeStepLine: {
+    backgroundColor: '#000000',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -1094,14 +1098,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   selectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#000000',
-    marginBottom: 4,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
   },
   selectionDescription: {
-    fontSize: 14,
-    color: '#666666',
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 22,
     marginBottom: 8,
   },
   categoriesContainer: {
@@ -1215,13 +1220,22 @@ const styles = StyleSheet.create({
   },
   stepHeader: {
     marginBottom: 24,
-    paddingHorizontal: 16,
+  },
+  stepTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
+  },
+  stepDescription: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 22,
   },
   stepIndicatorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
   },
   stepDot: {
     width: 12,

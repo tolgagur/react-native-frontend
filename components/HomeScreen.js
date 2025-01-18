@@ -28,6 +28,7 @@ const HomeScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [username, setUsername] = useState('');
   const slideAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const welcomeAnim = useRef(new Animated.Value(1)).current;
@@ -71,8 +72,18 @@ const HomeScreen = ({ navigation, route }) => {
     }
   };
 
+  const fetchUserInfo = async () => {
+    try {
+      const response = await api.get('/users/me');
+      setUsername(response.data.username || '');
+    } catch (error) {
+      console.log('Kullanıcı bilgisi alınamadı');
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+    fetchUserInfo();
 
     const unsubscribe = navigation.addListener('focus', () => {
       fetchCategories();
@@ -198,17 +209,17 @@ const HomeScreen = ({ navigation, route }) => {
     return (
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
-          <Ionicons name="folder" size={24} color="#007AFF" />
+          <Ionicons name="folder" size={24} color="#666666" />
           <Text style={styles.statNumber}>{categories.length}</Text>
           <Text style={styles.statLabel}>{t('home.stats.categories')}</Text>
         </View>
         <View style={styles.statCard}>
-          <Ionicons name="albums" size={24} color="#34C759" />
+          <Ionicons name="albums" size={24} color="#666666" />
           <Text style={styles.statNumber}>{totalSets}</Text>
           <Text style={styles.statLabel}>{t('home.stats.studySets')}</Text>
         </View>
         <View style={styles.statCard}>
-          <Ionicons name="documents" size={24} color="#FF9500" />
+          <Ionicons name="documents" size={24} color="#666666" />
           <Text style={styles.statNumber}>{totalCards}</Text>
           <Text style={styles.statLabel}>{t('home.stats.flashcards')}</Text>
         </View>
@@ -225,13 +236,13 @@ const HomeScreen = ({ navigation, route }) => {
         contentContainerStyle={styles.quickActionsContent}
       >
         <TouchableOpacity 
-          style={styles.quickActionCard}
+          style={[styles.quickActionCard]}
           onPress={() => navigation.navigate('AddCategory')}
         >
-          <View style={[styles.quickActionIcon, { backgroundColor: '#E3F2FD' }]}>
-            <Ionicons name="folder-open" size={24} color="#007AFF" />
+          <View style={[styles.quickActionIcon, { backgroundColor: '#F8F9FA' }]}>
+            <Ionicons name="home" size={24} color="#666666" />
           </View>
-          <Text style={styles.quickActionTitle}>{t('home.actions.newCategory')}</Text>
+          <Text style={styles.quickActionTitle}>{t('categories.addNew')}</Text>
           <Text style={styles.quickActionSubtitle}>{t('home.actions.newCategoryDesc')}</Text>
         </TouchableOpacity>
 
@@ -239,10 +250,10 @@ const HomeScreen = ({ navigation, route }) => {
           style={styles.quickActionCard}
           onPress={() => navigation.navigate('AddStudySet')}
         >
-          <View style={[styles.quickActionIcon, { backgroundColor: '#F0FDF4' }]}>
-            <Ionicons name="albums" size={24} color="#34C759" />
+          <View style={[styles.quickActionIcon, { backgroundColor: '#F8F9FA' }]}>
+            <Ionicons name="albums" size={24} color="#666666" />
           </View>
-          <Text style={styles.quickActionTitle}>{t('home.actions.newStudySet')}</Text>
+          <Text style={styles.quickActionTitle}>{t('studySet.addNew')}</Text>
           <Text style={styles.quickActionSubtitle}>{t('home.actions.newStudySetDesc')}</Text>
         </TouchableOpacity>
 
@@ -250,10 +261,10 @@ const HomeScreen = ({ navigation, route }) => {
           style={styles.quickActionCard}
           onPress={() => navigation.navigate('AddFlashcard')}
         >
-          <View style={[styles.quickActionIcon, { backgroundColor: '#FFF4E5' }]}>
-            <Ionicons name="documents" size={24} color="#FF9500" />
+          <View style={[styles.quickActionIcon, { backgroundColor: '#F8F9FA' }]}>
+            <Ionicons name="documents" size={24} color="#666666" />
           </View>
-          <Text style={styles.quickActionTitle}>{t('home.actions.newFlashcard')}</Text>
+          <Text style={styles.quickActionTitle}>{t('flashcard.addNew')}</Text>
           <Text style={styles.quickActionSubtitle}>{t('home.actions.newFlashcardDesc')}</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -272,14 +283,18 @@ const HomeScreen = ({ navigation, route }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>{t('categories.title')}</Text>
-          <Text style={styles.headerSubtitle}>{t('home.subtitle')}</Text>
+          <Text style={styles.headerTitle}>
+            {t('home.greeting', { username: username || t('common.user') })}
+          </Text>
+          <Text style={styles.headerSubtitle}>
+            {t('home.welcomeBack')}
+          </Text>
         </View>
         <TouchableOpacity 
           style={styles.notificationButton}
           onPress={() => navigation.navigate('NotificationSettings')}
         >
-          <Ionicons name="notifications-outline" size={24} color="#000" />
+          <Ionicons name="notifications-outline" size={24} color="#666666" />
         </TouchableOpacity>
       </View>
 
@@ -417,7 +432,6 @@ const HomeScreen = ({ navigation, route }) => {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <View style={styles.modalIndicator} />
-              <Text style={styles.modalTitle}>{t('home.createNew')}</Text>
             </View>
 
             {createOptions.map((option) => (
@@ -427,7 +441,7 @@ const HomeScreen = ({ navigation, route }) => {
                 onPress={() => handleOptionSelect(option.id)}
               >
                 <View style={[styles.optionIcon, { backgroundColor: option.color }]}>
-                  <Ionicons name={option.icon} size={24} color="#007AFF" />
+                  <Ionicons name={option.icon} size={24} color="#666666" />
                 </View>
                 <View style={styles.optionText}>
                   <Text style={styles.optionTitle}>{option.title}</Text>
@@ -459,10 +473,11 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 8,
+    paddingVertical: 24,
+    marginTop: 12,
+    marginBottom: 12,
   },
   headerTitle: {
     fontSize: 32,
@@ -478,12 +493,11 @@ const styles = StyleSheet.create({
   notificationButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F8F9FA',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginTop: 4,
   },
   content: {
     flex: 1,

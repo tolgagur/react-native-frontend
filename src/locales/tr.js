@@ -11,7 +11,8 @@ export default {
     delete: 'Sil',
     edit: 'Düzenle',
     create: 'Oluştur',
-    update: 'Güncelle'
+    update: 'Güncelle',
+    user: 'Dostum'
   },
   auth: {
     login: {
@@ -289,6 +290,8 @@ export default {
     updateError: 'Bildirim ayarları güncellenirken hata oluştu'
   },
   home: {
+    greeting: 'Hoşgeldin {{username}} ✨',
+    welcomeBack: 'Haydi öğrenmeye devam edelim!',
     welcome: 'Hoş Geldiniz! 👋',
     welcomeMessage: 'Kelime kartlarınızı oluşturmaya başlayın ve öğrenme yolculuğunuza adım atın.',
     subtitle: 'Öğrenme yolculuğunuzu yönetin',

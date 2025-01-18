@@ -289,6 +289,8 @@ export default {
     updateError: 'Failed to update notification settings'
   },
   home: {
+    greeting: 'Welcome {{username}} ✨',
+    welcomeBack: "Let's continue learning!",
     welcome: 'Welcome! 👋',
     welcomeMessage: 'Start creating your flashcards and begin your learning journey.',
     subtitle: 'Manage your learning journey',
