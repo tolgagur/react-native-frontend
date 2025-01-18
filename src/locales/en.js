@@ -162,11 +162,9 @@ export default {
       create: 'Create Category',
       creating: 'Creating...'
     },
-    studySetCount: {
-      zero: 'No study sets',
-      one: '1 study set',
-      other: '{{count}} study sets'
-    },
+    studySetCount: '{{count}} study sets',
+    noStudySet: 'No study sets',
+    oneStudySet: '1 study set',
     errors: {
       nameRequired: 'Category name is required',
       nameTooShort: 'Category name must be at least 3 characters',
@@ -289,5 +287,30 @@ export default {
     loadError: 'Failed to load notification settings',
     updateSuccess: 'Notification settings updated',
     updateError: 'Failed to update notification settings'
+  },
+  home: {
+    welcome: 'Welcome! 👋',
+    welcomeMessage: 'Start creating your flashcards and begin your learning journey.',
+    subtitle: 'Manage your learning journey',
+    quickActions: 'Quick Actions',
+    yourCategories: 'Your Categories',
+    createNew: 'Create New',
+    stats: {
+      categories: 'Category',
+      studySets: 'Study Set',
+      flashcards: 'Flashcard'
+    },
+    actions: {
+      newCategory: 'New Category',
+      newCategoryDesc: 'Create a new category to organize your study sets',
+      newStudySet: 'New Study Set',
+      newStudySetDesc: 'Create a new set to group your flashcards',
+      newFlashcard: 'New Flashcard',
+      newFlashcardDesc: 'Add new words you want to learn'
+    }
+  },
+  navigation: {
+    home: 'Home',
+    profile: 'Profile'
   },
 }; 

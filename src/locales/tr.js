@@ -162,11 +162,9 @@ export default {
       create: 'Kategori Oluştur',
       creating: 'Oluşturuluyor...'
     },
-    studySetCount: {
-      zero: 'Çalışma seti yok',
-      one: '1 çalışma seti',
-      other: '{{count}} çalışma seti'
-    },
+    studySetCount: '{{count}} çalışma seti',
+    noStudySet: 'Çalışma seti yok',
+    oneStudySet: '1 çalışma seti',
     errors: {
       nameRequired: 'Kategori adı zorunludur',
       nameTooShort: 'Kategori adı en az 3 karakter olmalıdır',
@@ -290,4 +288,29 @@ export default {
     updateSuccess: 'Bildirim ayarları güncellendi',
     updateError: 'Bildirim ayarları güncellenirken hata oluştu'
   },
+  home: {
+    welcome: 'Hoş Geldiniz! 👋',
+    welcomeMessage: 'Kelime kartlarınızı oluşturmaya başlayın ve öğrenme yolculuğunuza adım atın.',
+    subtitle: 'Öğrenme yolculuğunuzu yönetin',
+    quickActions: 'Hızlı Eylemler',
+    yourCategories: 'Kategorileriniz',
+    createNew: 'Yeni Oluştur',
+    stats: {
+      categories: 'Kategori',
+      studySets: 'Çalışma Seti',
+      flashcards: 'Kelime Kartı'
+    },
+    actions: {
+      newCategory: 'Yeni Kategori',
+      newCategoryDesc: 'Çalışma setlerinizi düzenlemek için yeni bir kategori oluşturun',
+      newStudySet: 'Yeni Çalışma Seti',
+      newStudySetDesc: 'Kelime kartlarınızı gruplamak için yeni bir set oluşturun',
+      newFlashcard: 'Yeni Kelime Kartı',
+      newFlashcardDesc: 'Öğrenmek istediğiniz yeni kelimeler ekleyin'
+    }
+  },
+  navigation: {
+    home: 'Ana Sayfa',
+    profile: 'Profil'
+  }
 }; 

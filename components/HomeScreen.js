@@ -331,10 +331,10 @@ const HomeScreen = ({ navigation, route }) => {
                     )}
                     <Text style={styles.categoryStats}>
                       {category.studySets?.length === 0 
-                        ? t('categories.studySetCount.zero')
+                        ? t('categories.noStudySet')
                         : category.studySets?.length === 1
-                        ? t('categories.studySetCount.one')
-                        : t('categories.studySetCount.other', { count: category.studySets?.length || 0 })}
+                        ? t('categories.oneStudySet')
+                        : t('categories.studySetCount', { count: category.studySets?.length || 0 })}
                     </Text>
                   </View>
                 </TouchableOpacity>
