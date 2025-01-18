@@ -96,7 +96,28 @@ const StudySetScreen = ({ navigation, route }) => {
     fetchStudySets();
 
     const unsubscribe = navigation.addListener('focus', () => {
-      fetchStudySets();
+      // Route params'dan shouldRefresh ve newStudySet'i kontrol et
+      const shouldRefresh = route.params?.shouldRefresh;
+      const newStudySet = route.params?.newStudySet;
+
+      if (shouldRefresh) {
+        // Yeni oluşturulan seti hemen ekle
+        if (newStudySet) {
+          const processedStudySet = {
+            ...newStudySet,
+            totalCards: 0,
+            masteredCards: 0,
+            learningCards: 0,
+            notStartedCards: 0,
+            flashcards: []
+          };
+          setStudySets(prevSets => [processedStudySet, ...prevSets]);
+        }
+        // Route params'ı temizle
+        navigation.setParams({ shouldRefresh: undefined, newStudySet: undefined });
+        // Tam listeyi güncelle
+        fetchStudySets();
+      }
     });
 
     return unsubscribe;
@@ -297,15 +318,15 @@ const StudySetScreen = ({ navigation, route }) => {
         {studySets.length === 0 ? (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconContainer}>
-              <Ionicons name="albums-outline" size={48} color="#007AFF" />
+              <Ionicons name="albums-outline" size={48} color="#666666" />
             </View>
             <Text style={styles.emptyText}>{t('studySet.empty')}</Text>
             <Text style={styles.emptySubText}>{t('studySet.emptySubtext')}</Text>
             <TouchableOpacity 
               style={styles.emptyButton}
-              onPress={showModal}
+              onPress={() => navigation.replace('AddStudySet', { categoryId: category.id })}
             >
-              <Ionicons name="add-circle-outline" size={20} color="#FFF" />
+              <Ionicons name="add-outline" size={20} color="#FFF" />
               <Text style={styles.emptyButtonText}>Yeni Set Oluştur</Text>
             </TouchableOpacity>
           </View>
@@ -319,19 +340,19 @@ const StudySetScreen = ({ navigation, route }) => {
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={styles.navItem}
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.replace('Home')}
         >
           <Ionicons name="home-outline" size={22} color="#666666" />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.addButton}
-          onPress={showModal}
+          onPress={() => navigation.replace('AddStudySet', { categoryId: category.id })}
         >
           <Ionicons name="add-outline" size={24} color="#666666" />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navItem} 
-          onPress={() => navigation.navigate('Profile')}
+          onPress={() => navigation.replace('Profile')}
         >
           <Ionicons name="person-outline" size={22} color="#666666" />
         </TouchableOpacity>
@@ -602,10 +623,12 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#F8F9FA',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   emptyText: {
     fontSize: 20,
@@ -623,7 +646,7 @@ const styles = StyleSheet.create({
   emptyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#007AFF',
+    backgroundColor: '#666666',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,

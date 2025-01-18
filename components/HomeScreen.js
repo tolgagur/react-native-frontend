@@ -190,8 +190,8 @@ const HomeScreen = ({ navigation, route }) => {
                 }}
               >
                 <View style={styles.cardContent}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons name="grid-outline" size={24} color="#007AFF" />
+                  <View style={[styles.iconContainer, { backgroundColor: category.color || '#F5F5F5' }]}>
+                    <Ionicons name={category.icon || 'folder-outline'} size={24} color="#666666" />
                   </View>
                   <Text style={styles.categoryName}>{category.name}</Text>
                   {category.description && (
