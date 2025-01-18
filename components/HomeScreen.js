@@ -330,7 +330,11 @@ const HomeScreen = ({ navigation, route }) => {
                       </Text>
                     )}
                     <Text style={styles.categoryStats}>
-                      {t('categories.studySetCount', { count: category.studySets?.length || 0 })}
+                      {category.studySets?.length === 0 
+                        ? t('categories.studySetCount.zero')
+                        : category.studySets?.length === 1
+                        ? t('categories.studySetCount.one')
+                        : t('categories.studySetCount.other', { count: category.studySets?.length || 0 })}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -448,20 +452,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#000000',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   headerSubtitle: {
     fontSize: 14,
     color: '#666666',
-    marginBottom: 8,
+    marginBottom: 0,
   },
   notificationButton: {
     width: 40,
@@ -475,7 +477,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingTop: 8,
+    paddingTop: 0,
   },
   welcomeContainer: {
     backgroundColor: '#F8F9FA',
@@ -506,7 +508,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     marginBottom: 24,
-    marginTop: 8,
+    marginTop: 4,
   },
   statCard: {
     flex: 1,
