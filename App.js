@@ -16,6 +16,7 @@ import HomeScreen from './components/HomeScreen';
 import AddCategoryScreen from './components/AddCategoryScreen';
 import AddStudySetScreen from './components/AddStudySetScreen';
 import AddFlashcardScreen from './components/AddFlashcardScreen';
+import AddCardScreen from './components/AddCardScreen';
 import ProfileScreen from './components/ProfileScreen';
 import NotificationSettingsScreen from './components/NotificationSettingsScreen';
 import SettingsScreen from './components/SettingsScreen';
@@ -214,6 +215,10 @@ export default function App() {
                 <Stack.Screen 
                   name="AddFlashcard" 
                   component={AddFlashcardScreen}
+                />
+                <Stack.Screen 
+                  name="AddCard" 
+                  component={AddCardScreen}
                 />
                 <Stack.Screen 
                   name="Profile" 

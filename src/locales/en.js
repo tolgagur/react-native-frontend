@@ -11,7 +11,8 @@ export default {
     delete: 'Delete',
     edit: 'Edit',
     create: 'Create',
-    update: 'Update'
+    update: 'Update',
+    continue: 'Continue'
   },
   auth: {
     login: {

@@ -12,7 +12,8 @@ export default {
     edit: 'Düzenle',
     create: 'Oluştur',
     update: 'Güncelle',
-    user: 'Dostum'
+    user: 'Dostum',
+    continue: 'Devam Et'
   },
   auth: {
     login: {
