@@ -54,26 +54,56 @@ const getRefreshToken = async () => {
 api.interceptors.request.use(
   async (config) => {
     const token = await getToken();
+    console.log('İstek detayları:', {
+      url: config.url,
+      method: config.method,
+      baseURL: config.baseURL,
+      token: token
+    });
+    
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    // Eğer logout isteği ise refresh token'ı ekle
-    if (config.url === '/auth/logout') {
-      console.log('Çıkış isteği tespit edildi');
-      const refreshToken = await getRefreshToken();
-      console.log('Alınan refresh token:', refreshToken);
-      if (refreshToken) {
-        config.headers['Refresh-Token'] = refreshToken;
-        console.log('Refresh token header\'a eklendi');
-      } else {
-        console.log('Refresh token bulunamadı, header\'a eklenemedi');
-      }
+      // Mevcut header'ları koru ve yenilerini ekle
+      config.headers = {
+        ...config.headers,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      console.log('Request headers:', config.headers);
+    } else {
+      console.warn('Token bulunamadı! İstek header\'ları:', config.headers);
     }
 
     return config;
   },
   (error) => {
+    console.error('İstek interceptor hatası:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
+api.interceptors.response.use(
+  (response) => {
+    console.log('Başarılı yanıt:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data
+    });
+    return response;
+  },
+  (error) => {
+    if (error.response) {
+      console.error('API Hata detayları:', {
+        url: error.config.url,
+        status: error.response.status,
+        data: error.response.data,
+        headers: error.response.headers,
+        requestHeaders: error.config.headers
+      });
+    } else {
+      console.error('API İstek hatası:', error.message);
+    }
     return Promise.reject(error);
   }
 );

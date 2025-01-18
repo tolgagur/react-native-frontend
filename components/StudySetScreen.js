@@ -12,12 +12,15 @@ import {
   Modal,
   Animated,
   Dimensions,
-  PanResponder
+  PanResponder,
+  Image,
+  ProgressBarAndroid
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const StudySetScreen = ({ navigation, route }) => {
   const { category } = route.params;
@@ -52,18 +55,46 @@ const StudySetScreen = ({ navigation, route }) => {
 
   const fetchStudySets = async () => {
     try {
-      const response = await api.get(`/study-sets/by-category/${category.id}`);
-      console.log('Çalışma setleri yüklendi:', response.data);
+      const token = await AsyncStorage.getItem('@flashcard_token');
+      console.log('Kategori ID:', category.id);
+      console.log('Token:', token);
+      
+      const url = `/study-sets/by-category/${category.id}`;
+      console.log('İstek URL:', url);
+      
+      const response = await api.get(url);
+      console.log('API Yanıtı:', response.data);
       setStudySets(response.data);
     } catch (error) {
       console.error('Çalışma setleri yükleme hatası:', error);
-      Toast.show({
-        type: 'error',
-        text1: 'Hata',
-        text2: 'Çalışma setleri yüklenirken bir hata oluştu',
-        visibilityTime: 3000,
-        position: 'top',
-      });
+      if (error.response) {
+        console.error('Hata yanıtı:', {
+          status: error.response.status,
+          data: error.response.data,
+          headers: error.response.headers,
+          requestURL: error.config.url,
+          requestHeaders: error.config.headers
+        });
+      }
+      
+      if (error.response?.status === 403) {
+        Toast.show({
+          type: 'error',
+          text1: 'Yetkilendirme Hatası',
+          text2: 'Lütfen tekrar giriş yapın',
+          visibilityTime: 3000,
+          position: 'top',
+        });
+        navigation.navigate('Auth', { screen: 'Login' });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Hata',
+          text2: 'Çalışma setleri yüklenirken bir hata oluştu',
+          visibilityTime: 3000,
+          position: 'top',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -113,43 +144,39 @@ const StudySetScreen = ({ navigation, route }) => {
     });
   };
 
-  const createOptions = [
-    {
-      id: 1,
-      title: t('categories.addNew'),
-      subtitle: t('categories.addNewSubtitle'),
-      icon: 'grid-outline',
-      color: '#E3F2FD'
-    },
-    {
-      id: 2,
-      title: t('studySet.addNew'),
-      subtitle: t('studySet.addNewSubtitle'),
-      icon: 'albums-outline',
-      color: '#FFF3E0'
-    },
-    {
-      id: 3,
-      title: t('flashcard.addNew'),
-      subtitle: t('flashcard.addNewSubtitle'),
-      icon: 'documents-outline',
-      color: '#E8F5E9'
-    }
-  ];
+  const renderProgress = (studySet) => {
+    const totalCards = studySet.totalCards || 0;
+    const masteredCards = studySet.masteredCards || 0;
+    const progress = totalCards > 0 ? (masteredCards / totalCards) : 0;
 
-  const handleOptionSelect = (optionId) => {
-    switch (optionId) {
-      case 1:
-        navigation.navigate('AddCategory');
-        break;
-      case 2:
-        navigation.navigate('AddStudySet');
-        break;
-      case 3:
-        navigation.navigate('AddFlashcard');
-        break;
+    if (Platform.OS === 'android') {
+      return (
+        <ProgressBarAndroid
+          styleAttr="Horizontal"
+          indeterminate={false}
+          progress={progress}
+          color="#4CAF50"
+        />
+      );
     }
-    hideModal();
+    
+    return (
+      <View style={styles.iosProgressBar}>
+        <View style={[styles.iosProgressFill, { width: `${progress * 100}%` }]} />
+      </View>
+    );
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'MASTERED':
+        return '#4CAF50';
+      case 'LEARNING':
+        return '#FFC107';
+      case 'NOT_STARTED':
+      default:
+        return '#9E9E9E';
+    }
   };
 
   if (isLoading) {
@@ -192,25 +219,55 @@ const StudySetScreen = ({ navigation, route }) => {
             <Text style={styles.emptySubText}>{t('studySet.emptySubtext')}</Text>
           </View>
         ) : (
-          <View style={styles.gridContainer}>
+          <View style={styles.studySetsContainer}>
             {studySets.map((studySet) => (
               <TouchableOpacity
                 key={studySet.id}
                 style={styles.studySetCard}
-                onPress={() => {
-                  console.log('Çalışma seti seçildi:', studySet);
-                }}
+                onPress={() => navigation.navigate('StudySetDetail', { studySet })}
               >
-                <View style={styles.cardContent}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons name="albums-outline" size={24} color="#007AFF" />
+                <View style={styles.cardHeader}>
+                  <View style={styles.cardTitleContainer}>
+                    <Text style={styles.studySetName}>{studySet.name}</Text>
+                    <Text style={styles.username}>by {studySet.username}</Text>
                   </View>
-                  <Text style={styles.studySetName}>{studySet.name}</Text>
-                  {studySet.description && (
-                    <Text style={styles.studySetDescription} numberOfLines={1}>
-                      {studySet.description}
+                  <View style={styles.statsContainer}>
+                    <Text style={styles.statsText}>
+                      {studySet.flashcards?.length || studySet.totalCards || 0} kart
                     </Text>
-                  )}
+                  </View>
+                </View>
+
+                {studySet.description && (
+                  <Text style={styles.description} numberOfLines={2}>
+                    {studySet.description}
+                  </Text>
+                )}
+
+                <View style={styles.progressContainer}>
+                  {renderProgress(studySet)}
+                  <View style={styles.progressStats}>
+                    <Text style={styles.progressText}>
+                      {studySet.masteredCards || 0} öğrenildi
+                    </Text>
+                    <Text style={styles.progressText}>
+                      {studySet.learningCards || 0} öğreniliyor
+                    </Text>
+                    <Text style={styles.progressText}>
+                      {studySet.notStartedCards || 0} başlanmadı
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.flashcardsPreview}>
+                  {studySet.flashcards && studySet.flashcards.slice(0, 3).map((card) => (
+                    <View key={card.id} style={styles.previewCard}>
+                      <View style={[styles.statusDot, { backgroundColor: getStatusColor(card.status) }]} />
+                      <Text style={styles.previewText} numberOfLines={1}>
+                        {card.frontTitle || card.frontContent}
+                      </Text>
+                    </View>
+                  ))}
                 </View>
               </TouchableOpacity>
             ))}
@@ -218,19 +275,18 @@ const StudySetScreen = ({ navigation, route }) => {
         )}
       </ScrollView>
 
-      {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => navigation.navigate('Home')}
         >
-          <Ionicons name="home" size={24} color="#666666" />
+          <Ionicons name="home-outline" size={24} color="#666666" />
         </TouchableOpacity>
         <TouchableOpacity 
-          style={styles.navItem}
+          style={styles.addButton}
           onPress={showModal}
         >
-          <Ionicons name="add" size={24} color="#007AFF" />
+          <Ionicons name="add" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.navItem} 
@@ -240,7 +296,6 @@ const StudySetScreen = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Create Modal */}
       <Modal
         visible={isModalVisible}
         transparent={true}
@@ -280,24 +335,42 @@ const StudySetScreen = ({ navigation, route }) => {
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <View style={styles.modalIndicator} />
+              <Text style={styles.modalTitle}>Yeni Oluştur</Text>
             </View>
 
-            {createOptions.map((option) => (
-              <TouchableOpacity
-                key={option.id}
-                style={styles.optionItem}
-                onPress={() => handleOptionSelect(option.id)}
-              >
-                <View style={[styles.optionIcon, { backgroundColor: option.color }]}>
-                  <Ionicons name={option.icon} size={24} color="#007AFF" />
-                </View>
-                <View style={styles.optionText}>
-                  <Text style={styles.optionTitle}>{option.title}</Text>
-                  <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#999" />
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity
+              style={styles.modalOption}
+              onPress={() => {
+                hideModal();
+                navigation.navigate('AddStudySet', { categoryId: category.id });
+              }}
+            >
+              <View style={[styles.optionIcon, { backgroundColor: '#E3F2FD' }]}>
+                <Ionicons name="albums-outline" size={24} color="#007AFF" />
+              </View>
+              <View style={styles.optionText}>
+                <Text style={styles.optionTitle}>Yeni Çalışma Seti</Text>
+                <Text style={styles.optionSubtitle}>Kartlarınızı organize edin</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.modalOption}
+              onPress={() => {
+                hideModal();
+                navigation.navigate('AddFlashcard', { categoryId: category.id });
+              }}
+            >
+              <View style={[styles.optionIcon, { backgroundColor: '#E8F5E9' }]}>
+                <Ionicons name="documents-outline" size={24} color="#4CAF50" />
+              </View>
+              <View style={styles.optionText}>
+                <Text style={styles.optionTitle}>Yeni Flash Kart</Text>
+                <Text style={styles.optionSubtitle}>Hızlı kart oluşturun</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
           </View>
         </Animated.View>
       </Modal>
@@ -324,85 +397,131 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 8,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000000',
+    fontSize: 20,
+    fontWeight: '600',
     flex: 1,
     textAlign: 'center',
-    marginHorizontal: 8,
+    marginHorizontal: 16,
   },
   notificationButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 8,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 12,
-    paddingTop: 8,
   },
-  gridContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  studySetCard: {
-    width: '48%',
-    aspectRatio: 1,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 12,
-    marginBottom: 12,
+  studySetsContainer: {
     padding: 16,
   },
-  cardContent: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  studySetCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E3F2FD',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  cardTitleContainer: {
+    flex: 1,
   },
   studySetName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#000000',
-    textAlign: 'center',
     marginBottom: 4,
   },
-  studySetDescription: {
+  username: {
     fontSize: 14,
     color: '#666666',
-    textAlign: 'center',
+  },
+  statsContainer: {
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  statsText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#666666',
+  },
+  description: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 16,
+  },
+  progressContainer: {
+    marginBottom: 16,
+  },
+  progressStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  progressText: {
+    fontSize: 12,
+    color: '#666666',
+  },
+  flashcardsPreview: {
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    paddingTop: 12,
+  },
+  previewCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  previewText: {
+    fontSize: 14,
+    color: '#333333',
+    flex: 1,
   },
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 40,
   },
   navItem: {
     padding: 12,
+  },
+  addButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
   emptyContainer: {
     flex: 1,
@@ -411,15 +530,16 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#666',
-    marginTop: 12,
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginTop: 16,
   },
   emptySubText: {
     fontSize: 14,
-    color: '#999',
-    marginTop: 4,
+    color: '#666666',
+    marginTop: 8,
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
@@ -434,40 +554,38 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 20,
   },
   modalContent: {
-    padding: 20,
+    padding: 16,
   },
   modalHeader: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   modalIndicator: {
     width: 40,
     height: 4,
     backgroundColor: '#E0E0E0',
     borderRadius: 2,
+    marginBottom: 16,
   },
-  optionItem: {
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  modalOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderRadius: 16,
-    marginBottom: 8,
+    padding: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    marginBottom: 12,
   },
   optionIcon: {
     width: 48,
     height: 48,
-    borderRadius: 12,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -476,14 +594,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#000000',
     marginBottom: 4,
   },
   optionSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#666666',
+  },
+  iosProgressBar: {
+    height: 4,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  iosProgressFill: {
+    height: '100%',
+    backgroundColor: '#4CAF50',
+    borderRadius: 2,
   },
 });
 
