@@ -248,9 +248,10 @@ const AddFlashcardScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.keyboardView}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        enabled
       >
         <View style={styles.header}>
           <TouchableOpacity 
@@ -489,6 +490,7 @@ const styles = StyleSheet.create({
   },
   keyboardView: {
     flex: 1,
+    position: 'relative',
   },
   header: {
     flexDirection: 'row',
@@ -538,7 +540,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 100, // Alt kısımda extra padding
+    paddingBottom: Platform.OS === "ios" ? 80 : 60,
   },
   selectionSection: {
     padding: 24,
@@ -639,13 +641,14 @@ const styles = StyleSheet.create({
   },
   cardSection: {
     flex: 1,
-    padding: 24,
+    padding: 16,
+    minHeight: 400,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   cardCount: {
     fontSize: 16,
@@ -656,29 +659,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardSide: {
-    marginBottom: 24,
+    marginBottom: 8,
   },
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   input: {
     backgroundColor: '#F8F8F8',
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 12,
-    padding: 16,
+    padding: 12,
     fontSize: 16,
     color: '#333',
-    minHeight: 120,
+    minHeight: 60,
+    maxHeight: 100,
     textAlignVertical: 'top',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: 16,
   },
   dividerLine: {
     flex: 1,
@@ -698,7 +702,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
   },
   navigationButton: {
     padding: 8,
@@ -715,15 +719,16 @@ const styles = StyleSheet.create({
   footerContainer: {
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    position: 'absolute',
-    bottom: 0,
+    borderTopColor: '#F0F0E0',
+    position: 'relative',
     left: 0,
     right: 0,
+    zIndex: 999,
   },
   footer: {
-    padding: 16,
+    padding: 12,
     backgroundColor: '#FFFFFF',
+    paddingBottom: Platform.OS === "ios" ? 0 : 12,
   },
   deleteCardButton: {
     flexDirection: 'row',
