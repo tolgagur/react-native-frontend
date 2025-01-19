@@ -345,22 +345,15 @@ const HomeScreen = ({ navigation, route }) => {
                   }
                 >
                   <View style={styles.cardContent}>
-                    <View style={[styles.iconContainer, { backgroundColor: category.color || '#F5F5F5' }]}>
+                    <View style={[styles.iconContainer, { backgroundColor: category.color || '#F8F9FA' }]}>
                       <Ionicons name={category.icon || 'folder-outline'} size={24} color="#666666" />
                     </View>
                     <Text style={styles.categoryName}>{category.name}</Text>
                     {category.description && (
-                      <Text style={styles.categoryDescription} numberOfLines={1}>
+                      <Text style={styles.categoryDescription} numberOfLines={2}>
                         {category.description}
                       </Text>
                     )}
-                    <Text style={styles.categoryStats}>
-                      {category.studySets?.length === 0 
-                        ? t('categories.noStudySet')
-                        : category.studySets?.length === 1
-                        ? t('categories.oneStudySet')
-                        : t('categories.studySetCount', { count: category.studySets?.length || 0 })}
-                    </Text>
                   </View>
                 </TouchableOpacity>
               ))}
@@ -604,27 +597,35 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
+    marginTop: 8,
   },
   categoryCard: {
     width: '48%',
-    aspectRatio: 1,
+    aspectRatio: 0.9,
     backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    marginBottom: 12,
+    borderRadius: 16,
+    marginBottom: 8,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E0E0E0',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 3,
   },
   cardContent: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   iconContainer: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -632,20 +633,15 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 4,
+    color: '#1C1C1E',
+    marginBottom: 6,
+    width: '100%',
   },
   categoryDescription: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  categoryStats: {
-    fontSize: 12,
-    color: '#007AFF',
-    textAlign: 'center',
+    fontSize: 13,
+    color: '#666666',
+    width: '100%',
+    lineHeight: 18,
   },
   emptyContainer: {
     alignItems: 'center',
