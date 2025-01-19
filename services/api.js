@@ -4,6 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // API'nin temel URL'si
 const BASE_URL = 'http://192.168.1.104:8080/api/v1';
 
+// Event emitter for auth events
+export const AuthEvents = {
+  onAuthError: null,
+  onTokenRefreshed: null
+};
+
 // Axios instance oluşturma
 const api = axios.create({
   baseURL: BASE_URL,
@@ -50,7 +56,7 @@ const getRefreshToken = async () => {
   }
 };
 
-// Request interceptor
+// İstek interceptor'ı
 api.interceptors.request.use(
   async (config) => {
     const token = await getToken();
@@ -64,28 +70,53 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor
+// Yanıt interceptor'ı
 api.interceptors.response.use(
-  (response) => {
-    console.log('Başarılı yanıt:', {
-      url: response.config.url,
-      status: response.status,
-      data: response.data
-    });
-    return response;
-  },
-  (error) => {
-    if (error.response) {
-      console.error('API Hata detayları:', {
-        url: error.config.url,
-        status: error.response.status,
-        data: error.response.data,
-        headers: error.response.headers,
-        requestHeaders: error.config.headers
-      });
-    } else {
-      console.error('API İstek hatası:', error.message);
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Token süresi dolmuşsa ve henüz retry yapılmamışsa
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // Refresh token ile yeni token al
+        const refreshToken = await getRefreshToken();
+        if (!refreshToken) {
+          throw new Error('Refresh token bulunamadı');
+        }
+
+        const response = await axios.post(`${BASE_URL}/auth/refresh`, {
+          refreshToken
+        });
+
+        const { token } = response.data;
+        
+        // Yeni token'ı kaydet
+        await storeToken(token);
+        
+        // Token yenilendiğinde event'i tetikle
+        if (AuthEvents.onTokenRefreshed) {
+          AuthEvents.onTokenRefreshed(token);
+        }
+
+        // Orijinal isteği yeni token ile tekrarla
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Refresh token da geçersizse tüm storage'ı temizle
+        await AsyncStorage.clear();
+        
+        // Auth hata event'ini tetikle
+        if (AuthEvents.onAuthError) {
+          AuthEvents.onAuthError(refreshError);
+        }
+        
+        return Promise.reject(refreshError);
+      }
     }
+
     return Promise.reject(error);
   }
 );
@@ -187,6 +218,30 @@ export const authService = {
       throw error;
     }
   },
+
+  // Kullanıcı bilgilerini getir
+  getCurrentUser: async () => {
+    try {
+      const response = await api.get('/users/me');
+      return response.data;
+    } catch (error) {
+      console.error('Kullanıcı bilgisi alma hatası:', error);
+      throw error;
+    }
+  },
+  
+  // Token geçerliliğini kontrol et
+  validateToken: async () => {
+    try {
+      const token = await getToken();
+      if (!token) return false;
+      
+      await api.get('/auth/validate');
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 };
 
 // Flashcard işlemleri
