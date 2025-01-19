@@ -183,22 +183,27 @@ const StudySetScreen = ({ navigation, route }) => {
         style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
-        <Ionicons name="chevron-back" size={24} color="#000" />
+        <Ionicons name="chevron-back" size={24} color="#666666" />
       </TouchableOpacity>
-      <View style={styles.headerCenter}>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {t('studySet.header.title')}
-        </Text>
-        <Text style={styles.headerSubtitle}>
-          {t('studySet.header.subtitle', { count: studySets.length })}
-        </Text>
+
+      <View style={styles.categoryContainer}>
+        <View style={styles.categoryHeader}>
+          <View style={[styles.categoryIcon, { backgroundColor: category.color || '#F8F9FA' }]}>
+            <Ionicons name={category.icon || "folder"} size={24} color="#666666" />
+          </View>
+          <View style={styles.categoryTitleContainer}>
+            <Text style={styles.categoryName}>{category.name}</Text>
+            <Text style={styles.categoryMeta}>
+              {category.cardCount || 0} kart içeriyor
+            </Text>
+          </View>
+        </View>
+        {category.description && (
+          <Text style={styles.categoryDescription}>
+            {category.description}
+          </Text>
+        )}
       </View>
-      <TouchableOpacity 
-        style={styles.notificationButton}
-        onPress={() => navigation.navigate('NotificationSettings')}
-      >
-        <Ionicons name="notifications-outline" size={24} color="#000" />
-      </TouchableOpacity>
     </View>
   );
 
@@ -214,44 +219,28 @@ const StudySetScreen = ({ navigation, route }) => {
         onPress={() => navigation.navigate('StudySetDetail', { studySet })}
       >
         <View style={styles.cardContent}>
-          <View style={styles.cardHeader}>
-            <View style={styles.cardTitleContainer}>
-              <Text style={styles.studySetName}>{studySet.name}</Text>
-              <Text style={styles.username}>
-                <Ionicons name="person-outline" size={14} color="#666" /> {t('studySet.card.createdBy')}
+          <View style={styles.cardMain}>
+            <Text style={styles.studySetName}>{studySet.name}</Text>
+            {studySet.description && (
+              <Text style={styles.description} numberOfLines={2}>
+                {studySet.description}
               </Text>
-            </View>
-            <View style={styles.statsContainer}>
-              <Ionicons name="documents-outline" size={16} color="#666" />
-              <Text style={styles.statsText}> {studySet.totalCards || 0}</Text>
-            </View>
+            )}
           </View>
 
-          {studySet.description && (
-            <Text style={styles.description} numberOfLines={2}>
-              {studySet.description}
-            </Text>
-          )}
-
-          <View style={styles.progressSection}>
-            <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>{t('studySet.card.progress')}</Text>
-              <Text style={styles.progressPercentage}>{Math.round(progress)}%</Text>
-            </View>
-            {renderProgress(studySet)}
-            
-            <View style={styles.statsGrid}>
+          <View style={styles.cardStats}>
+            <View style={styles.statRow}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{studySet.totalCards || 0}</Text>
+                <Text style={styles.statLabel}>Toplam</Text>
+              </View>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{studySet.masteredCards || 0}</Text>
-                <Text style={styles.statLabel}>{t('studySet.card.learned')}</Text>
+                <Text style={styles.statLabel}>Öğrenildi</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{studySet.learningCards || 0}</Text>
-                <Text style={styles.statLabel}>{t('studySet.card.learning')}</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{studySet.notStartedCards || 0}</Text>
-                <Text style={styles.statLabel}>{t('studySet.card.notStarted')}</Text>
+                <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{Math.round(progress)}%</Text>
+                <Text style={styles.statLabel}>İlerleme</Text>
               </View>
             </View>
           </View>
@@ -435,31 +424,50 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
+    backgroundColor: '#FFFFFF',
+    paddingTop: Platform.OS === 'ios' ? 50 : 20,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  categoryContainer: {
+    padding: 16,
+  },
+  categoryHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    marginBottom: 12,
   },
-  headerCenter: {
+  categoryIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  categoryTitleContainer: {
     flex: 1,
-    alignItems: 'center',
   },
-  headerTitle: {
-    fontSize: 20,
+  categoryName: {
+    fontSize: 24,
     fontWeight: '700',
-    color: '#000000',
+    color: '#1C1C1E',
+    marginBottom: 4,
   },
-  headerSubtitle: {
-    fontSize: 13,
+  categoryMeta: {
+    fontSize: 15,
     color: '#666666',
-    marginTop: 2,
   },
-  notificationButton: {
-    padding: 8,
+  categoryDescription: {
+    fontSize: 15,
+    color: '#666666',
+    lineHeight: 22,
+    marginTop: 8,
   },
   content: {
     flex: 1,
@@ -468,120 +476,50 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   studySetCard: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     marginBottom: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#EEEEEE',
   },
   cardContent: {
     padding: 16,
   },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  cardTitleContainer: {
-    flex: 1,
-    marginRight: 12,
+  cardMain: {
+    marginBottom: 16,
   },
   studySetName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#000000',
-    marginBottom: 4,
-  },
-  username: {
-    fontSize: 14,
-    color: '#666666',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-  },
-  statsText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#666666',
-  },
-  description: {
-    fontSize: 14,
-    color: '#666666',
-    marginBottom: 16,
-    lineHeight: 20,
-  },
-  progressSection: {
-    backgroundColor: '#FFFFFF',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
-    marginTop: 8,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#1C1C1E',
     marginBottom: 8,
   },
-  progressTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+  description: {
+    fontSize: 15,
+    color: '#666666',
+    lineHeight: 20,
   },
-  progressPercentage: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#4CAF50',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 12,
-    paddingTop: 12,
+  cardStats: {
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#EEE',
+    borderTopColor: '#F0F0F0',
+  },
+  statRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
   },
   statItem: {
-    flex: 1,
     alignItems: 'center',
   },
   statNumber: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#1C1C1E',
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#666',
-  },
-  iosProgressBar: {
-    height: 4,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  iosProgressFill: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 2,
+    fontSize: 13,
+    color: '#666666',
   },
   bottomNav: {
     flexDirection: 'row',

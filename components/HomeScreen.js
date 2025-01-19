@@ -324,9 +324,12 @@ const HomeScreen = ({ navigation, route }) => {
               <TouchableOpacity 
                 style={styles.createButton}
                 onPress={() => navigation.navigate('AddCategory')}
+                disabled={categories.length >= 4}
               >
                 <Ionicons name="add" size={24} color="#FFF" />
-                <Text style={styles.createButtonText}>{t('categories.addNew')}</Text>
+                <Text style={styles.createButtonText}>
+                  {categories.length >= 4 ? 'Maksimum kategoriye ulaşıldı' : t('categories.addNew')}
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -353,14 +356,20 @@ const HomeScreen = ({ navigation, route }) => {
                       />
                     </View>
                     <Text style={styles.categoryName}>{category.name}</Text>
-                    {category.description && (
-                      <Text style={styles.categoryDescription} numberOfLines={2}>
-                        {category.description}
-                      </Text>
-                    )}
                   </View>
                 </TouchableOpacity>
               ))}
+              {categories.length < 4 && (
+                <TouchableOpacity
+                  style={[styles.categoryCard, { justifyContent: 'center', alignItems: 'center' }]}
+                  onPress={() => navigation.navigate('AddCategory')}
+                >
+                  <Ionicons name="add-circle-outline" size={32} color="#666666" />
+                  <Text style={[styles.categoryName, { marginTop: 8, textAlign: 'center' }]}>
+                    Yeni Kategori
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
@@ -600,31 +609,24 @@ const styles = StyleSheet.create({
   gridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
-    marginTop: 8,
+    justifyContent: 'space-evenly',
+    paddingHorizontal: 16,
+    marginTop: 16,
+    gap: 16,
   },
   categoryCard: {
-    width: '48%',
-    aspectRatio: 0.9,
+    width: '45%',
+    aspectRatio: 1,
     backgroundColor: '#F8F9FA',
     borderRadius: 16,
-    marginBottom: 8,
     padding: 16,
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 3,
   },
   cardContent: {
     flex: 1,
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   iconContainer: {
     width: 48,
@@ -638,14 +640,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#1C1C1E',
-    marginBottom: 6,
+    textAlign: 'center',
     width: '100%',
-  },
-  categoryDescription: {
-    fontSize: 13,
-    color: '#666666',
-    width: '100%',
-    lineHeight: 18,
   },
   emptyContainer: {
     alignItems: 'center',
