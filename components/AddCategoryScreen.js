@@ -26,12 +26,31 @@ const COLORS = [
 ];
 
 const ICONS = [
-  { id: 1, name: 'book-outline', label: 'book' },
-  { id: 2, name: 'school-outline', label: 'school' },
-  { id: 3, name: 'language-outline', label: 'language' },
-  { id: 4, name: 'calculator-outline', label: 'math' },
-  { id: 5, name: 'flask-outline', label: 'science' },
-  { id: 6, name: 'brush-outline', label: 'art' },
+  { id: 1, name: 'book', label: 'book' },
+  { id: 2, name: 'school', label: 'school' },
+  { id: 3, name: 'language', label: 'language' },
+  { id: 4, name: 'calculator', label: 'math' },
+  { id: 5, name: 'flask', label: 'science' },
+  { id: 6, name: 'brush', label: 'art' },
+];
+
+const iconOptions = [
+  'folder',
+  'grid',
+  'albums',
+  'book',
+  'documents',
+  'library',
+  'school',
+  'pencil',
+  'bookmark',
+  'star',
+  'heart',
+  'flag',
+  'trophy',
+  'ribbon',
+  'medal',
+  'gift'
 ];
 
 const AddCategoryScreen = ({ navigation }) => {

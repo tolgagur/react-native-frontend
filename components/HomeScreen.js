@@ -118,21 +118,21 @@ const HomeScreen = ({ navigation, route }) => {
       id: 1,
       title: t('categories.addNew'),
       subtitle: t('categories.addNewSubtitle'),
-      icon: 'grid-outline',
+      icon: 'grid',
       color: '#E3F2FD'
     },
     {
       id: 2,
       title: t('studySet.addNew'),
       subtitle: t('studySet.addNewSubtitle'),
-      icon: 'albums-outline',
+      icon: 'albums',
       color: '#FFF3E0'
     },
     {
       id: 3,
       title: t('flashcard.addNew'),
       subtitle: t('flashcard.addNewSubtitle'),
-      icon: 'documents-outline',
+      icon: 'documents',
       color: '#E8F5E9'
     }
   ];
@@ -346,7 +346,11 @@ const HomeScreen = ({ navigation, route }) => {
                 >
                   <View style={styles.cardContent}>
                     <View style={[styles.iconContainer, { backgroundColor: category.color || '#F8F9FA' }]}>
-                      <Ionicons name={category.icon || 'folder-outline'} size={24} color="#666666" />
+                      <Ionicons
+                        name={category.icon || "folder"}
+                        size={24}
+                        color="#666666"
+                      />
                     </View>
                     <Text style={styles.categoryName}>{category.name}</Text>
                     {category.description && (
@@ -367,21 +371,21 @@ const HomeScreen = ({ navigation, route }) => {
           style={styles.navItem}
           onPress={() => {}}
         >
-          <Ionicons name="home-outline" size={22} color="#666666" />
+          <Ionicons name="home" size={22} color="#666666" />
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.addButton}
           onPress={showModal}
         >
-          <Ionicons name="add-outline" size={24} color="#666666" />
+          <Ionicons name="add" size={24} color="#666666" />
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => navigation.navigate('Profile', { onLogout })}
         >
-          <Ionicons name="person-outline" size={22} color="#666666" />
+          <Ionicons name="person" size={22} color="#666666" />
         </TouchableOpacity>
       </View>
 
