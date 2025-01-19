@@ -371,19 +371,24 @@ const AddFlashcardScreen = ({ navigation }) => {
                 <View style={styles.cardSide}>
                   <Text style={styles.inputLabel}>{t('flashcard.frontSide')}</Text>
                   <TextInput
-                    style={styles.input}
+                    style={styles.modernInput}
                     value={flashcards[currentStep].frontContent}
                     onChangeText={(text) => updateCard(currentStep, 'frontContent', text)}
                     placeholder={t('flashcard.frontPlaceholder')}
+                    placeholderTextColor="rgba(0, 0, 0, 0.4)"
+                    selectionColor="#2196F3"
                     multiline
                     maxLength={100}
+                    textAlignVertical="top"
+                    autoCapitalize="none"
+                    blurOnSubmit={false}
                   />
                 </View>
 
                 <View style={styles.divider}>
                   <View style={styles.dividerLine} />
                   <View style={styles.dividerIcon}>
-                    <Ionicons name="swap-vertical" size={24} color="#666666" />
+                    <Ionicons name="swap-vertical" size={20} color="#666666" />
                   </View>
                   <View style={styles.dividerLine} />
                 </View>
@@ -391,12 +396,17 @@ const AddFlashcardScreen = ({ navigation }) => {
                 <View style={styles.cardSide}>
                   <Text style={styles.inputLabel}>{t('flashcard.backSide')}</Text>
                   <TextInput
-                    style={styles.input}
+                    style={styles.modernInput}
                     value={flashcards[currentStep].backContent}
                     onChangeText={(text) => updateCard(currentStep, 'backContent', text)}
                     placeholder={t('flashcard.backPlaceholder')}
+                    placeholderTextColor="rgba(0, 0, 0, 0.4)"
+                    selectionColor="#2196F3"
                     multiline
                     maxLength={100}
+                    textAlignVertical="top"
+                    autoCapitalize="none"
+                    blurOnSubmit={false}
                   />
                 </View>
               </View>
@@ -667,22 +677,32 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 8,
   },
-  input: {
-    backgroundColor: '#F8F8F8',
+  modernInput: {
+    flex: 1,
+    fontSize: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    height: 60,
+    color: '#333333',
+    textAlignVertical: 'top',
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 12,
-    padding: 12,
-    fontSize: 16,
-    color: '#333',
-    minHeight: 60,
-    maxHeight: 100,
-    textAlignVertical: 'top',
+    marginVertical: 8,
+    ...Platform.select({
+      ios: {
+        backgroundColor: '#F8F9FA',
+        borderWidth: 0,
+      },
+      android: {
+        elevation: 2,
+      }
+    }),
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: 8,
   },
   dividerLine: {
     flex: 1,
@@ -690,13 +710,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
   },
   dividerIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#F8F8F8',
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 16,
+    marginHorizontal: 12,
   },
   cardNavigation: {
     flexDirection: 'row',
@@ -772,6 +792,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  disabledButtonText: {
+    color: '#CCD0D5',
   },
 });
 

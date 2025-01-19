@@ -70,8 +70,12 @@ const AddCategoryScreen = ({ navigation }) => {
       setNameError(t('categories.errors.nameRequired'));
       return false;
     }
-    if (name.length < 3) {
+    if (name.length < 2) {
       setNameError(t('categories.errors.nameTooShort'));
+      return false;
+    }
+    if (name.length > 50) {
+      setNameError(t('categories.errors.nameTooLong'));
       return false;
     }
     setNameError('');
@@ -79,12 +83,8 @@ const AddCategoryScreen = ({ navigation }) => {
   };
 
   const validateDescription = () => {
-    if (!description.trim()) {
-      setDescriptionError(t('categories.errors.descriptionRequired'));
-      return false;
-    }
-    if (description.length < 10) {
-      setDescriptionError(t('categories.errors.descriptionTooShort'));
+    if (description.length > 500) {
+      setDescriptionError(t('categories.errors.descriptionTooLong'));
       return false;
     }
     setDescriptionError('');
@@ -129,11 +129,33 @@ const AddCategoryScreen = ({ navigation }) => {
   };
 
   const handleSubmit = async () => {
-    if (!name.trim() || !description.trim() || isLoading) {
+    if (!name.trim() || isLoading) {
       Toast.show({
         type: 'error',
         text1: t('common.error'),
-        text2: t('categories.errors.fieldsRequired'),
+        text2: t('categories.errors.nameRequired'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    if (name.length < 2 || name.length > 50) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('categories.errors.nameInvalid'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    if (description && description.length > 500) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('categories.errors.descriptionTooLong'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -145,7 +167,7 @@ const AddCategoryScreen = ({ navigation }) => {
     try {
       const response = await api.post('/categories', {
         name: name.trim(),
-        description: description.trim(),
+        description: description.trim() || null,
         color: selectedColor?.color || '#F5F5F5',
         icon: selectedIcon?.name || 'folder-outline'
       });
@@ -195,15 +217,17 @@ const AddCategoryScreen = ({ navigation }) => {
         </Text>
       </View>
       <View style={styles.inputContainer}>
-        <Ionicons name="folder-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
-          style={styles.input}
+          style={styles.modernInput}
           placeholder={t('categories.steps.name.placeholder')}
           value={name}
           onChangeText={setName}
-          placeholderTextColor="#999"
+          placeholderTextColor="rgba(0, 0, 0, 0.4)"
+          selectionColor="#2196F3"
           editable={!isLoading}
           onBlur={validateName}
+          autoCapitalize="none"
+          blurOnSubmit={false}
         />
       </View>
       {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
@@ -219,17 +243,19 @@ const AddCategoryScreen = ({ navigation }) => {
         </Text>
       </View>
       <View style={styles.inputContainer}>
-        <Ionicons name="document-text-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[styles.modernInput, styles.textArea]}
           placeholder={t('categories.steps.description.placeholder')}
           value={description}
           onChangeText={setDescription}
           multiline
           numberOfLines={4}
-          placeholderTextColor="#999"
+          placeholderTextColor="rgba(0, 0, 0, 0.4)"
+          selectionColor="#2196F3"
           editable={!isLoading}
           onBlur={validateDescription}
+          autoCapitalize="none"
+          blurOnSubmit={false}
         />
       </View>
       {descriptionError ? <Text style={styles.errorText}>{descriptionError}</Text> : null}
@@ -359,35 +385,35 @@ const AddCategoryScreen = ({ navigation }) => {
             <TouchableOpacity 
               style={[
                 styles.nextButton,
-                ((!name.trim() && step === 1) || (!description.trim() && step === 2)) && styles.disabledButton
+                ((name.length < 2 || name.length > 50) && step === 1) && styles.disabledButton
               ]}
               onPress={nextStep}
-              disabled={(!name.trim() && step === 1) || (!description.trim() && step === 2)}
+              disabled={(name.length < 2 || name.length > 50) && step === 1}
             >
               <Text style={[
                 styles.nextButtonText,
-                ((!name.trim() && step === 1) || (!description.trim() && step === 2)) && styles.disabledButtonText
+                ((name.length < 2 || name.length > 50) && step === 1) && styles.disabledButtonText
               ]}>
                 {t('categories.buttons.continue')}
               </Text>
               <Ionicons 
                 name="arrow-forward" 
                 size={24} 
-                color={((!name.trim() && step === 1) || (!description.trim() && step === 2)) ? "#CCD0D5" : "#FFFFFF"} 
+                color={((name.length < 2 || name.length > 50) && step === 1) ? "#CCD0D5" : "#FFFFFF"} 
               />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={[
                 styles.submitButton,
-                (isLoading || !name.trim()) && styles.disabledButton
+                (isLoading || name.length < 2 || name.length > 50 || description.length > 500) && styles.disabledButton
               ]}
               onPress={handleSubmit}
-              disabled={isLoading || !name.trim()}
+              disabled={isLoading || name.length < 2 || name.length > 50 || description.length > 500}
             >
               <Text style={[
                 styles.submitButtonText,
-                (isLoading || !name.trim()) && styles.disabledButtonText
+                (isLoading || name.length < 2 || name.length > 50 || description.length > 500) && styles.disabledButtonText
               ]}>
                 {isLoading ? t('common.loading') : t('common.save')}
               </Text>
@@ -468,28 +494,33 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 12,
     backgroundColor: '#F8F9FA',
-    paddingHorizontal: 16,
     marginBottom: 8,
+    ...Platform.select({
+      ios: {
+        backgroundColor: '#F8F9FA',
+        borderWidth: 0,
+      },
+      android: {
+        elevation: 2,
+      }
+    }),
   },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
+  modernInput: {
     flex: 1,
-    height: 56,
+    height: 60,
     fontSize: 16,
-    color: '#333',
+    color: '#333333',
+    textAlignVertical: 'top',
+    paddingHorizontal: 16,
   },
   textArea: {
     height: 120,
-    textAlignVertical: 'top',
     paddingTop: 16,
+    paddingBottom: 16,
   },
   errorText: {
     color: '#FF3B30',

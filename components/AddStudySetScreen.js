@@ -55,8 +55,12 @@ const AddStudySetScreen = ({ navigation, route }) => {
       setNameError(t('studySet.errors.nameRequired'));
       return false;
     }
-    if (name.length < 3) {
+    if (name.length < 2) {
       setNameError(t('studySet.errors.nameTooShort'));
+      return false;
+    }
+    if (name.length > 100) {
+      setNameError(t('studySet.errors.nameTooLong'));
       return false;
     }
     setNameError('');
@@ -64,12 +68,8 @@ const AddStudySetScreen = ({ navigation, route }) => {
   };
 
   const validateDescription = () => {
-    if (!description.trim()) {
-      setDescriptionError(t('studySet.errors.descriptionRequired'));
-      return false;
-    }
-    if (description.length < 10) {
-      setDescriptionError(t('studySet.errors.descriptionTooShort'));
+    if (description.length > 500) {
+      setDescriptionError(t('studySet.errors.descriptionTooLong'));
       return false;
     }
     setDescriptionError('');
@@ -87,36 +87,82 @@ const AddStudySetScreen = ({ navigation, route }) => {
   };
 
   const handleSubmit = async () => {
-    if (!name.trim() || !selectedCategory) {
+    if (!name.trim() || isLoading) {
       Toast.show({
         type: 'error',
-        text1: t('studySet.errors.nameRequired')
+        text1: t('common.error'),
+        text2: t('studySet.errors.nameRequired'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    if (name.length < 2 || name.length > 100) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('studySet.errors.nameInvalid'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    if (description && description.length > 500) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('studySet.errors.descriptionTooLong'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
+      return;
+    }
+
+    if (!selectedCategory) {
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('studySet.errors.categoryRequired'),
+        visibilityTime: 3000,
+        position: 'top',
       });
       return;
     }
 
     setIsLoading(true);
+
     try {
       const response = await api.post('/study-sets', {
         name: name.trim(),
-        description: description.trim(),
+        description: description.trim() || null,
         categoryId: selectedCategory.id
       });
 
       Toast.show({
         type: 'success',
-        text1: t('studySet.success.created')
+        text1: t('common.success'),
+        text2: t('studySet.success.created'),
+        visibilityTime: 2000,
+        position: 'top',
+        topOffset: 50
       });
       
       navigation.replace('StudySet', { 
         category: selectedCategory,
-        shouldRefresh: true,
-        newStudySet: response.data
+        shouldRefresh: true 
       });
+
     } catch (error) {
+      console.error('Çalışma seti oluşturma hatası:', error);
       Toast.show({
         type: 'error',
-        text1: t('studySet.errors.createError')
+        text1: t('common.error'),
+        text2: error.response?.data?.message || t('studySet.errors.createError'),
+        visibilityTime: 2000,
+        position: 'top',
+        topOffset: 50
       });
     } finally {
       setIsLoading(false);
@@ -142,15 +188,17 @@ const AddStudySetScreen = ({ navigation, route }) => {
         </Text>
       </View>
       <View style={styles.inputContainer}>
-        <Ionicons name="book-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
-          style={styles.input}
+          style={styles.modernInput}
           placeholder={t('studySet.steps.name.title')}
           value={name}
           onChangeText={setName}
-          placeholderTextColor="#999"
+          placeholderTextColor="rgba(0, 0, 0, 0.4)"
+          selectionColor="#2196F3"
           editable={!isLoading}
           onBlur={validateName}
+          autoCapitalize="none"
+          blurOnSubmit={false}
         />
       </View>
       {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
@@ -166,17 +214,19 @@ const AddStudySetScreen = ({ navigation, route }) => {
         </Text>
       </View>
       <View style={styles.inputContainer}>
-        <Ionicons name="document-text-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[styles.modernInput, styles.textArea]}
           placeholder={t('studySet.steps.description.title')}
           value={description}
           onChangeText={setDescription}
           multiline
           numberOfLines={4}
-          placeholderTextColor="#999"
+          placeholderTextColor="rgba(0, 0, 0, 0.4)"
+          selectionColor="#2196F3"
           editable={!isLoading}
           onBlur={validateDescription}
+          autoCapitalize="none"
+          blurOnSubmit={false}
         />
       </View>
       {descriptionError ? <Text style={styles.errorText}>{descriptionError}</Text> : null}
@@ -278,35 +328,35 @@ const AddStudySetScreen = ({ navigation, route }) => {
             <TouchableOpacity 
               style={[
                 styles.nextButton,
-                ((!name.trim() && step === 1) || (!description.trim() && step === 2)) && styles.disabledButton
+                ((name.length < 2 || name.length > 100) && step === 1) && styles.disabledButton
               ]}
               onPress={nextStep}
-              disabled={(!name.trim() && step === 1) || (!description.trim() && step === 2)}
+              disabled={(name.length < 2 || name.length > 100) && step === 1}
             >
               <Text style={[
                 styles.nextButtonText,
-                ((!name.trim() && step === 1) || (!description.trim() && step === 2)) && styles.disabledButtonText
+                ((name.length < 2 || name.length > 100) && step === 1) && styles.disabledButtonText
               ]}>
                 {t('studySet.buttons.continue')}
               </Text>
               <Ionicons 
                 name="arrow-forward" 
                 size={24} 
-                color={((!name.trim() && step === 1) || (!description.trim() && step === 2)) ? "#CCD0D5" : "#FFFFFF"} 
+                color={((name.length < 2 || name.length > 100) && step === 1) ? "#CCD0D5" : "#FFFFFF"} 
               />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={[
                 styles.submitButton,
-                (isLoading || !name.trim()) && styles.disabledButton
+                (isLoading || name.length < 2 || name.length > 100 || description.length > 500 || !selectedCategory) && styles.disabledButton
               ]}
               onPress={handleSubmit}
-              disabled={isLoading || !name.trim()}
+              disabled={isLoading || name.length < 2 || name.length > 100 || description.length > 500 || !selectedCategory}
             >
               <Text style={[
                 styles.submitButtonText,
-                (isLoading || !name.trim()) && styles.disabledButtonText
+                (isLoading || name.length < 2 || name.length > 100 || description.length > 500 || !selectedCategory) && styles.disabledButtonText
               ]}>
                 {isLoading ? t('common.loading') : t('common.save')}
               </Text>
@@ -382,28 +432,33 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 12,
     backgroundColor: '#F8F9FA',
-    paddingHorizontal: 16,
     marginBottom: 8,
+    ...Platform.select({
+      ios: {
+        backgroundColor: '#F8F9FA',
+        borderWidth: 0,
+      },
+      android: {
+        elevation: 2,
+      }
+    }),
   },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
+  modernInput: {
     flex: 1,
-    height: 56,
+    height: 60,
     fontSize: 16,
-    color: '#333',
+    color: '#333333',
+    textAlignVertical: 'top',
+    paddingHorizontal: 16,
   },
   textArea: {
     height: 120,
-    textAlignVertical: 'top',
     paddingTop: 16,
+    paddingBottom: 16,
   },
   errorText: {
     color: '#FF3B30',

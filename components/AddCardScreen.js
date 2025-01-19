@@ -171,13 +171,16 @@ const AddCardScreen = ({ navigation, route }) => {
                 <Text style={styles.cardLabel}>{t('flashcard.frontSide')}</Text>
               </View>
               <TextInput
-                style={styles.cardInput}
+                style={styles.modernInput}
                 value={cards[currentIndex].front}
                 onChangeText={(text) => handleUpdateCard('front', text)}
                 placeholder={t('flashcard.frontPlaceholder')}
                 multiline
                 textAlignVertical="top"
-                placeholderTextColor="#999"
+                placeholderTextColor="rgba(0, 0, 0, 0.4)"
+                selectionColor="#2196F3"
+                autoCapitalize="none"
+                blurOnSubmit={false}
               />
               <View style={styles.cardFooter}>
                 <Text style={styles.characterCount}>
@@ -192,7 +195,7 @@ const AddCardScreen = ({ navigation, route }) => {
                 <Text style={styles.cardLabel}>{t('flashcard.backSide')}</Text>
               </View>
               <TextInput
-                style={styles.cardInput}
+                style={styles.modernInput}
                 value={cards[currentIndex].back}
                 onChangeText={(text) => handleUpdateCard('back', text)}
                 placeholder={t('flashcard.backPlaceholder')}
@@ -342,6 +345,28 @@ const styles = StyleSheet.create({
     color: '#333333',
     textAlignVertical: 'top',
     padding: 0,
+  },
+  modernInput: {
+    flex: 1,
+    fontSize: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    minHeight: 120,
+    color: '#333333',
+    textAlignVertical: 'top',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    marginVertical: 8,
+    ...Platform.select({
+      ios: {
+        backgroundColor: '#F8F9FA',
+        borderWidth: 0,
+      },
+      android: {
+        elevation: 2,
+      }
+    }),
   },
   cardFooter: {
     flexDirection: 'row',
