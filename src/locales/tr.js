@@ -283,23 +283,22 @@ export default {
     }
   },
   notifications: {
-    title: 'Bildirim Ayarları',
-    settings: 'Bildirim Ayarları',
+    title: 'Bildirimler',
     emailNotifications: 'E-posta Bildirimleri',
-    emailNotificationsDesc: 'Önemli güncellemeler için e-posta bildirimleri al',
+    emailNotificationsDesc: 'Önemli güncellemeler ve bildirimler için e-posta al',
     pushNotifications: 'Anlık Bildirimler',
-    pushNotificationsDesc: 'Uygulama bildirimleri al',
+    pushNotificationsDesc: 'Anlık bildirimler ve uyarılar',
     weeklyDigest: 'Haftalık Özet',
-    weeklyDigestDesc: 'Haftalık aktivite özetini al',
+    weeklyDigestDesc: 'Haftalık ilerleme ve aktivite özeti',
     marketingEmails: 'Pazarlama E-postaları',
     marketingEmailsDesc: 'Özel teklifler ve kampanyalar hakkında bilgi al',
     systemUpdates: 'Sistem Güncellemeleri',
-    systemUpdatesDesc: 'Yeni özellikler ve güncellemeler hakkında bilgi al',
+    systemUpdatesDesc: 'Yeni özellikler ve sistem güncellemeleri',
     securityAlerts: 'Güvenlik Uyarıları',
-    securityAlertsDesc: 'Hesap güvenliği ile ilgili bildirimleri al',
-    fetchError: 'Bildirim ayarları yüklenirken bir hata oluştu',
+    securityAlertsDesc: 'Hesap güvenliği ile ilgili önemli bildirimler',
+    loadError: 'Bildirim ayarları yüklenemedi',
     updateSuccess: 'Bildirim ayarları güncellendi',
-    updateError: 'Bildirim ayarları güncellenirken bir hata oluştu'
+    updateError: 'Bildirim ayarları güncellenirken hata oluştu'
   },
   home: {
     greeting: 'Hoşgeldin {{username}} ✨',

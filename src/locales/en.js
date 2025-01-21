@@ -65,7 +65,7 @@ export default {
     title: 'Profile',
     settings: 'Settings',
     personalInfo: 'Personal Information',
-    notificationSettings: 'Notification Settings',
+    notificationSettings: 'Notifications',
     languageSettings: 'Language Settings',
     changePassword: 'Change Password',
     changePasswordDescription: 'Change your password for account security',
@@ -282,7 +282,7 @@ export default {
     },
   },
   notifications: {
-    title: 'Notification Settings',
+    title: 'Notifications',
     emailNotifications: 'Email Notifications',
     emailNotificationsDesc: 'Receive emails for important updates and notifications',
     pushNotifications: 'Push Notifications',
