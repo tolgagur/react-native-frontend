@@ -58,7 +58,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
           style={styles.backButton} 
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{t('auth.forgotPassword.title')}</Text>
       </View>
@@ -69,7 +69,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
       >
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons name="lock-open-outline" size={50} color="#007AFF" />
+            <Ionicons name="lock-open-outline" size={50} color="#FFFFFF" />
           </View>
           
           <Text style={styles.title}>{t('auth.forgotPassword.title')}</Text>
@@ -78,7 +78,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
           </Text>
 
           <View style={styles.inputContainer}>
-            <Ionicons name="mail" size={20} color="#666" style={styles.inputIcon} />
+            <Ionicons name="mail" size={20} color="#8E8E93" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
               placeholder={t('auth.forgotPassword.email')}
@@ -114,14 +114,14 @@ const ForgotPasswordScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#fff'
+    backgroundColor: '#1C1C1E'
   },
   backButton: {
     padding: 8,
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 16,
+    color: '#FFFFFF',
   },
   container: {
     flex: 1,
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: '#2C2C2E',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
@@ -154,10 +155,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 12,
     textAlign: 'center',
+    color: '#FFFFFF',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#8E8E93',
     textAlign: 'center',
     marginBottom: 32,
     paddingHorizontal: 20,
@@ -166,11 +168,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#2C2C2E',
     borderRadius: 10,
     paddingHorizontal: 15,
     height: 50,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#1C1C1E',
     width: '100%',
     marginBottom: 20,
   },
@@ -180,10 +182,10 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: '#FFFFFF',
   },
   submitButton: {
-    backgroundColor: '#000000',
+    backgroundColor: '#1C1C1E',
     borderRadius: 10,
     height: 50,
     width: '100%',
@@ -192,10 +194,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   submitButtonDisabled: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#2C2C2E',
   },
   submitButtonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -203,7 +205,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   loginButtonText: {
-    color: '#007AFF',
+    color: '#FFFFFF',
     fontSize: 16,
   },
 });
