@@ -312,66 +312,29 @@ const HomeScreen = ({ navigation, route }) => {
         {renderCategoryStats()}
         {renderQuickActions()}
 
-        <View style={styles.categoriesSection}>
-          <Text style={styles.sectionTitle}>{t('home.yourCategories')}</Text>
-          {categories.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <View style={styles.emptyIconContainer}>
-                <Ionicons name="folder-open-outline" size={64} color="#007AFF" />
-              </View>
-              <Text style={styles.emptyText}>{t('categories.empty')}</Text>
-              <Text style={styles.emptySubText}>{t('categories.emptySubtext')}</Text>
-              <TouchableOpacity 
-                style={styles.createButton}
-                onPress={() => navigation.navigate('AddCategory')}
-                disabled={categories.length >= 4}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('home.categories.title')}</Text>
+          <View style={styles.categories}>
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                style={styles.categoryCard}
+                onPress={() => navigation.navigate('StudySet', { category })}
               >
-                <Ionicons name="add" size={24} color="#FFF" />
-                <Text style={styles.createButtonText}>
-                  {categories.length >= 4 ? 'Maksimum kategoriye ulaşıldı' : t('categories.addNew')}
-                </Text>
+                <View style={[
+                  styles.categoryIconContainer, 
+                  { backgroundColor: category.color || '#2C2C2E' }
+                ]}>
+                  <Ionicons 
+                    name={category.icon || "folder-outline"} 
+                    size={24} 
+                    color="#666666" 
+                  />
+                </View>
+                <Text style={styles.categoryName}>{category.name}</Text>
               </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.gridContainer}>
-              {categories.map((category) => (
-                <TouchableOpacity
-                  key={category.id}
-                  style={styles.categoryCard}
-                  onPress={() => 
-                    navigation.navigate('StudySet', 
-                      { category }, 
-                      { 
-                        gestureEnabled: false 
-                      }
-                    )
-                  }
-                >
-                  <View style={styles.cardContent}>
-                    <View style={[styles.iconContainer, { backgroundColor: category.color || '#F8F9FA' }]}>
-                      <Ionicons
-                        name={category.icon || "folder"}
-                        size={24}
-                        color="#666666"
-                      />
-                    </View>
-                    <Text style={styles.categoryName}>{category.name}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-              {categories.length < 4 && (
-                <TouchableOpacity
-                  style={[styles.categoryCard, { justifyContent: 'center', alignItems: 'center' }]}
-                  onPress={() => navigation.navigate('AddCategory')}
-                >
-                  <Ionicons name="add-circle-outline" size={32} color="#666666" />
-                  <Text style={[styles.categoryName, { marginTop: 8, textAlign: 'center' }]}>
-                    Yeni Kategori
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
+            ))}
+          </View>
         </View>
       </ScrollView>
 
@@ -467,14 +430,14 @@ const HomeScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -488,12 +451,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#FFFFFF',
     marginBottom: 2,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#666666',
+    color: '#8E8E93',
     marginBottom: 0,
   },
   notificationButton: {
@@ -501,7 +464,7 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     borderRadius: 12,
     marginTop: 4,
   },
@@ -510,12 +473,12 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   welcomeContainer: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
     margin: 16,
     padding: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
   },
   welcomeContent: {
     flexDirection: 'row',
@@ -525,12 +488,12 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
     marginLeft: 8,
   },
   welcomeSubtext: {
     fontSize: 14,
-    color: '#666',
+    color: '#8E8E93',
     lineHeight: 20,
   },
   statsContainer: {
@@ -542,96 +505,54 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 4,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
   },
   statNumber: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FFFFFF',
     marginVertical: 8,
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: '#8E8E93',
     textAlign: 'center',
   },
-  quickActionsContainer: {
-    marginBottom: 24,
+  section: {
+    flex: 1,
+    paddingTop: 8,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
     marginLeft: 16,
     marginBottom: 12,
   },
-  quickActionsContent: {
-    paddingHorizontal: 12,
-  },
-  quickActionCard: {
-    width: 200,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    padding: 16,
-    marginHorizontal: 4,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  quickActionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  quickActionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 4,
-  },
-  quickActionSubtitle: {
-    fontSize: 12,
-    color: '#666',
-    lineHeight: 16,
-  },
-  categoriesSection: {
-    flex: 1,
-    paddingTop: 8,
-  },
-  gridContainer: {
+  categories: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
-    paddingHorizontal: 16,
-    marginTop: 16,
-    gap: 16,
+    gap: 12,
+    paddingHorizontal: 4,
   },
   categoryCard: {
-    width: '45%',
-    aspectRatio: 1,
-    backgroundColor: '#F8F9FA',
+    width: '47%',
+    backgroundColor: '#1C1C1E',
     borderRadius: 16,
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    marginBottom: 12,
   },
-  cardContent: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+  categoryIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#2C2C2E',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -639,60 +560,16 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1C1C1E',
-    textAlign: 'center',
-    width: '100%',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 32,
-    paddingHorizontal: 16,
-  },
-  emptyIconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#E3F2FD',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  emptySubText: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  createButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  createButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
+    color: '#FFFFFF',
   },
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: '#2C2C2E',
     paddingBottom: Platform.OS === 'ios' ? 24 : 12,
   },
   navItem: {
@@ -718,7 +595,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 8,
@@ -742,14 +619,14 @@ const styles = StyleSheet.create({
   modalIndicator: {
     width: 40,
     height: 4,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#2C2C2E',
     borderRadius: 2,
     marginBottom: 16,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
   },
   optionItem: {
     flexDirection: 'row',
@@ -772,12 +649,47 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   optionSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#8E8E93',
+  },
+  quickActionsContainer: {
+    marginBottom: 24,
+  },
+  quickActionsContent: {
+    paddingHorizontal: 12,
+  },
+  quickActionCard: {
+    width: 200,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 4,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
+  },
+  quickActionIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    backgroundColor: '#2C2C2E',
+  },
+  quickActionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  quickActionSubtitle: {
+    fontSize: 12,
+    color: '#8E8E93',
+    lineHeight: 16,
   },
 });
 

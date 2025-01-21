@@ -8,6 +8,8 @@ import {
   ScrollView,
   TextInput,
   ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -93,97 +95,105 @@ const PersonalInfoScreen = ({ navigation, route }) => {
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size="large" color="#000" />
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#FFFFFF" />
       </View>
     );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.headerTitle}>{t('profile.personalInfo')}</Text>
-
-      <ScrollView 
-        style={styles.content}
-        contentContainerStyle={styles.scrollContent}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
       >
-        <View style={styles.section}>
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.username')}</Text>
-            <Text style={styles.value}>{userData.username}</Text>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity 
+              onPress={() => navigation.goBack()} 
+              style={styles.backButton}
+            >
+              <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.title}>Kişisel Bilgiler</Text>
           </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.email')}</Text>
-            <Text style={styles.value}>{userData.email}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.firstName')}</Text>
-            <TextInput
-              style={styles.input}
-              value={userData.firstName}
-              onChangeText={(text) => setUserData(prev => ({ ...prev, firstName: text }))}
-              placeholder={t('profile.enterFirstName')}
-            />
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.lastName')}</Text>
-            <TextInput
-              style={styles.input}
-              value={userData.lastName}
-              onChangeText={(text) => setUserData(prev => ({ ...prev, lastName: text }))}
-              placeholder={t('profile.enterLastName')}
-            />
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.level')}</Text>
-            <Text style={styles.value}>{userData.level}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.experiencePoints')}</Text>
-            <Text style={styles.value}>{userData.experiencePoints} XP</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.totalFlashcards')}</Text>
-            <Text style={styles.value}>{userData.totalFlashcards}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.studyTime')}</Text>
-            <Text style={styles.value}>{userData.studyTimeMinutes} {t('profile.minutes')}</Text>
-          </View>
-
-          <View style={styles.infoItem}>
-            <Text style={styles.label}>{t('profile.successRate')}</Text>
-            <Text style={styles.value}>%{(userData.successRate * 100).toFixed(1)}</Text>
-          </View>
+          <TouchableOpacity 
+            style={styles.editButton}
+            onPress={handleSave}
+            disabled={!hasChanges() || saving}
+          >
+            <Text style={[styles.editButtonText, (!hasChanges() || saving) && styles.editButtonDisabled]}>
+              {saving ? t('common.loading') : t('common.update')}
+            </Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
 
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={[
-            styles.updateButton, 
-            (!hasChanges() || saving) && styles.updateButtonDisabled
-          ]}
-          onPress={handleSave}
-          disabled={!hasChanges() || saving}
-        >
-          <Text style={styles.updateButtonText}>
-            {saving ? t('common.loading') : t('common.update')}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        <ScrollView style={styles.content}>
+          <View style={styles.formSection}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.username')}</Text>
+              <Text style={styles.value}>{userData.username}</Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.email')}</Text>
+              <Text style={styles.value}>{userData.email}</Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.firstName')}</Text>
+              <TextInput
+                style={styles.input}
+                value={userData.firstName}
+                onChangeText={(text) => setUserData(prev => ({ ...prev, firstName: text }))}
+                placeholder={t('profile.enterFirstName')}
+                placeholderTextColor="#8E8E93"
+                selectionColor="#007AFF"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.lastName')}</Text>
+              <TextInput
+                style={styles.input}
+                value={userData.lastName}
+                onChangeText={(text) => setUserData(prev => ({ ...prev, lastName: text }))}
+                placeholder={t('profile.enterLastName')}
+                placeholderTextColor="#8E8E93"
+                selectionColor="#007AFF"
+              />
+            </View>
+          </View>
+
+          <View style={styles.formSection}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.level')}</Text>
+              <Text style={styles.value}>{userData.level}</Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.experiencePoints')}</Text>
+              <Text style={styles.value}>{userData.experiencePoints} XP</Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.totalFlashcards')}</Text>
+              <Text style={styles.value}>{userData.totalFlashcards}</Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.studyTime')}</Text>
+              <Text style={styles.value}>{userData.studyTimeMinutes} {t('profile.minutes')}</Text>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t('profile.successRate')}</Text>
+              <Text style={styles.value}>%{(userData.successRate * 100).toFixed(1)}</Text>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      <Toast />
     </SafeAreaView>
   );
 };
@@ -191,72 +201,71 @@ const PersonalInfoScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  centerContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#000000',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingVertical: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    paddingTop: Platform.OS === 'ios' ? 60 : 16,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   backButton: {
+    marginRight: 8,
     padding: 4,
-    width: 40,
   },
-  headerTitle: {
+  title: {
     fontSize: 34,
     fontWeight: '700',
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    color: '#FFFFFF',
+  },
+  editButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  editButtonText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  editButtonDisabled: {
+    color: '#2C2C2E',
   },
   content: {
     flex: 1,
   },
-  scrollContent: {
-    paddingBottom: 24,
+  formSection: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    margin: 16,
+    padding: 16,
+    marginBottom: 8,
   },
-  section: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  infoItem: {
-    marginBottom: 24,
+  inputContainer: {
+    marginBottom: 16,
   },
   label: {
     fontSize: 14,
-    color: '#666',
+    color: '#8E8E93',
     marginBottom: 8,
   },
   value: {
     fontSize: 16,
-    color: '#000',
+    color: '#FFFFFF',
+    backgroundColor: '#2C2C2E',
+    padding: 12,
+    borderRadius: 8,
   },
   input: {
     fontSize: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    paddingVertical: 8,
-  },
-  footer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  updateButton: {
-    backgroundColor: '#000',
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  updateButtonDisabled: {
-    backgroundColor: '#E0E0E0',
-  },
-  updateButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    backgroundColor: '#2C2C2E',
+    padding: 12,
+    borderRadius: 8,
   },
 });
 
