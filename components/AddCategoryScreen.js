@@ -199,12 +199,14 @@ const AddCategoryScreen = ({ navigation }) => {
   };
 
   const renderStepIndicator = () => (
-    <View style={styles.stepIndicator}>
-      <View style={[styles.stepDot, step >= 1 && styles.stepDotActive]} />
-      <View style={[styles.stepLine, step >= 2 && styles.stepLineActive]} />
-      <View style={[styles.stepDot, step >= 2 && styles.stepDotActive]} />
-      <View style={[styles.stepLine, step >= 3 && styles.stepLineActive]} />
-      <View style={[styles.stepDot, step >= 3 && styles.stepDotActive]} />
+    <View style={styles.stepIndicatorContainer}>
+      <View style={styles.stepIndicator}>
+        <View style={[styles.stepDot, step >= 1 && styles.stepDotActive]} />
+        <View style={[styles.stepLine, step >= 2 && styles.stepLineActive]} />
+        <View style={[styles.stepDot, step >= 2 && styles.stepDotActive]} />
+        <View style={[styles.stepLine, step >= 3 && styles.stepLineActive]} />
+        <View style={[styles.stepDot, step >= 3 && styles.stepDotActive]} />
+      </View>
     </View>
   );
 
@@ -222,7 +224,7 @@ const AddCategoryScreen = ({ navigation }) => {
           placeholder={t('categories.steps.name.placeholder')}
           value={name}
           onChangeText={setName}
-          placeholderTextColor="rgba(0, 0, 0, 0.4)"
+          placeholderTextColor="rgba(255, 255, 255, 0.4)"
           selectionColor="#2196F3"
           editable={!isLoading}
           onBlur={validateName}
@@ -250,7 +252,7 @@ const AddCategoryScreen = ({ navigation }) => {
           onChangeText={setDescription}
           multiline
           numberOfLines={4}
-          placeholderTextColor="rgba(0, 0, 0, 0.4)"
+          placeholderTextColor="rgba(255, 255, 255, 0.4)"
           selectionColor="#2196F3"
           editable={!isLoading}
           onBlur={validateDescription}
@@ -287,24 +289,24 @@ const AddCategoryScreen = ({ navigation }) => {
             </View>
           </View>
           <ScrollView 
-            horizontal 
+            horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.colorList}
-            contentContainerStyle={styles.colorListContent}
+            style={styles.colorGrid}
           >
             {COLORS.map((color) => (
               <TouchableOpacity
                 key={color.id}
                 style={[
                   styles.colorItem,
-                  { backgroundColor: color.color },
                   selectedColor?.id === color.id && styles.colorItemSelected
                 ]}
                 onPress={() => setSelectedColor(color)}
               >
-                {selectedColor?.id === color.id && (
-                  <Ionicons name="checkmark-circle" size={24} color="#666666" />
-                )}
+                <View style={[styles.colorContainer, { backgroundColor: color.color }]}>
+                  {selectedColor?.id === color.id && (
+                    <Ionicons name="checkmark" size={20} color="#666666" />
+                  )}
+                </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -429,7 +431,7 @@ const AddCategoryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   keyboardView: {
     flex: 1,
@@ -439,10 +441,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    transform: [{ scale: 1 }],
   },
   stepIndicatorContainer: {
     flex: 1,
@@ -453,24 +461,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 8,
   },
   stepDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#E0E0E0',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#2C2C2E',
+    transform: [{ scale: 1 }],
   },
   stepDotActive: {
-    backgroundColor: '#666666',
+    backgroundColor: '#FFFFFF',
+    transform: [{ scale: 1.2 }],
   },
   stepLine: {
     width: 80,
-    height: 1,
-    backgroundColor: '#E0E0E0',
+    height: 2,
+    backgroundColor: '#2C2C2E',
     marginHorizontal: 4,
   },
   stepLineActive: {
-    backgroundColor: '#666666',
+    backgroundColor: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -480,86 +491,88 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepHeader: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
   stepTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#333',
-    marginBottom: 8,
+    color: '#FFFFFF',
+    marginBottom: 12,
   },
   stepDescription: {
-    fontSize: 16,
-    color: '#666',
-    lineHeight: 22,
+    fontSize: 17,
+    color: '#8E8E93',
+    lineHeight: 24,
   },
   inputContainer: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    backgroundColor: '#F8F9FA',
-    marginBottom: 8,
-    ...Platform.select({
-      ios: {
-        backgroundColor: '#F8F9FA',
-        borderWidth: 0,
-      },
-      android: {
-        elevation: 2,
-      }
-    }),
+    borderWidth: 2,
+    borderColor: '#2C2C2E',
+    borderRadius: 16,
+    backgroundColor: '#1C1C1E',
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   modernInput: {
     flex: 1,
     height: 60,
-    fontSize: 16,
-    color: '#333333',
+    fontSize: 17,
+    color: '#FFFFFF',
     textAlignVertical: 'top',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
   },
   textArea: {
     height: 120,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingTop: 20,
+    paddingBottom: 20,
   },
   errorText: {
-    color: '#FF3B30',
-    fontSize: 14,
-    marginTop: 4,
-    marginLeft: 4,
+    color: '#FF453A',
+    fontSize: 15,
+    marginTop: 8,
+    marginLeft: 8,
+    fontWeight: '500',
   },
   sectionTitle: {
-    marginTop: 16,
-    marginBottom: 16,
+    marginTop: 8,
+    marginBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
   sectionTitleText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
-  colorList: {
-    height: 64,
-    marginBottom: 32,
-  },
-  colorListContent: {
-    alignItems: 'center',
+  colorGrid: {
+    flexDirection: 'row',
+    marginBottom: 8,
+    paddingHorizontal: 4,
+    paddingVertical: 8,
   },
   colorItem: {
+    marginRight: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 6,
+  },
+  colorItemSelected: {
+    transform: [{ scale: 1.05 }],
+  },
+  colorContainer: {
     width: 52,
     height: 52,
     borderRadius: 26,
-    marginRight: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  colorItemSelected: {
-    borderWidth: 2,
-    borderColor: '#666666',
+    backgroundColor: 'transparent',
   },
   iconGrid: {
     flexDirection: 'row',
@@ -572,103 +585,118 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
     borderRadius: 16,
-    padding: 8,
+    backgroundColor: '#1C1C1E',
   },
   iconItemSelected: {
-    backgroundColor: '#F8F9FA',
-    borderWidth: 1,
-    borderColor: '#666666',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
   },
   iconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 48,
+    height: 48,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#2C2C2E',
     marginBottom: 8,
-    backgroundColor: '#F8F9FA',
   },
   iconLabel: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#8E8E93',
     textAlign: 'center',
-    marginTop: 4,
+    fontWeight: '500',
   },
   footer: {
-    padding: 16,
+    padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: '#2C2C2E',
+    backgroundColor: '#000000',
   },
   nextButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     paddingVertical: 16,
-    paddingHorizontal: 24,
+    paddingHorizontal: 32,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   nextButtonText: {
-    fontSize: 17,
+    fontSize: 18,
     fontWeight: '600',
-    color: '#FFFFFF',
-    marginRight: 8,
+    color: '#000000',
+    marginRight: 12,
   },
   submitButton: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   disabledButton: {
-    backgroundColor: '#F1F2F3',
+    backgroundColor: '#2C2C2E',
+    opacity: 0.7,
   },
   submitButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+    color: '#000000',
+    fontSize: 18,
     fontWeight: '600',
   },
   disabledButtonText: {
-    color: '#CCD0D5',
-  },
-  buttonDisabled: {
-    opacity: 0.5,
+    color: '#8E8E93',
   },
   clearSelectionWrapper: {
     width: 120,
-    height: 32,
+    height: 36,
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
   clearSelectionPlaceholder: {
     width: 120,
-    height: 32,
+    height: 36,
   },
   clearSelection: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
     minWidth: 120,
   },
   clearSelectionText: {
-    fontSize: 13,
-    color: '#666666',
+    fontSize: 14,
+    color: '#8E8E93',
+    fontWeight: '500',
   },
   appearanceContainer: {
     flex: 1,
-    marginTop: 8,
+    marginTop: 12,
   },
   sectionContainer: {
-    marginBottom: 24,
+    marginBottom: 8,
   },
   iconSectionContainer: {
-    marginBottom: 24,
+    marginTop: 0,
   },
 });
 
