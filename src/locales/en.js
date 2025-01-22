@@ -358,4 +358,32 @@ export default {
     home: 'Home',
     profile: 'Profile'
   },
+  study: {
+    title: 'Study',
+    actions: {
+      again: 'Again',
+      hard: 'Hard',
+      good: 'Good',
+      easy: 'Easy'
+    },
+    stats: {
+      correct: 'Correct',
+      incorrect: 'Incorrect',
+      remaining: 'Remaining',
+      total: 'Total'
+    },
+    complete: {
+      title: 'Congratulations!',
+      subtitle: 'You completed the study session',
+      stats: 'Statistics',
+      accuracy: 'Accuracy',
+      timeSpent: 'Time Spent',
+      cardsLearned: 'Cards Learned',
+      actions: {
+        retry: 'Study Again',
+        continue: 'Continue',
+        back: 'Go Back'
+      }
+    }
+  },
 }; 

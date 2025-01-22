@@ -360,5 +360,33 @@ export default {
   navigation: {
     home: 'Ana Sayfa',
     profile: 'Profil'
+  },
+  study: {
+    title: 'Çalışma',
+    actions: {
+      again: 'Tekrar',
+      hard: 'Zor',
+      good: 'İyi',
+      easy: 'Kolay'
+    },
+    stats: {
+      correct: 'Doğru',
+      incorrect: 'Yanlış',
+      remaining: 'Kalan',
+      total: 'Toplam'
+    },
+    complete: {
+      title: 'Tebrikler!',
+      subtitle: 'Çalışmayı tamamladınız',
+      stats: 'İstatistikler',
+      accuracy: 'Doğruluk',
+      timeSpent: 'Geçen Süre',
+      cardsLearned: 'Öğrenilen Kartlar',
+      actions: {
+        retry: 'Tekrar Çalış',
+        continue: 'Devam Et',
+        back: 'Geri Dön'
+      }
+    }
   }
 }; 

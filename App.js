@@ -26,6 +26,7 @@ import StudySetScreen from './components/StudySetScreen';
 import PersonalInfoScreen from './components/PersonalInfoScreen';
 import ChangePasswordScreen from './components/ChangePasswordScreen';
 import StudySetDetailScreen from './components/StudySetDetailScreen';
+import StudyModeScreen from './components/StudyModeScreen';
 import LanguageSettingsScreen from './components/LanguageSettingsScreen';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
@@ -248,6 +249,14 @@ export default function App() {
                   <Stack.Screen 
                     name="StudySetDetail" 
                     component={StudySetDetailScreen}
+                  />
+                  <Stack.Screen 
+                    name="StudyMode" 
+                    component={StudyModeScreen}
+                    options={{
+                      gestureEnabled: false,
+                      animation: 'fade'
+                    }}
                   />
                   <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} options={{ headerShown: false }} />
                   <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ headerShown: false }} />
