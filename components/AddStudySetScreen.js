@@ -237,45 +237,38 @@ const AddStudySetScreen = ({ navigation, route }) => {
       </View>
 
       <ScrollView 
-        style={styles.categoriesContainer}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.categoriesContainer}
       >
         {categories.map((category) => (
           <TouchableOpacity
             key={category.id}
             style={[
               styles.categoryCard,
-              selectedCategory?.id === category.id && styles.categoryCardSelected,
+              selectedCategory?.id === category.id && styles.selectedCategoryCard,
               categoryId && category.id !== categoryId && styles.categoryCardDisabled
             ]}
             onPress={() => !categoryId || category.id === categoryId ? setSelectedCategory(category) : null}
             disabled={categoryId && category.id !== categoryId}
           >
             <View style={styles.cardContent}>
-              <View style={[styles.categoryIcon, { backgroundColor: category.color || '#1C1C1E' }]}>
-                <Ionicons name={category.icon || 'folder-outline'} size={24} color="#8E8E93" />
+              <View style={[
+                styles.categoryIcon,
+                { backgroundColor: category.color || '#000000' }
+              ]}>
+                <Ionicons 
+                  name={category.icon || 'folder'} 
+                  size={24} 
+                  color={category.color ? '#1C1C1E' : '#FFFFFF'} 
+                />
               </View>
-              <View style={styles.categoryInfo}>
-                <Text style={[
-                  styles.categoryName,
-                  categoryId && category.id !== categoryId && styles.categoryTextDisabled
-                ]}>
-                  {category.name}
-                </Text>
-                {category.description && (
-                  <Text style={[
-                    styles.categoryDescription,
-                    categoryId && category.id !== categoryId && styles.categoryTextDisabled
-                  ]} numberOfLines={1}>
-                    {category.description}
-                  </Text>
-                )}
-              </View>
-              {selectedCategory?.id === category.id && (
-                <View style={styles.selectedIndicator}>
-                  <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
-                </View>
-              )}
+              <Text style={[
+                styles.categoryName,
+                selectedCategory?.id === category.id && styles.selectedCategoryName,
+                categoryId && category.id !== categoryId && styles.categoryTextDisabled
+              ]}>
+                {category.name}
+              </Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -457,18 +450,19 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   categoriesContainer: {
-    flex: 1,
-    marginTop: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
   },
   categoryCard: {
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
+    width: '100%',
     marginBottom: 12,
+    borderRadius: 16,
+    backgroundColor: '#1C1C1E',
     padding: 16,
     borderWidth: 1,
     borderColor: '#2C2C2E',
   },
-  categoryCardSelected: {
+  selectedCategoryCard: {
     backgroundColor: '#2C2C2E',
     borderColor: '#FFFFFF',
   },
@@ -480,31 +474,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
-  },
-  categoryInfo: {
-    flex: 1,
+    marginRight: 12,
   },
   categoryName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
-    marginBottom: 4,
   },
-  categoryDescription: {
-    fontSize: 14,
-    color: '#8E8E93',
+  selectedCategoryName: {
+    color: '#FFFFFF',
   },
   categoryTextDisabled: {
     color: '#666666',
-  },
-  selectedIndicator: {
-    marginLeft: 12,
   },
   footer: {
     padding: 16,

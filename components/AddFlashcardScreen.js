@@ -285,22 +285,24 @@ const AddFlashcardScreen = ({ navigation }) => {
                     ]}
                     onPress={() => handleCategorySelect(category)}
                   >
-                    <View style={[
-                      styles.categoryIcon,
-                      { backgroundColor: category.color || '#1C1C1E' }
-                    ]}>
-                      <Ionicons 
-                        name={category.icon || 'folder-outline'} 
-                        size={24} 
-                        color="#FFFFFF" 
-                      />
+                    <View style={styles.cardContent}>
+                      <View style={[
+                        styles.categoryIcon,
+                        { backgroundColor: category.color || '#000000' }
+                      ]}>
+                        <Ionicons 
+                          name={category.icon || 'folder'} 
+                          size={24} 
+                          color={category.color ? '#1C1C1E' : '#FFFFFF'} 
+                        />
+                      </View>
+                      <Text style={[
+                        styles.categoryName,
+                        selectedCategory?.id === category.id && styles.selectedCategoryName
+                      ]}>
+                        {category.name}
+                      </Text>
                     </View>
-                    <Text style={[
-                      styles.categoryName,
-                      selectedCategory?.id === category.id && styles.selectedCategoryName
-                    ]}>
-                      {category.name}
-                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -323,8 +325,12 @@ const AddFlashcardScreen = ({ navigation }) => {
                         onPress={() => handleStudySetSelect(studySet)}
                       >
                         <View style={styles.studySetContent}>
-                          <View style={[styles.studySetIcon, { backgroundColor: '#1C1C1E' }]}>
-                            <Ionicons name="book-outline" size={20} color="#FFFFFF" />
+                          <View style={[styles.studySetIcon, { backgroundColor: selectedCategory.color || '#000000' }]}>
+                            <Ionicons 
+                              name="book" 
+                              size={24} 
+                              color={selectedCategory.color ? '#1C1C1E' : '#FFFFFF'} 
+                            />
                           </View>
                           <Text style={[
                             styles.studySetName,
@@ -572,14 +578,19 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: '#1C1C1E',
     padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
     borderWidth: 1,
     borderColor: '#2C2C2E',
   },
   selectedCategoryCard: {
     backgroundColor: '#2C2C2E',
     borderColor: '#FFFFFF',
+  },
+  cardContent: {
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
   },
   categoryIcon: {
     width: 44,
@@ -593,29 +604,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#FFFFFF',
-    textAlign: 'center',
+    textAlign: 'left',
   },
   selectedCategoryName: {
     color: '#FFFFFF',
-  },
-  categoryDescription: {
-    fontSize: 14,
-    color: '#666666',
-    marginTop: 4,
-  },
-  selectedCategoryDescription: {
-    color: 'rgba(255, 255, 255, 0.7)',
   },
   studySetsContainer: {
     paddingTop: 8,
   },
   studySetCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#1C1C1E',
-    borderRadius: 16,
+    width: '100%',
     marginBottom: 12,
+    borderRadius: 16,
+    backgroundColor: '#1C1C1E',
+    padding: 16,
     borderWidth: 1,
     borderColor: '#2C2C2E',
   },
@@ -628,17 +630,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   studySetIcon: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     borderRadius: 12,
-    backgroundColor: '#1C1C1E',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 12,
   },
   studySetName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#FFFFFF',
   },
   selectedStudySetName: {

@@ -188,8 +188,12 @@ const StudySetScreen = ({ navigation, route }) => {
 
       <View style={styles.categoryContainer}>
         <View style={styles.categoryHeader}>
-          <View style={[styles.categoryIcon, { backgroundColor: category.color || '#F8F9FA' }]}>
-            <Ionicons name={category.icon || "folder"} size={24} color="#666666" />
+          <View style={[styles.categoryIcon, { backgroundColor: category.color || '#000000' }]}>
+            <Ionicons 
+              name={category.icon || 'folder'} 
+              size={24} 
+              color={category.color ? '#1C1C1E' : '#FFFFFF'} 
+            />
           </View>
           <View style={styles.categoryTitleContainer}>
             <Text style={styles.categoryName}>{category.name}</Text>
@@ -232,15 +236,17 @@ const StudySetScreen = ({ navigation, route }) => {
             <View style={styles.statRow}>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{studySet.totalCards || 0}</Text>
-                <Text style={styles.statLabel}>Toplam</Text>
+                <Text style={styles.statLabel}>{t('studySet.stats.total')}</Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{studySet.masteredCards || 0}</Text>
-                <Text style={styles.statLabel}>Öğrenildi</Text>
+                <Text style={styles.statLabel}>{t('studySet.stats.mastered')}</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{Math.round(progress)}%</Text>
-                <Text style={styles.statLabel}>İlerleme</Text>
+                <Text style={[styles.statNumber, { color: '#4CAF50' }]}>
+                  {Math.round(progress)}%
+                </Text>
+                <Text style={styles.statLabel}>{t('studySet.stats.progress')}</Text>
               </View>
             </View>
           </View>
@@ -414,33 +420,35 @@ const StudySetScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   header: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'ios' ? 50 : 20,
   },
   backButton: {
     width: 40,
     height: 40,
+    borderRadius: 12,
+    backgroundColor: '#1C1C1E',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
+    marginLeft: 16,
   },
   categoryContainer: {
-    padding: 16,
+    padding: 24,
   },
   categoryHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   categoryIcon: {
     width: 44,
@@ -448,24 +456,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 16,
   },
   categoryTitleContainer: {
     flex: 1,
   },
   categoryName: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#1C1C1E',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   categoryMeta: {
     fontSize: 15,
-    color: '#666666',
+    color: '#8E8E93',
   },
   categoryDescription: {
     fontSize: 15,
-    color: '#666666',
+    color: '#8E8E93',
     lineHeight: 22,
     marginTop: 8,
   },
@@ -473,14 +481,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   studySetsContainer: {
-    padding: 16,
+    padding: 24,
   },
   studySetCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     borderRadius: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#EEEEEE',
+    borderColor: '#2C2C2E',
   },
   cardContent: {
     padding: 16,
@@ -491,18 +499,18 @@ const styles = StyleSheet.create({
   studySetName: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   description: {
     fontSize: 15,
-    color: '#666666',
+    color: '#8E8E93',
     lineHeight: 20,
   },
   cardStats: {
     paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: '#2C2C2E',
   },
   statRow: {
     flexDirection: 'row',
@@ -514,41 +522,30 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#1C1C1E',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 13,
-    color: '#666666',
+    color: '#8E8E93',
   },
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: '#2C2C2E',
     paddingBottom: Platform.OS === 'ios' ? 24 : 12,
   },
   navItem: {
     alignItems: 'center',
     minWidth: 64,
   },
-  navText: {
-    fontSize: 12,
-    color: '#666666',
-    marginTop: 4,
-  },
   addButton: {
     alignItems: 'center',
     minWidth: 64,
-  },
-  addButtonText: {
-    fontSize: 12,
-    color: '#007AFF',
-    marginTop: 4,
-    fontWeight: '500',
   },
   emptyContainer: {
     flex: 1,
@@ -560,23 +557,23 @@ const styles = StyleSheet.create({
   emptyIconContainer: {
     width: 80,
     height: 80,
-    borderRadius: 40,
-    backgroundColor: '#F8F9FA',
+    borderRadius: 24,
+    backgroundColor: '#1C1C1E',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
   },
   emptyText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333333',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   emptySubText: {
     fontSize: 15,
-    color: '#666666',
+    color: '#8E8E93',
     textAlign: 'center',
     marginBottom: 24,
     lineHeight: 22,
@@ -584,39 +581,33 @@ const styles = StyleSheet.create({
   emptyButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#666666',
+    backgroundColor: '#1C1C1E',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
   },
   emptyButtonText: {
-    color: '#FFF',
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 8,
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 20,
   },
   modalContent: {
     padding: 20,
@@ -628,7 +619,7 @@ const styles = StyleSheet.create({
   modalIndicator: {
     width: 40,
     height: 4,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#2C2C2E',
     borderRadius: 2,
   },
   optionItem: {
@@ -645,6 +636,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    backgroundColor: '#2C2C2E',
   },
   optionText: {
     flex: 1,
@@ -652,12 +644,12 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   optionSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: '#8E8E93',
   },
 });
 

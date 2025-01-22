@@ -313,8 +313,10 @@ const HomeScreen = ({ navigation, route }) => {
         {renderQuickActions()}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('home.categories.title')}</Text>
-          <View style={styles.categories}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t('home.yourCategories')}</Text>
+          </View>
+          <View style={styles.categoriesContainer}>
             {categories.map((category) => (
               <TouchableOpacity
                 key={category.id}
@@ -528,14 +530,15 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 8,
   },
+  sectionHeader: {
+    padding: 16,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
     color: '#FFFFFF',
-    marginLeft: 16,
-    marginBottom: 12,
   },
-  categories: {
+  categoriesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,

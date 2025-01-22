@@ -65,18 +65,19 @@ const CategoryScreen = ({ navigation }) => {
             }}
           >
             <View style={styles.cardContent}>
-              <View style={[styles.iconContainer, { backgroundColor: category.color || '#F5F5F5' }]}>
-                <Ionicons name={category.icon || 'folder-outline'} size={24} color="#666666" />
+              <View style={[styles.categoryIcon, { backgroundColor: category.color || '#000000' }]}>
+                <Ionicons 
+                  name={category.icon || 'folder'} 
+                  size={24} 
+                  color={category.color ? '#1C1C1E' : '#FFFFFF'} 
+                />
               </View>
-              <View style={styles.categoryInfo}>
-                <Text style={styles.categoryName}>{category.name}</Text>
-                {category.description && (
-                  <Text style={styles.categoryDescription} numberOfLines={1}>
-                    {category.description}
-                  </Text>
-                )}
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+              <Text style={styles.categoryName}>{category.name}</Text>
+              {category.description && (
+                <Text style={styles.categoryDescription} numberOfLines={1}>
+                  {category.description}
+                </Text>
+              )}
             </View>
           </TouchableOpacity>
         ))}
@@ -88,71 +89,69 @@ const CategoryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#000000',
+    color: '#FFFFFF',
   },
   addButton: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F2F2F7',
+    borderRadius: 12,
+    backgroundColor: '#1C1C1E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   content: {
     flex: 1,
+    paddingHorizontal: 24,
   },
   categoryCard: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
+    width: '100%',
+    height: 72,
+    marginBottom: 12,
+    borderRadius: 16,
+    backgroundColor: '#1C1C1E',
+    padding: 12,
+    justifyContent: 'center',
   },
   cardContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: '#F0F7FF',
+  categoryIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
-  categoryInfo: {
-    flex: 1,
-  },
   categoryName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#000000',
-    marginBottom: 2,
+    color: '#FFFFFF',
   },
   categoryDescription: {
     fontSize: 14,
     color: '#8E8E93',
+    marginTop: 2,
   },
 });
 
