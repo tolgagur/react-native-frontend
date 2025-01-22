@@ -171,17 +171,12 @@ const AddCategoryScreen = ({ navigation }) => {
         color: selectedColor?.color || '#F5F5F5',
         icon: selectedIcon?.name || 'folder-outline'
       });
-
-      Toast.show({
-        type: 'success',
-        text1: t('common.success'),
-        text2: t('categories.success.created'),
-        visibilityTime: 2000,
-        position: 'top',
-        topOffset: 50
-      });
       
-      navigation.replace('Home', { shouldRefresh: true });
+      // Sadece basit bir geçiş ile sayfayı kapat
+      navigation.goBack();
+      setTimeout(() => {
+        navigation.navigate('Home', { shouldRefresh: true });
+      }, 100);
 
     } catch (error) {
       console.error('Kategori oluşturma hatası:', error);
