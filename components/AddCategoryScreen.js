@@ -360,7 +360,7 @@ const AddCategoryScreen = ({ navigation }) => {
             <Ionicons 
               name="chevron-back" 
               size={24} 
-              color="#666666" 
+              color="#FFFFFF" 
             />
           </TouchableOpacity>
           <View style={styles.stepIndicatorContainer}>
@@ -445,7 +445,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#1C1C1E',
     borderRadius: 12,
-    transform: [{ scale: 1 }],
   },
   stepIndicatorContainer: {
     flex: 1,

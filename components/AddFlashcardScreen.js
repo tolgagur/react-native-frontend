@@ -189,14 +189,11 @@ const AddFlashcardScreen = ({ navigation }) => {
         }))
       });
 
-      Toast.show({
-        type: 'success',
-        text1: t('common.success'),
-        text2: t('flashcard.success.created'),
-      });
-
+      // Sadece basit bir geçiş ile sayfayı kapat
       navigation.goBack();
+
     } catch (error) {
+      console.error('Çalışma seti oluşturma hatası:', error);
       Toast.show({
         type: 'error',
         text1: t('common.error'),
@@ -248,9 +245,9 @@ const AddFlashcardScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView 
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? -20 : -20}
         enabled
       >
         <View style={styles.header}>
@@ -258,7 +255,7 @@ const AddFlashcardScreen = ({ navigation }) => {
             style={styles.backButton} 
             onPress={() => navigation.goBack()}
           >
-            <Ionicons name="chevron-back" size={24} color="#666666" />
+            <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
           </TouchableOpacity>
           {renderStepIndicator()}
         </View>
@@ -290,12 +287,12 @@ const AddFlashcardScreen = ({ navigation }) => {
                   >
                     <View style={[
                       styles.categoryIcon,
-                      { backgroundColor: category.color || '#F5F5F5' }
+                      { backgroundColor: category.color || '#1C1C1E' }
                     ]}>
                       <Ionicons 
                         name={category.icon || 'folder-outline'} 
                         size={24} 
-                        color="#000000" 
+                        color="#FFFFFF" 
                       />
                     </View>
                     <Text style={[
@@ -326,8 +323,8 @@ const AddFlashcardScreen = ({ navigation }) => {
                         onPress={() => handleStudySetSelect(studySet)}
                       >
                         <View style={styles.studySetContent}>
-                          <View style={styles.studySetIcon}>
-                            <Ionicons name="book-outline" size={20} color="#000000" />
+                          <View style={[styles.studySetIcon, { backgroundColor: '#1C1C1E' }]}>
+                            <Ionicons name="book-outline" size={20} color="#FFFFFF" />
                           </View>
                           <Text style={[
                             styles.studySetName,
@@ -356,7 +353,7 @@ const AddFlashcardScreen = ({ navigation }) => {
                   <Ionicons 
                     name="trash-outline" 
                     size={20} 
-                    color={flashcards.length <= 1 ? "#CCD0D5" : "#1C1C1E"} 
+                    color={flashcards.length <= 1 ? "#8E8E93" : "#FFFFFF"} 
                   />
                   <Text style={[
                     styles.deleteCardText,
@@ -375,8 +372,8 @@ const AddFlashcardScreen = ({ navigation }) => {
                     value={flashcards[currentStep].frontContent}
                     onChangeText={(text) => updateCard(currentStep, 'frontContent', text)}
                     placeholder={t('flashcard.frontPlaceholder')}
-                    placeholderTextColor="rgba(0, 0, 0, 0.4)"
-                    selectionColor="#2196F3"
+                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    selectionColor="#FFFFFF"
                     multiline
                     maxLength={100}
                     textAlignVertical="top"
@@ -388,7 +385,7 @@ const AddFlashcardScreen = ({ navigation }) => {
                 <View style={styles.divider}>
                   <View style={styles.dividerLine} />
                   <View style={styles.dividerIcon}>
-                    <Ionicons name="swap-vertical" size={20} color="#666666" />
+                    <Ionicons name="swap-vertical" size={20} color="#8E8E93" />
                   </View>
                   <View style={styles.dividerLine} />
                 </View>
@@ -400,8 +397,8 @@ const AddFlashcardScreen = ({ navigation }) => {
                     value={flashcards[currentStep].backContent}
                     onChangeText={(text) => updateCard(currentStep, 'backContent', text)}
                     placeholder={t('flashcard.backPlaceholder')}
-                    placeholderTextColor="rgba(0, 0, 0, 0.4)"
-                    selectionColor="#2196F3"
+                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    selectionColor="#FFFFFF"
                     multiline
                     maxLength={100}
                     textAlignVertical="top"
@@ -422,7 +419,7 @@ const AddFlashcardScreen = ({ navigation }) => {
                 onPress={handleContinue}
               >
                 <Text style={styles.continueButtonText}>{t('common.continue')}</Text>
-                <Ionicons name="arrow-forward" size={24} color="#FFFFFF" style={styles.continueButtonIcon} />
+                <Ionicons name="arrow-forward" size={24} color="#000000" style={styles.continueButtonIcon} />
               </TouchableOpacity>
             </View>
           </View>
@@ -440,7 +437,7 @@ const AddFlashcardScreen = ({ navigation }) => {
                   <Ionicons 
                     name="chevron-back" 
                     size={24} 
-                    color={currentStep === 0 ? "#CCD0D5" : "#1C1C1E"} 
+                    color={currentStep === 0 ? "#8E8E93" : "#FFFFFF"} 
                   />
                 </TouchableOpacity>
 
@@ -452,7 +449,7 @@ const AddFlashcardScreen = ({ navigation }) => {
                   <Ionicons 
                     name="add" 
                     size={24} 
-                    color={!flashcards[currentStep].frontContent.trim() || !flashcards[currentStep].backContent.trim() ? "#CCD0D5" : "#1C1C1E"} 
+                    color={!flashcards[currentStep].frontContent.trim() || !flashcards[currentStep].backContent.trim() ? "#8E8E93" : "#FFFFFF"} 
                   />
                 </TouchableOpacity>
 
@@ -464,7 +461,7 @@ const AddFlashcardScreen = ({ navigation }) => {
                   <Ionicons 
                     name="chevron-forward" 
                     size={24} 
-                    color={currentStep === flashcards.length - 1 ? "#CCD0D5" : "#1C1C1E"} 
+                    color={currentStep === flashcards.length - 1 ? "#8E8E93" : "#FFFFFF"} 
                   />
                 </TouchableOpacity>
               </View>
@@ -496,7 +493,7 @@ const AddFlashcardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   keyboardView: {
     flex: 1,
@@ -507,17 +504,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   backButton: {
-    padding: 8,
-  },
-  deleteButton: {
-    padding: 8,
-    marginLeft: 'auto',
-  },
-  disabledButton: {
-    opacity: 1,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
   },
   stepIndicatorContainer: {
     flex: 1,
@@ -531,26 +526,26 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#2C2C2E',
   },
   activeStepDot: {
-    backgroundColor: '#000000',
+    backgroundColor: '#FFFFFF',
   },
   stepLine: {
     width: 64,
     height: 2,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#2C2C2E',
     marginHorizontal: 8,
   },
   activeStepLine: {
-    backgroundColor: '#000000',
+    backgroundColor: '#FFFFFF',
   },
   content: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: Platform.OS === "ios" ? 80 : 60,
+    paddingBottom: Platform.OS === "ios" ? 120 : 100,
   },
   selectionSection: {
     padding: 24,
@@ -558,12 +553,12 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   stepDescription: {
     fontSize: 16,
-    color: '#666',
+    color: '#8E8E93',
     lineHeight: 22,
     marginBottom: 24,
   },
@@ -575,16 +570,16 @@ const styles = StyleSheet.create({
     height: 120,
     marginRight: 12,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     padding: 16,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
   },
   selectedCategoryCard: {
-    backgroundColor: '#000000',
-    borderColor: '#000000',
+    backgroundColor: '#2C2C2E',
+    borderColor: '#FFFFFF',
   },
   categoryIcon: {
     width: 44,
@@ -597,7 +592,7 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#000000',
+    color: '#FFFFFF',
     textAlign: 'center',
   },
   selectedCategoryName: {
@@ -618,15 +613,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#1C1C1E',
     borderRadius: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
   },
   selectedStudySetCard: {
-    backgroundColor: '#000000',
-    borderColor: '#000000',
+    backgroundColor: '#2C2C2E',
+    borderColor: '#FFFFFF',
   },
   studySetContent: {
     flexDirection: 'row',
@@ -636,7 +631,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -644,7 +639,7 @@ const styles = StyleSheet.create({
   studySetName: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#000000',
+    color: '#FFFFFF',
   },
   selectedStudySetName: {
     color: '#FFFFFF',
@@ -663,7 +658,7 @@ const styles = StyleSheet.create({
   cardCount: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
   },
   cardContent: {
     flex: 1,
@@ -674,30 +669,21 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   modernInput: {
     flex: 1,
     fontSize: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     padding: 12,
     height: 60,
-    color: '#333333',
+    color: '#FFFFFF',
     textAlignVertical: 'top',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
     borderRadius: 12,
     marginVertical: 8,
-    ...Platform.select({
-      ios: {
-        backgroundColor: '#F8F9FA',
-        borderWidth: 0,
-      },
-      android: {
-        elevation: 2,
-      }
-    }),
   },
   divider: {
     flexDirection: 'row',
@@ -707,13 +693,13 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#2C2C2E',
   },
   dividerIcon: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#1C1C1E',
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 12,
@@ -732,48 +718,44 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#1C1C1E',
     justifyContent: 'center',
     alignItems: 'center',
   },
   footerContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
     borderTopWidth: 1,
-    borderTopColor: '#F0F0E0',
-    position: 'relative',
-    left: 0,
-    right: 0,
-    zIndex: 999,
+    borderTopColor: '#2C2C2E',
+    width: '100%',
   },
   footer: {
-    padding: 12,
-    backgroundColor: '#FFFFFF',
-    paddingBottom: Platform.OS === "ios" ? 0 : 12,
+    padding: 16,
+    backgroundColor: '#000000',
+    paddingBottom: Platform.OS === "ios" ? 34 : 16,
   },
   deleteCardButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 8,
   },
   deleteCardText: {
     fontSize: 14,
-    color: '#1C1C1E',
+    color: '#FFFFFF',
     marginLeft: 4,
   },
   continueButton: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 16,
-    paddingHorizontal: 24,
     borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   continueButtonText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 16,
     fontWeight: '600',
     marginRight: 8,
@@ -782,19 +764,23 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   saveButton: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   saveButtonText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 16,
     fontWeight: '600',
   },
+  disabledButton: {
+    backgroundColor: '#2C2C2E',
+    opacity: 0.7,
+  },
   disabledButtonText: {
-    color: '#CCD0D5',
+    color: '#8E8E93',
   },
 });
 

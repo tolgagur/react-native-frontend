@@ -139,20 +139,14 @@ const AddStudySetScreen = ({ navigation, route }) => {
         description: description.trim() || null,
         categoryId: selectedCategory.id
       });
-
-      Toast.show({
-        type: 'success',
-        text1: t('common.success'),
-        text2: t('studySet.success.created'),
-        visibilityTime: 2000,
-        position: 'top',
-        topOffset: 50
-      });
       
-      navigation.replace('StudySet', { 
-        category: selectedCategory,
-        shouldRefresh: true 
-      });
+      navigation.goBack();
+      setTimeout(() => {
+        navigation.navigate('StudySet', { 
+          category: selectedCategory,
+          shouldRefresh: true 
+        });
+      }, 100);
 
     } catch (error) {
       console.error('Çalışma seti oluşturma hatası:', error);
@@ -193,8 +187,8 @@ const AddStudySetScreen = ({ navigation, route }) => {
           placeholder={t('studySet.steps.name.title')}
           value={name}
           onChangeText={setName}
-          placeholderTextColor="rgba(0, 0, 0, 0.4)"
-          selectionColor="#2196F3"
+          placeholderTextColor="rgba(255, 255, 255, 0.4)"
+          selectionColor="#FFFFFF"
           editable={!isLoading}
           onBlur={validateName}
           autoCapitalize="none"
@@ -221,8 +215,8 @@ const AddStudySetScreen = ({ navigation, route }) => {
           onChangeText={setDescription}
           multiline
           numberOfLines={4}
-          placeholderTextColor="rgba(0, 0, 0, 0.4)"
-          selectionColor="#2196F3"
+          placeholderTextColor="rgba(255, 255, 255, 0.4)"
+          selectionColor="#FFFFFF"
           editable={!isLoading}
           onBlur={validateDescription}
           autoCapitalize="none"
@@ -258,8 +252,8 @@ const AddStudySetScreen = ({ navigation, route }) => {
             disabled={categoryId && category.id !== categoryId}
           >
             <View style={styles.cardContent}>
-              <View style={[styles.categoryIcon, { backgroundColor: category.color || '#F5F5F5' }]}>
-                <Ionicons name={category.icon || 'folder-outline'} size={24} color="#666666" />
+              <View style={[styles.categoryIcon, { backgroundColor: category.color || '#1C1C1E' }]}>
+                <Ionicons name={category.icon || 'folder-outline'} size={24} color="#8E8E93" />
               </View>
               <View style={styles.categoryInfo}>
                 <Text style={[
@@ -279,7 +273,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
               </View>
               {selectedCategory?.id === category.id && (
                 <View style={styles.selectedIndicator}>
-                  <Ionicons name="checkmark-circle" size={24} color="#666666" />
+                  <Ionicons name="checkmark-circle" size={24} color="#FFFFFF" />
                 </View>
               )}
             </View>
@@ -295,7 +289,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.header}>
           <TouchableOpacity 
@@ -305,7 +299,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
             <Ionicons 
               name="chevron-back" 
               size={24} 
-              color="#666666" 
+              color="#FFFFFF" 
             />
           </TouchableOpacity>
           <View style={styles.stepIndicatorContainer}>
@@ -342,7 +336,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
               <Ionicons 
                 name="arrow-forward" 
                 size={24} 
-                color={((name.length < 2 || name.length > 100) && step === 1) ? "#CCD0D5" : "#FFFFFF"} 
+                color={((name.length < 2 || name.length > 100) && step === 1) ? "#2C2C2E" : "#FFFFFF"} 
               />
             </TouchableOpacity>
           ) : (
@@ -371,17 +365,22 @@ const AddStudySetScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
   },
   stepIndicatorContainer: {
     flex: 1,
@@ -397,19 +396,19 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#2C2C2E',
   },
   stepDotActive: {
-    backgroundColor: '#666666',
+    backgroundColor: '#FFFFFF',
   },
   stepLine: {
     width: 80,
     height: 1,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#2C2C2E',
     marginHorizontal: 4,
   },
   stepLineActive: {
-    backgroundColor: '#666666',
+    backgroundColor: '#FFFFFF',
   },
   content: {
     flex: 1,
@@ -423,35 +422,26 @@ const styles = StyleSheet.create({
   stepTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   stepDescription: {
     fontSize: 16,
-    color: '#666',
+    color: '#8E8E93',
     lineHeight: 22,
   },
   inputContainer: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderWidth: 2,
+    borderColor: '#2C2C2E',
     borderRadius: 12,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#1C1C1E',
     marginBottom: 8,
-    ...Platform.select({
-      ios: {
-        backgroundColor: '#F8F9FA',
-        borderWidth: 0,
-      },
-      android: {
-        elevation: 2,
-      }
-    }),
   },
   modernInput: {
     flex: 1,
     height: 60,
     fontSize: 16,
-    color: '#333333',
+    color: '#FFFFFF',
     textAlignVertical: 'top',
     paddingHorizontal: 16,
   },
@@ -471,16 +461,16 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   categoryCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#1C1C1E',
     borderRadius: 12,
     marginBottom: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
   },
   categoryCardSelected: {
-    backgroundColor: '#F8F9FA',
-    borderColor: '#666666',
+    backgroundColor: '#2C2C2E',
+    borderColor: '#FFFFFF',
   },
   categoryCardDisabled: {
     opacity: 0.5,
@@ -503,15 +493,15 @@ const styles = StyleSheet.create({
   categoryName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333333',
+    color: '#FFFFFF',
     marginBottom: 4,
   },
   categoryDescription: {
     fontSize: 14,
-    color: '#666666',
+    color: '#8E8E93',
   },
   categoryTextDisabled: {
-    color: '#999999',
+    color: '#666666',
   },
   selectedIndicator: {
     marginLeft: 12,
@@ -519,13 +509,14 @@ const styles = StyleSheet.create({
   footer: {
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: '#2C2C2E',
+    backgroundColor: '#000000',
   },
   nextButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 24,
@@ -533,26 +524,27 @@ const styles = StyleSheet.create({
   nextButtonText: {
     fontSize: 17,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#000000',
     marginRight: 8,
   },
   submitButton: {
-    backgroundColor: '#1C1C1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   disabledButton: {
-    backgroundColor: '#F1F2F3',
+    backgroundColor: '#2C2C2E',
+    opacity: 0.7,
   },
   submitButtonText: {
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 16,
     fontWeight: '600',
   },
   disabledButtonText: {
-    color: '#CCD0D5',
+    color: '#8E8E93',
   },
   buttonDisabled: {
     opacity: 0.5,
