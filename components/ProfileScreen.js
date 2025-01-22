@@ -1,47 +1,30 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { BottomSheetModal, BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
-import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
-import api, { TOKEN_KEY, REFRESH_TOKEN_KEY, authService } from '../services/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import Toast from 'react-native-toast-message';
+import api, { authService } from '../services/api';
+import LanguageModal from './LanguageModal';
 
 const languages = [
-  { id: 'TURKISH', name: 'Türkçe', icon: '🇹🇷', i18nCode: 'tr' },
-  { id: 'ENGLISH', name: 'English', icon: '🇬🇧', i18nCode: 'en' },
+  { id: 'TURKISH', name: 'Türkçe', icon: '🇹🇷' },
+  { id: 'ENGLISH', name: 'English', icon: '🇬🇧' }
 ];
 
-const ProfileScreen = ({ navigation, route }) => {
-  const { onLogout } = route.params;
+const ProfileScreen = () => {
   const { t, i18n } = useTranslation();
+  const navigation = useNavigation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [changingLanguage, setChangingLanguage] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState(null);
-
-  // Bottom Sheet
-  const bottomSheetModalRef = useRef(null);
-  const snapPoints = useMemo(() => ['35%'], []);
-
-  const renderBackdrop = useCallback(
-    props => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.5}
-      />
-    ),
-    []
-  );
+  const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
 
   useEffect(() => {
     fetchUserData();
   }, []);
 
-  // Kullanıcı bilgileri değiştiğinde dil seçimini güncelle
   useEffect(() => {
     if (user?.language) {
       setSelectedLanguage(user.language);
@@ -52,18 +35,12 @@ const ProfileScreen = ({ navigation, route }) => {
     try {
       setLoading(true);
       const response = await api.get('/users/me');
-      console.log('Kullanıcı bilgileri detaylı:', {
-        tümVeri: response.data,
-        dil: response.data.preferredLanguage,
-        seçiliDil: selectedLanguage
-      });
       setUser(response.data);
       if (response.data.preferredLanguage) {
         setSelectedLanguage(response.data.preferredLanguage);
-        // i18n dilini de güncelle
         const lang = languages.find(l => l.id === response.data.preferredLanguage);
         if (lang) {
-          await i18n.changeLanguage(lang.i18nCode);
+          await i18n.changeLanguage(lang.id === 'TURKISH' ? 'tr' : 'en');
         }
       }
       setError(null);
@@ -77,83 +54,77 @@ const ProfileScreen = ({ navigation, route }) => {
 
   const handleLanguageSelect = async (langId) => {
     if (langId === selectedLanguage) {
-      bottomSheetModalRef.current?.dismiss();
+      setIsLanguageModalVisible(false);
       return;
     }
 
     const previousLanguage = selectedLanguage;
-    const selectedLang = languages.find(l => l.id === langId);
     
     try {
-      setChangingLanguage(true);
-      setSelectedLanguage(langId);
-      
-      // i18n dilini güncelle
-      await i18n.changeLanguage(selectedLang.i18nCode);
+      const i18nCode = langId === 'TURKISH' ? 'tr' : 'en';
+      await i18n.changeLanguage(i18nCode);
       
       const updateResponse = await api.put(`/users/me/language?language=${langId}`);
       console.log('Dil güncelleme yanıtı:', updateResponse.data);
       
       const userResponse = await api.get('/users/me');
-      console.log('Güncel kullanıcı bilgileri:', userResponse.data);
-      
       setUser(userResponse.data);
-
-      setTimeout(() => {
-        bottomSheetModalRef.current?.dismiss();
-      }, 300);
+      setSelectedLanguage(langId);
+      setIsLanguageModalVisible(false);
     } catch (error) {
       console.error('Dil değiştirme hatası:', error);
       setSelectedLanguage(previousLanguage);
-      const prevLang = languages.find(l => l.id === previousLanguage);
-      if (prevLang) {
-        await i18n.changeLanguage(prevLang.i18nCode);
-      }
-    } finally {
-      setChangingLanguage(false);
+      const i18nCode = previousLanguage === 'TURKISH' ? 'tr' : 'en';
+      await i18n.changeLanguage(i18nCode);
+      Toast.show({
+        type: 'error',
+        text1: t('common.error'),
+        text2: t('profile.languageUpdateError'),
+        visibilityTime: 3000,
+        position: 'top',
+      });
     }
   };
 
-  const initial = user?.username ? user.username.charAt(0).toUpperCase() : '?';
-
-  const handleProfilePress = () => {
-    navigation.navigate('EditProfile', { user });
-  };
-
-  const handleSettingsPress = (settingType) => {
-    switch (settingType) {
-      case 'personal':
-        navigation.navigate('PersonalInfo', { user });
-        break;
-      case 'notifications':
-        navigation.navigate('NotificationSettings');
-        break;
-      case 'language':
-        bottomSheetModalRef.current?.present();
-        break;
-      case 'password':
-        navigation.navigate('ChangePassword');
-        break;
-      default:
-        break;
+  const menuItems = [
+    {
+      id: 'personal',
+      title: t('profile.personalInfo'),
+      icon: 'person-outline',
+      onPress: () => navigation.navigate('PersonalInfo')
+    },
+    {
+      id: 'notifications',
+      title: t('profile.notificationSettings'),
+      icon: 'notifications-outline',
+      onPress: () => navigation.navigate('NotificationSettings')
+    },
+    {
+      id: 'language',
+      title: t('profile.languageSettings'),
+      icon: 'language-outline',
+      onPress: () => setIsLanguageModalVisible(true),
+      value: i18n.language === 'tr' ? 'Türkçe' : 'English'
+    },
+    {
+      id: 'password',
+      title: t('profile.changePassword'),
+      icon: 'lock-closed-outline',
+      onPress: () => navigation.navigate('ChangePassword')
     }
-  };
+  ];
 
   const handleLogout = async () => {
     try {
       console.log('Çıkış işlemi başlatılıyor...');
       await authService.logout();
-      
-      if (onLogout) {
-        console.log('onLogout callback çağrılıyor...');
-        onLogout();
-      }
+      navigation.navigate('Login');
     } catch (error) {
       console.error('Çıkış yapılırken hata:', error);
       Toast.show({
         type: 'error',
-        text1: 'Hata',
-        text2: 'Çıkış yapılırken bir hata oluştu',
+        text1: t('common.error'),
+        text2: t('profile.logoutError'),
         visibilityTime: 3000,
         position: 'top',
       });
@@ -171,7 +142,7 @@ const ProfileScreen = ({ navigation, route }) => {
   if (error) {
     return (
       <View style={[styles.container, styles.centerContent]}>
-        <Text style={styles.errorText}>{error}</Text>
+        <Text style={styles.errorText}>{t('profile.fetchError')}</Text>
         <TouchableOpacity style={styles.retryButton} onPress={fetchUserData}>
           <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
         </TouchableOpacity>
@@ -180,339 +151,190 @@ const ProfileScreen = ({ navigation, route }) => {
   }
 
   return (
-    <>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Ionicons name="chevron-back" size={24} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{t('profile.title')}</Text>
-          </View>
-          <TouchableOpacity>
-            <Ionicons name="notifications-outline" size={24} color="black" />
-          </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>{t('profile.title')}</Text>
+      
+      <View style={styles.profileCard}>
+        <View style={styles.avatarContainer}>
+          <Text style={styles.avatarText}>{user?.username?.[0].toUpperCase() || '?'}</Text>
         </View>
+        <Text style={styles.email}>{user?.email || t('profile.guestUser')}</Text>
+      </View>
 
-        <TouchableOpacity style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            <Text style={styles.avatarText}>{initial}</Text>
-          </View>
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{user?.username || t('profile.guestUser')}</Text>
-            <Text style={styles.profileSubtext}>{user?.email || ''}</Text>
-          </View>
-        </TouchableOpacity>
-
-        <View style={styles.settingsSection}>
-          <Text style={styles.settingsTitle}>{t('profile.settings')}</Text>
-          
-          <TouchableOpacity 
-            style={styles.settingsItem} 
-            onPress={() => handleSettingsPress('personal')}
-          >
-            <View style={styles.settingsItemLeft}>
-              <Ionicons name="person-outline" size={24} color="black" />
-              <Text style={styles.settingsItemText}>{t('profile.personalInfo')}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="gray" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.settingsItem}
-            onPress={() => handleSettingsPress('notifications')}
-          >
-            <View style={styles.settingsItemLeft}>
-              <Ionicons name="notifications-outline" size={24} color="black" />
-              <Text style={styles.settingsItemText}>{t('profile.notificationSettings')}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="gray" />
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.settingsItem}
-            onPress={() => handleSettingsPress('language')}
-          >
-            <View style={styles.settingsItemLeft}>
-              <Ionicons name="language-outline" size={24} color="black" />
-              <Text style={styles.settingsItemText}>{t('profile.languageSettings')}</Text>
-            </View>
-            <View style={styles.settingsItemRight}>
-              <Text style={styles.settingsItemValue}>
-                {t(`languages.${selectedLanguage === 'TURKISH' ? 'turkish' : 'english'}`)}
-              </Text>
-              <Ionicons name="chevron-forward" size={24} color="gray" />
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.settingsItem}
-            onPress={() => handleSettingsPress('password')}
-          >
-            <View style={styles.settingsItemLeft}>
-              <Ionicons name="lock-closed-outline" size={24} color="black" />
-              <Text style={styles.settingsItemText}>{t('profile.changePassword')}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="gray" />
-          </TouchableOpacity>
-
-          <View style={styles.logoutContainer}>
-            <TouchableOpacity onPress={handleLogout}>
-              <Text style={styles.logoutText}>{t('common.logout')}</Text>
+      <View style={styles.settingsContainer}>
+        <Text style={styles.sectionTitle}>{t('profile.settings')}</Text>
+        <View style={styles.menuContainer}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.menuItem,
+                index === 0 && styles.firstMenuItem,
+                index === menuItems.length - 1 && styles.lastMenuItem,
+              ]}
+              onPress={item.onPress}
+            >
+              <View style={styles.menuItemLeft}>
+                <View style={styles.iconContainer}>
+                  <Icon name={item.icon} size={22} color="#666" />
+                </View>
+                <Text style={styles.menuText}>{item.title}</Text>
+              </View>
+              <View style={styles.menuItemRight}>
+                {item.value && <Text style={styles.menuValue}>{item.value}</Text>}
+                <Icon name="chevron-forward" size={20} color="#666" />
+              </View>
             </TouchableOpacity>
-            <Text style={styles.versionText}>SÜRÜM 0.0.1</Text>
-          </View>
+          ))}
         </View>
-      </SafeAreaView>
+      </View>
 
-      <BottomSheetModal
-        ref={bottomSheetModalRef}
-        index={0}
-        snapPoints={snapPoints}
-        backdropComponent={renderBackdrop}
-        enablePanDownToClose
-        enableDismissOnClose
-        backgroundStyle={styles.bottomSheetBackground}
-        handleIndicatorStyle={styles.handleIndicator}
-      >
-        <BottomSheetView style={styles.bottomSheetContent}>
-          {changingLanguage ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#007AFF" />
-            </View>
-          ) : (
-            <View style={styles.languageList}>
-              {languages.map((lang) => {
-                const isSelected = selectedLanguage === lang.id;
-                return (
-                  <TouchableOpacity
-                    key={lang.id}
-                    style={[
-                      styles.languageItem,
-                      isSelected && styles.selectedLanguageItem
-                    ]}
-                    onPress={() => handleLanguageSelect(lang.id)}
-                  >
-                    <View style={styles.languageInfo}>
-                      <Text style={styles.languageIcon}>{lang.icon}</Text>
-                      <Text style={styles.languageName}>{lang.name}</Text>
-                    </View>
-                    {isSelected && (
-                      <Ionicons name="checkmark" size={24} color="gray" />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
-        </BottomSheetView>
-      </BottomSheetModal>
-      <Toast />
-    </>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+        <Text style={styles.logoutText}>{t('common.logout')}</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.version}>SÜRÜM 0.0.1</Text>
+
+      <LanguageModal
+        visible={isLanguageModalVisible}
+        onClose={() => setIsLanguageModalVisible(false)}
+        currentLanguage={i18n.language}
+        onLanguageSelect={handleLanguageSelect}
+      />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#000',
+  },
+  title: {
+    fontSize: 34,
+    fontWeight: 'bold',
+    color: '#fff',
+    padding: 20,
+  },
+  profileCard: {
+    backgroundColor: '#1C1C1E',
+    padding: 20,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  avatarContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#333',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  avatarText: {
+    fontSize: 24,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  email: {
+    color: '#999',
+    fontSize: 16,
+  },
+  settingsContainer: {
+    marginTop: 8,
+    paddingHorizontal: 16,
+  },
+  sectionTitle: {
+    fontSize: 34,
+    color: '#fff',
+    marginBottom: 8,
+    fontWeight: 'bold',
+  },
+  menuContainer: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    padding: 12,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#333',
+  },
+  firstMenuItem: {
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  lastMenuItem: {
+    borderBottomWidth: 0,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  menuItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#333',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  menuItemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  menuText: {
+    color: '#fff',
+    fontSize: 17,
+  },
+  menuValue: {
+    color: '#666',
+    marginRight: 8,
+    fontSize: 17,
+  },
+  logoutButton: {
+    backgroundColor: '#1C1C1E',
+    marginHorizontal: 16,
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  logoutText: {
+    color: '#FF3B30',
+    fontSize: 17,
+    fontWeight: '400',
+  },
+  version: {
+    color: '#666',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 16,
   },
   centerContent: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   errorText: {
-    color: 'red',
+    color: '#FF3B30',
     marginBottom: 15,
   },
   retryButton: {
     padding: 10,
-    backgroundColor: '#007AFF',
-    borderRadius: 5,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 8,
   },
   retryButtonText: {
     color: '#fff',
     fontWeight: '600',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  backButton: {
-    marginRight: 8,
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    marginTop: 8,
-  },
-  avatarContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#007AFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    fontWeight: '600',
-  },
-  profileInfo: {
-    flex: 1,
-    marginLeft: 16,
-  },
-  profileName: {
-    fontSize: 26,
-    fontWeight: '600',
-    color: '#000000',
-  },
-  profileSubtext: {
-    fontSize: 18,
-    color: '#666666',
-    marginTop: 6,
-  },
-  settingsSection: {
-    paddingTop: 20,
-  },
-  settingsTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    paddingHorizontal: 20,
-    marginBottom: 15,
-  },
-  settingsItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    marginBottom: 8,
-  },
-  settingsItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingsItemText: {
-    fontSize: 16,
-    marginLeft: 15,
-  },
-  settingsItemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingsItemValue: {
-    marginRight: 8,
-    color: 'gray',
-  },
-  bottomSheetBackground: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  handleIndicator: {
-    backgroundColor: '#DADADA',
-    width: 40,
-  },
-  bottomSheetContent: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 200,
-  },
-  bottomSheetHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  bottomSheetTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  languageList: {
-    paddingTop: 8,
-  },
-  languageItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  languageInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  languageIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  languageName: {
-    fontSize: 16,
-  },
-  settingsItemTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  settingsItemSubtext: {
-    fontSize: 14,
-    color: 'gray',
-    marginTop: 2,
-  },
-  logoutButton: {
-    marginTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-  },
-  logoutText: {
-    color: 'red',
-  },
-  logoutContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 30,
-  },
-  settingsItemText: {
-    fontSize: 16,
-    marginLeft: 15,
-  },
-  logoutText: {
-    color: '#000',
-    marginBottom: 8,
-  },
-  versionText: {
-    color: '#666',
-    fontSize: 12,
   },
 });
 

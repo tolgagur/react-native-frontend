@@ -53,7 +53,7 @@ const SettingsScreen = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color="#000" />
+          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.title}>{t('profile.settings')}</Text>
       </View>
@@ -64,7 +64,7 @@ const SettingsScreen = ({ navigation }) => {
             {setting.isLanguageSelector ? (
               <View style={styles.languageSection}>
                 <View style={styles.settingHeader}>
-                  <Ionicons name={setting.icon} size={24} color="#666" />
+                  <Ionicons name={setting.icon} size={24} color="#8E8E93" />
                   <Text style={styles.settingTitle}>{setting.title}</Text>
                 </View>
                 <View style={styles.languageButtons}>
@@ -104,10 +104,10 @@ const SettingsScreen = ({ navigation }) => {
                 onPress={setting.onPress}
               >
                 <View style={styles.settingContent}>
-                  <Ionicons name={setting.icon} size={24} color="#666" />
+                  <Ionicons name={setting.icon} size={24} color="#8E8E93" />
                   <Text style={styles.settingTitle}>{setting.title}</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={24} color="#666" />
+                <Ionicons name="chevron-forward" size={24} color="#8E8E93" />
               </TouchableOpacity>
             )}
             {index < settings.length - 1 && <View style={styles.separator} />}
@@ -121,7 +121,7 @@ const SettingsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: Platform.OS === 'ios' ? 60 : 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#2C2C2E',
   },
   backButton: {
     marginRight: 16,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#000',
+    color: '#FFFFFF',
   },
   settingsList: {
     paddingHorizontal: 16,
@@ -148,6 +148,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 16,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 8,
+    marginBottom: 8,
   },
   settingContent: {
     flexDirection: 'row',
@@ -156,14 +159,17 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 16,
     marginLeft: 12,
-    color: '#333',
+    color: '#FFFFFF',
   },
   separator: {
     height: 1,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#2C2C2E',
   },
   languageSection: {
     paddingVertical: 16,
+    backgroundColor: '#1C1C1E',
+    borderRadius: 8,
+    marginBottom: 8,
   },
   settingHeader: {
     flexDirection: 'row',
@@ -178,18 +184,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#2C2C2E',
     marginRight: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: '#2C2C2E',
   },
   activeLanguage: {
-    backgroundColor: '#666666',
-    borderColor: '#666666',
+    backgroundColor: '#8E8E93',
+    borderColor: '#8E8E93',
   },
   languageButtonText: {
     fontSize: 14,
-    color: '#666666',
+    color: '#FFFFFF',
   },
   activeLanguageText: {
     color: '#FFFFFF',

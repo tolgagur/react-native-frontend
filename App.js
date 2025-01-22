@@ -25,7 +25,9 @@ import StudySetScreen from './components/StudySetScreen';
 import PersonalInfoScreen from './components/PersonalInfoScreen';
 import ChangePasswordScreen from './components/ChangePasswordScreen';
 import StudySetDetailScreen from './components/StudySetDetailScreen';
+import LanguageSettingsScreen from './components/LanguageSettingsScreen';
 import './src/i18n';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 const Stack = createNativeStackNavigator();
 const TOKEN_KEY = '@flashcard_token';
@@ -167,93 +169,100 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <BottomSheetModalProvider>
-        <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{
-              headerShown: false,
-              gestureEnabled: true,
-              gestureDirection: 'horizontal',
-              fullScreenGestureEnabled: true,
-              gestureResponseDistance: 'horizontal',
-            }}
-          >
-            {!token ? (
-              // Auth screens
-              <>
-                <Stack.Screen 
-                  name="Login" 
-                  component={LoginScreen}
-                  initialParams={{ onLoginSuccess: handleLoginSuccess }}
-                />
-                <Stack.Screen 
-                  name="Register" 
-                  component={RegisterScreen}
-                  initialParams={{ onRegisterSuccess: handleLoginSuccess }}
-                />
-                <Stack.Screen 
-                  name="ForgotPassword" 
-                  component={ForgotPasswordScreen}
-                />
-              </>
-            ) : (
-              // App screens
-              <>
-                <Stack.Screen 
-                  name="Home" 
-                  component={HomeScreen}
-                  initialParams={{ onLogout: handleLogout }}
-                />
-                <Stack.Screen 
-                  name="AddCategory" 
-                  component={AddCategoryScreen}
-                />
-                <Stack.Screen 
-                  name="AddStudySet" 
-                  component={AddStudySetScreen}
-                />
-                <Stack.Screen 
-                  name="AddFlashcard" 
-                  component={AddFlashcardScreen}
-                />
-                <Stack.Screen 
-                  name="AddCard" 
-                  component={AddCardScreen}
-                />
-                <Stack.Screen 
-                  name="Profile" 
-                  component={ProfileScreen}
-                  initialParams={{ onLogout: handleLogout }}
-                />
-                <Stack.Screen 
-                  name="NotificationSettings" 
-                  component={NotificationSettingsScreen}
-                />
-                <Stack.Screen 
-                  name="Settings" 
-                  component={SettingsScreen}
-                />
-                <Stack.Screen 
-                  name="Category" 
-                  component={CategoryScreen}
-                />
-                <Stack.Screen 
-                  name="StudySet" 
-                  component={StudySetScreen}
-                />
-                <Stack.Screen 
-                  name="StudySetDetail" 
-                  component={StudySetDetailScreen}
-                />
-                <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} options={{ headerShown: false }} />
-                <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ headerShown: false }} />
-              </>
-            )}
-          </Stack.Navigator>
-          <Toast />
-        </NavigationContainer>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+    <ActionSheetProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <BottomSheetModalProvider>
+          <NavigationContainer>
+            <Stack.Navigator
+              screenOptions={{
+                headerShown: false,
+                gestureEnabled: true,
+                gestureDirection: 'horizontal',
+                fullScreenGestureEnabled: true,
+                gestureResponseDistance: 'horizontal',
+              }}
+            >
+              {!token ? (
+                // Auth screens
+                <>
+                  <Stack.Screen 
+                    name="Login" 
+                    component={LoginScreen}
+                    initialParams={{ onLoginSuccess: handleLoginSuccess }}
+                  />
+                  <Stack.Screen 
+                    name="Register" 
+                    component={RegisterScreen}
+                    initialParams={{ onRegisterSuccess: handleLoginSuccess }}
+                  />
+                  <Stack.Screen 
+                    name="ForgotPassword" 
+                    component={ForgotPasswordScreen}
+                  />
+                </>
+              ) : (
+                // App screens
+                <>
+                  <Stack.Screen 
+                    name="Home" 
+                    component={HomeScreen}
+                    initialParams={{ onLogout: handleLogout }}
+                  />
+                  <Stack.Screen 
+                    name="AddCategory" 
+                    component={AddCategoryScreen}
+                  />
+                  <Stack.Screen 
+                    name="AddStudySet" 
+                    component={AddStudySetScreen}
+                  />
+                  <Stack.Screen 
+                    name="AddFlashcard" 
+                    component={AddFlashcardScreen}
+                  />
+                  <Stack.Screen 
+                    name="AddCard" 
+                    component={AddCardScreen}
+                  />
+                  <Stack.Screen 
+                    name="Profile" 
+                    component={ProfileScreen}
+                    initialParams={{ onLogout: handleLogout }}
+                  />
+                  <Stack.Screen 
+                    name="NotificationSettings" 
+                    component={NotificationSettingsScreen}
+                  />
+                  <Stack.Screen 
+                    name="Settings" 
+                    component={SettingsScreen}
+                  />
+                  <Stack.Screen 
+                    name="Category" 
+                    component={CategoryScreen}
+                  />
+                  <Stack.Screen 
+                    name="StudySet" 
+                    component={StudySetScreen}
+                  />
+                  <Stack.Screen 
+                    name="StudySetDetail" 
+                    component={StudySetDetailScreen}
+                  />
+                  <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} options={{ headerShown: false }} />
+                  <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ headerShown: false }} />
+                  <Stack.Screen 
+                    name="LanguageSettings" 
+                    component={LanguageSettingsScreen}
+                    options={{ headerShown: false }}
+                  />
+                </>
+              )}
+            </Stack.Navigator>
+            <Toast />
+          </NavigationContainer>
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
+    </ActionSheetProvider>
   );
 } 
