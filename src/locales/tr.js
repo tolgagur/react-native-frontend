@@ -182,12 +182,10 @@ export default {
     },
   },
   studySet: {
-    title: 'Çalışma Setleri',
-    empty: 'Henüz çalışma seti oluşturmadınız',
-    emptySubtext: 'Öğrenmeye başlamak için ilk çalışma setinizi oluşturun',
-    addNew: 'Yeni Çalışma Seti',
-    addNewSubtitle: 'Yeni bir çalışma seti oluştur',
+    title: 'Çalışma Seti',
+    description: 'Çalışma seti açıklaması',
     stats: {
+      total: 'Toplam Kart',
       totalCards: 'Toplam Kart',
       progress: 'İlerleme',
       mastered: 'Öğrenildi',
@@ -195,6 +193,42 @@ export default {
       notStarted: 'Başlanmadı',
       noCards: 'Henüz kart eklenmemiş'
     },
+    actions: {
+      start: 'Çalışmaya Başla',
+      quickReview: 'Hızlı Tekrar',
+      quickReviewDesc: 'Öğrendiğin kartları hızlıca gözden geçir',
+      test: 'Test',
+      testDesc: 'Kendini test et ve ilerlemeni gör',
+      edit: 'Düzenle',
+      share: 'Paylaş',
+      delete: 'Sil'
+    },
+    tabs: {
+      all: 'Tümü',
+      mastered: 'Öğrenildi',
+      learning: 'Öğreniliyor',
+      notStarted: 'Başlanmadı'
+    },
+    cardStatus: {
+      notStarted: 'Başlanmadı',
+      not_started: 'Başlanmadı',
+      learning: 'Öğreniliyor',
+      mastered: 'Öğrenildi'
+    },
+    cardLabels: {
+      front: 'Ön Yüz',
+      back: 'Arka Yüz',
+      hint: 'İpucu',
+      explanation: 'Açıklama'
+    },
+    empty: 'Henüz kart yok',
+    emptySubtext: 'Bu çalışma setine kart ekleyerek öğrenmeye başlayın',
+    alerts: {
+      shareInfo: 'Yakında',
+      shareDesc: 'Bu özellik yakında kullanıma sunulacak'
+    },
+    addNew: 'Yeni Çalışma Seti',
+    addNewSubtitle: 'Yeni bir çalışma seti oluştur',
     steps: {
       name: {
         title: 'Çalışma Seti Adı',

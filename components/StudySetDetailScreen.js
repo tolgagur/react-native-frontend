@@ -20,7 +20,6 @@ import Toast from 'react-native-toast-message';
 const { width } = Dimensions.get('window');
 
 const StudySetDetailScreen = ({ navigation, route }) => {
-  const { studySet } = route.params;
   const { t } = useTranslation();
   const [selectedTab, setSelectedTab] = useState('all'); // 'all', 'mastered', 'learning', 'notStarted'
   const [isLoading, setIsLoading] = useState(false);
@@ -49,6 +48,8 @@ const StudySetDetailScreen = ({ navigation, route }) => {
     extrapolate: 'clamp',
   });
 
+  const { studySet } = route.params;
+
   const renderHeader = () => (
     <View style={styles.header}>
       <View style={styles.headerTop}>
@@ -56,93 +57,79 @@ const StudySetDetailScreen = ({ navigation, route }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="chevron-back" size={24} color="#666666" />
+          <Ionicons name="chevron-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         
         <View style={styles.headerActions}>
-          <TouchableOpacity 
-            style={styles.actionButton} 
-            onPress={handleEdit}
-          >
-            <Ionicons name="create-outline" size={22} color="#666666" />
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="create-outline" size={24} color="#FFFFFF" />
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionButton} 
-            onPress={handleShare}
-          >
-            <Ionicons name="share-outline" size={22} color="#666666" />
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="share-outline" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </View>
-    </View>
-  );
-
-  const renderTitle = () => (
-    <View style={styles.titleContainer}>
-      <Text style={styles.setName} numberOfLines={1}>{studySet.name}</Text>
-      {studySet.description && (
-        <Text style={styles.setDescription} numberOfLines={1}>
-          {studySet.description}
-        </Text>
-      )}
+      
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>{studySet.name}</Text>
+        <Text style={styles.subtitle}>{studySet.description}</Text>
+      </View>
     </View>
   );
 
   const renderStats = () => (
     <View style={styles.statsContainer}>
-      <TouchableOpacity style={styles.statCard} onPress={() => handleStudyAll()}>
-        <Text style={styles.statNumber}>{studySet.totalCards}</Text>
-        <Text style={styles.statLabel}>Toplam Kart</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.statCard} onPress={() => handleStudyMastered()}>
-        <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{studySet.masteredCards}</Text>
-        <Text style={styles.statLabel}>Öğrenildi</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.statCard} onPress={() => handleStudyLearning()}>
-        <Text style={[styles.statNumber, { color: '#FF9800' }]}>{studySet.learningCards}</Text>
-        <Text style={styles.statLabel}>Öğreniliyor</Text>
-      </TouchableOpacity>
+      <View style={styles.statCard}>
+        <Ionicons name="documents-outline" size={24} color="#FFFFFF" />
+        <Text style={styles.statNumber}>{studySet.totalCards || 1}</Text>
+        <Text style={styles.statLabel}>{t('studySet.stats.total')}</Text>
+      </View>
+      
+      <View style={styles.statCard}>
+        <Ionicons name="checkmark-circle-outline" size={24} color="#4CAF50" />
+        <Text style={[styles.statNumber, { color: '#4CAF50' }]}>{studySet.masteredCards || 0}</Text>
+        <Text style={styles.statLabel}>{t('studySet.stats.mastered')}</Text>
+      </View>
+      
+      <View style={styles.statCard}>
+        <Ionicons name="time-outline" size={24} color="#FFC107" />
+        <Text style={[styles.statNumber, { color: '#FFC107' }]}>{studySet.learningCards || 0}</Text>
+        <Text style={styles.statLabel}>{t('studySet.stats.learning')}</Text>
+      </View>
     </View>
   );
 
-  const renderStudyActions = () => (
-    <View style={styles.studyActions}>
-      <TouchableOpacity 
-        style={[styles.studyButton, styles.primaryButton]} 
-        onPress={handleStartStudy}
-      >
-        <Ionicons name="play-circle" size={24} color="#FFFFFF" />
-        <Text style={styles.primaryButtonText}>Çalışmaya Başla</Text>
+  const renderActions = () => (
+    <View style={styles.actionsContainer}>
+      <TouchableOpacity style={styles.startButton} onPress={handleStartStudy}>
+        <Ionicons name="play" size={24} color="#000000" />
+        <Text style={styles.startButtonText}>{t('studySet.actions.start')}</Text>
       </TouchableOpacity>
-      
+
       <View style={styles.secondaryActions}>
-        <TouchableOpacity 
-          style={[styles.studyButton, styles.secondaryButton]}
-          onPress={handleQuickReview}
-        >
-          <Ionicons name="flash" size={20} color="#007AFF" />
-          <Text style={styles.secondaryButtonText}>Hızlı Tekrar</Text>
+        <TouchableOpacity style={styles.secondaryButton} onPress={handleQuickReview}>
+          <Ionicons name="flash" size={24} color="#FFFFFF" />
+          <Text style={styles.secondaryButtonText}>{t('studySet.actions.quickReview')}</Text>
+          <Text style={styles.secondaryButtonSubtext}>{t('studySet.actions.quickReviewDesc')}</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.studyButton, styles.secondaryButton]}
-          onPress={handlePracticeTest}
-        >
-          <Ionicons name="document-text" size={20} color="#007AFF" />
-          <Text style={styles.secondaryButtonText}>Test</Text>
+
+        <TouchableOpacity style={styles.secondaryButton} onPress={handlePracticeTest}>
+          <Ionicons name="document-text" size={24} color="#FFFFFF" />
+          <Text style={styles.secondaryButtonText}>{t('studySet.actions.test')}</Text>
+          <Text style={styles.secondaryButtonSubtext}>{t('studySet.actions.testDesc')}</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
   const renderTabs = () => (
-    <View style={styles.tabContainer}>
+    <View style={styles.tabsContainer}>
       <TouchableOpacity 
         style={[styles.tab, selectedTab === 'all' && styles.activeTab]}
         onPress={() => setSelectedTab('all')}
       >
         <Text style={[styles.tabText, selectedTab === 'all' && styles.activeTabText]}>
-          Tümü ({studySet.totalCards})
+          {t('studySet.tabs.all')} ({studySet.totalCards || 0})
         </Text>
       </TouchableOpacity>
       <TouchableOpacity 
@@ -150,7 +137,7 @@ const StudySetDetailScreen = ({ navigation, route }) => {
         onPress={() => setSelectedTab('mastered')}
       >
         <Text style={[styles.tabText, selectedTab === 'mastered' && styles.activeTabText]}>
-          Öğrenildi ({studySet.masteredCards})
+          {t('studySet.tabs.mastered')} ({studySet.masteredCards || 0})
         </Text>
       </TouchableOpacity>
       <TouchableOpacity 
@@ -158,9 +145,54 @@ const StudySetDetailScreen = ({ navigation, route }) => {
         onPress={() => setSelectedTab('learning')}
       >
         <Text style={[styles.tabText, selectedTab === 'learning' && styles.activeTabText]}>
-          Öğreniliyor ({studySet.learningCards})
+          {t('studySet.tabs.learning')} ({studySet.learningCards || 0})
         </Text>
       </TouchableOpacity>
+    </View>
+  );
+
+  const renderCards = () => (
+    <View style={styles.cardsContainer}>
+      {studySet.flashcards?.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyIconContainer}>
+            <Ionicons name="documents-outline" size={48} color="#8E8E93" />
+          </View>
+          <Text style={styles.emptyText}>{t('studySet.empty')}</Text>
+          <Text style={styles.emptySubtext}>{t('studySet.emptySubtext')}</Text>
+        </View>
+      ) : (
+        studySet.flashcards?.map((card, index) => (
+          <View key={index} style={styles.cardItem}>
+            <View style={styles.cardStatus}>
+              <View style={[styles.statusDot, { 
+                backgroundColor: card.status === 'MASTERED' ? '#4CAF50' :
+                               card.status === 'LEARNING' ? '#FFC107' : '#8E8E93'
+              }]} />
+              <Text style={styles.statusText}>
+                {t(`studySet.cardStatus.${card.status?.toLowerCase() || 'notStarted'}`)}
+              </Text>
+            </View>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>{t('studySet.cardLabels.front')}</Text>
+              <Text style={styles.cardText}>{card.frontContent}</Text>
+              {card.frontHint && (
+                <Text style={styles.cardHint}>
+                  {t('studySet.cardLabels.hint')}: {card.frontHint}
+                </Text>
+              )}
+              <View style={styles.cardDivider} />
+              <Text style={styles.cardTitle}>{t('studySet.cardLabels.back')}</Text>
+              <Text style={styles.cardText}>{card.backContent}</Text>
+              {card.backExplanation && (
+                <Text style={styles.cardHint}>
+                  {t('studySet.cardLabels.explanation')}: {card.backExplanation}
+                </Text>
+              )}
+            </View>
+          </View>
+        ))
+      )}
     </View>
   );
 
@@ -283,21 +315,15 @@ const StudySetDetailScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView style={styles.container}>
       {renderHeader()}
-      <Animated.FlatList
-        data={filteredCards}
-        renderItem={renderCard}
-        keyExtractor={item => item.id.toString()}
-        contentContainerStyle={styles.cardsContainer}
+      <ScrollView 
+        style={styles.content}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={
-          <>
-            {renderTitle()}
-            {renderStats()}
-            {renderStudyActions()}
-            {renderTabs()}
-          </>
-        }
-      />
+      >
+        {renderStats()}
+        {renderActions()}
+        {renderTabs()}
+        {renderCards()}
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -305,7 +331,7 @@ const StudySetDetailScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#000000',
   },
   loadingContainer: {
     flex: 1,
@@ -313,130 +339,190 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   header: {
-    backgroundColor: '#FFFFFF',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    backgroundColor: '#000000',
   },
   headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: 44,
     paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   backButton: {
-    padding: 8,
-    marginLeft: -8,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#1C1C1E',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerActions: {
     flexDirection: 'row',
-    alignItems: 'center',
+    gap: 8,
   },
   actionButton: {
-    padding: 8,
-    marginLeft: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#1C1C1E',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   titleContainer: {
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
+    padding: 24,
   },
-  setName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#333333',
-    marginBottom: 4,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 8,
   },
-  setDescription: {
-    fontSize: 14,
-    color: '#666666',
+  subtitle: {
+    fontSize: 15,
+    color: '#8E8E93',
+    lineHeight: 20,
+  },
+  content: {
+    flex: 1,
   },
   statsContainer: {
     flexDirection: 'row',
-    padding: 16,
-    backgroundColor: '#F8F9FA',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    marginBottom: 24,
   },
   statCard: {
     flex: 1,
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-  },
-  studyActions: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
     padding: 16,
-    backgroundColor: '#FFFFFF',
+    marginHorizontal: 4,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
   },
-  primaryButton: {
-    backgroundColor: '#007AFF',
+  statNumber: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginVertical: 8,
+  },
+  statLabel: {
+    fontSize: 13,
+    color: '#8E8E93',
+    textAlign: 'center',
+  },
+  actionsContainer: {
+    paddingHorizontal: 24,
+    marginBottom: 32,
+  },
+  startButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 16,
+    marginBottom: 16,
   },
-  primaryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
+  startButtonText: {
+    fontSize: 17,
     fontWeight: '600',
+    color: '#000000',
     marginLeft: 8,
   },
   secondaryActions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 12,
+    gap: 8,
   },
   secondaryButton: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: '#F0F7FF',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
   },
   secondaryButtonText: {
-    color: '#007AFF',
-    fontSize: 14,
-    fontWeight: '500',
-    marginLeft: 6,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginTop: 12,
+    marginBottom: 4,
   },
-  tabContainer: {
+  secondaryButtonSubtext: {
+    fontSize: 13,
+    color: '#8E8E93',
+  },
+  tabsContainer: {
     flexDirection: 'row',
-    padding: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5E5',
+    paddingHorizontal: 24,
+    marginBottom: 16,
   },
   tab: {
-    flex: 1,
+    marginRight: 16,
     paddingVertical: 8,
-    alignItems: 'center',
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#007AFF',
+    borderBottomColor: '#FFFFFF',
   },
   tabText: {
-    fontSize: 14,
-    color: '#666666',
+    fontSize: 15,
+    color: '#8E8E93',
   },
   activeTabText: {
-    color: '#007AFF',
-    fontWeight: '500',
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   cardsContainer: {
-    paddingBottom: 16,
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  cardItem: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#2C2C2E',
+    overflow: 'hidden',
+  },
+  cardStatus: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2C2C2E',
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  statusText: {
+    fontSize: 13,
+    color: '#8E8E93',
+  },
+  cardContent: {
+    padding: 16,
+  },
+  cardTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#8E8E93',
+    marginBottom: 8,
+  },
+  cardText: {
+    fontSize: 15,
+    color: '#FFFFFF',
+    lineHeight: 20,
+  },
+  cardDivider: {
+    height: 1,
+    backgroundColor: '#2C2C2E',
+    marginVertical: 16,
   },
   flashcard: {
     backgroundColor: '#FFFFFF',
@@ -458,35 +544,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333333',
-  },
-  cardStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusText: {
-    fontSize: 12,
-    marginLeft: 4,
-  },
-  cardContent: {
-    backgroundColor: '#F8F9FA',
-    borderRadius: 8,
-    padding: 12,
-  },
   cardSide: {
     marginBottom: 12,
   },
   sideLabel: {
     fontSize: 12,
     color: '#666666',
-    marginBottom: 4,
-  },
-  cardText: {
-    fontSize: 14,
-    color: '#333333',
     marginBottom: 4,
   },
   cardHint: {
@@ -498,11 +561,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666666',
     fontStyle: 'italic',
-  },
-  cardDivider: {
-    height: 1,
-    backgroundColor: '#E5E5E5',
-    marginVertical: 8,
   },
   cardFooter: {
     marginTop: 12,
@@ -517,6 +575,25 @@ const styles = StyleSheet.create({
   studyStatText: {
     fontSize: 12,
     color: '#666666',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  emptyIconContainer: {
+    marginBottom: 16,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#8E8E93',
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 15,
+    color: '#8E8E93',
   },
 });
 

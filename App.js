@@ -1,3 +1,4 @@
+import './src/i18n';
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -26,7 +27,6 @@ import PersonalInfoScreen from './components/PersonalInfoScreen';
 import ChangePasswordScreen from './components/ChangePasswordScreen';
 import StudySetDetailScreen from './components/StudySetDetailScreen';
 import LanguageSettingsScreen from './components/LanguageSettingsScreen';
-import './src/i18n';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 const Stack = createNativeStackNavigator();
