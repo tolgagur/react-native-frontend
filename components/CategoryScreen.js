@@ -34,13 +34,47 @@ const CategoryScreen = ({ navigation }) => {
     }
   };
 
-  if (isLoading) {
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      );
+    }
+
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
+      <ScrollView style={styles.content}>
+        {categories.map((category) => (
+          <TouchableOpacity
+            key={category.id}
+            style={styles.categoryCard}
+            onPress={() => {
+              navigation.navigate('StudySet', { category });
+            }}
+          >
+            <View style={styles.cardContent}>
+              <View style={[styles.categoryIcon, { backgroundColor: category.color || '#000000' }]}>
+                <Ionicons 
+                  name={category.icon || 'folder'} 
+                  size={24} 
+                  color={category.color ? '#1C1C1E' : '#FFFFFF'} 
+                />
+              </View>
+              <View style={styles.categoryInfo}>
+                <Text style={styles.categoryName}>{category.name}</Text>
+                {category.description && (
+                  <Text style={styles.categoryDescription} numberOfLines={1}>
+                    {category.description}
+                  </Text>
+                )}
+              </View>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     );
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -54,34 +88,7 @@ const CategoryScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content}>
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.id}
-            style={styles.categoryCard}
-            onPress={() => {
-              console.log('Kategori seçildi:', category);
-              navigation.navigate('StudySet', { category });
-            }}
-          >
-            <View style={styles.cardContent}>
-              <View style={[styles.categoryIcon, { backgroundColor: category.color || '#000000' }]}>
-                <Ionicons 
-                  name={category.icon || 'folder'} 
-                  size={24} 
-                  color={category.color ? '#1C1C1E' : '#FFFFFF'} 
-                />
-              </View>
-              <Text style={styles.categoryName}>{category.name}</Text>
-              {category.description && (
-                <Text style={styles.categoryDescription} numberOfLines={1}>
-                  {category.description}
-                </Text>
-              )}
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {renderContent()}
     </SafeAreaView>
   );
 };
@@ -124,12 +131,10 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     width: '100%',
-    height: 72,
     marginBottom: 12,
     borderRadius: 16,
     backgroundColor: '#1C1C1E',
-    padding: 12,
-    justifyContent: 'center',
+    padding: 16,
   },
   cardContent: {
     flexDirection: 'row',
@@ -143,15 +148,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
+  categoryInfo: {
+    flex: 1,
+  },
   categoryName: {
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
+    marginBottom: 4,
   },
   categoryDescription: {
     fontSize: 14,
     color: '#8E8E93',
-    marginTop: 2,
   },
 });
 

@@ -177,10 +177,35 @@ export default function App() {
             <Stack.Navigator
               screenOptions={{
                 headerShown: false,
+                animation: 'slide_from_right',
+                animationDuration: 200,
                 gestureEnabled: true,
                 gestureDirection: 'horizontal',
-                fullScreenGestureEnabled: true,
-                gestureResponseDistance: 'horizontal',
+                cardStyle: { backgroundColor: '#000000' },
+                cardStyleInterpolator: ({ current, next, layouts }) => {
+                  return {
+                    cardStyle: {
+                      transform: [
+                        {
+                          translateX: current.progress.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [layouts.screen.width, 0],
+                          }),
+                        },
+                      ],
+                      opacity: current.progress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.5, 1],
+                      }),
+                    },
+                    overlayStyle: {
+                      opacity: current.progress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, 0.5],
+                      }),
+                    },
+                  };
+                },
               }}
             >
               {!token ? (

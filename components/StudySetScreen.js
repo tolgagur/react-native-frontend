@@ -21,6 +21,58 @@ import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const SkeletonLoader = () => {
+  const animatedValue = new Animated.Value(0);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(animatedValue, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
+
+  const opacity = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.7],
+  });
+
+  return (
+    <View style={styles.skeletonContainer}>
+      {[1, 2, 3].map((item) => (
+        <Animated.View
+          key={item}
+          style={[
+            styles.skeletonCard,
+            {
+              opacity,
+            },
+          ]}
+        >
+          <View style={styles.skeletonHeader}>
+            <View style={styles.skeletonTitle} />
+            <View style={styles.skeletonSubtitle} />
+          </View>
+          <View style={styles.skeletonStats}>
+            <View style={styles.skeletonStat} />
+            <View style={styles.skeletonStat} />
+            <View style={styles.skeletonStat} />
+          </View>
+        </Animated.View>
+      ))}
+    </View>
+  );
+};
+
 const StudySetScreen = ({ navigation, route }) => {
   const { category } = route.params;
   const { t } = useTranslation();
@@ -294,6 +346,37 @@ const StudySetScreen = ({ navigation, route }) => {
     hideModal();
   };
 
+  const renderContent = () => {
+    if (isLoading) {
+      return <SkeletonLoader />;
+    }
+
+    if (studySets.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <View style={styles.emptyIconContainer}>
+            <Ionicons name="albums-outline" size={48} color="#666666" />
+          </View>
+          <Text style={styles.emptyText}>{t('studySet.empty')}</Text>
+          <Text style={styles.emptySubText}>{t('studySet.emptySubtext')}</Text>
+          <TouchableOpacity 
+            style={styles.emptyButton}
+            onPress={() => navigation.replace('AddStudySet', { categoryId: category.id })}
+          >
+            <Ionicons name="add-outline" size={20} color="#FFF" />
+            <Text style={styles.emptyButtonText}>Yeni Set Oluştur</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.studySetsContainer}>
+        {studySets.map(renderStudySetCard)}
+      </View>
+    );
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -310,26 +393,7 @@ const StudySetScreen = ({ navigation, route }) => {
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        {studySets.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <View style={styles.emptyIconContainer}>
-              <Ionicons name="albums-outline" size={48} color="#666666" />
-            </View>
-            <Text style={styles.emptyText}>{t('studySet.empty')}</Text>
-            <Text style={styles.emptySubText}>{t('studySet.emptySubtext')}</Text>
-            <TouchableOpacity 
-              style={styles.emptyButton}
-              onPress={() => navigation.replace('AddStudySet', { categoryId: category.id })}
-            >
-              <Ionicons name="add-outline" size={20} color="#FFF" />
-              <Text style={styles.emptyButtonText}>Yeni Set Oluştur</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.studySetsContainer}>
-            {studySets.map(renderStudySetCard)}
-          </View>
-        )}
+        {renderContent()}
       </ScrollView>
 
       <View style={styles.bottomNav}>
@@ -650,6 +714,42 @@ const styles = StyleSheet.create({
   optionSubtitle: {
     fontSize: 14,
     color: '#8E8E93',
+  },
+  skeletonContainer: {
+    padding: 16,
+  },
+  skeletonCard: {
+    backgroundColor: '#1C1C1E',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+  },
+  skeletonHeader: {
+    marginBottom: 16,
+  },
+  skeletonTitle: {
+    height: 24,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+    marginBottom: 8,
+    width: '70%',
+  },
+  skeletonSubtitle: {
+    height: 16,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 6,
+    width: '50%',
+  },
+  skeletonStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: 40,
+  },
+  skeletonStat: {
+    flex: 1,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 8,
+    marginHorizontal: 4,
   },
 });
 
