@@ -1,5 +1,15 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import React, { useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Platform,
+  Animated,
+  PanResponder,
+  Dimensions
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -10,6 +20,74 @@ const languages = [
 
 const LanguageModal = ({ visible, onClose, currentLanguage, onLanguageSelect }) => {
   const { t } = useTranslation();
+  const { height: screenHeight } = Dimensions.get('window');
+  const slideAnim = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy >= 0) {
+          const newValue = 1 - (gestureState.dy / (screenHeight * 0.5));
+          slideAnim.setValue(Math.max(0, Math.min(1, newValue)));
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 50 || gestureState.vy > 0.5) {
+          hideModal();
+        } else {
+          Animated.spring(slideAnim, {
+            toValue: 1,
+            useNativeDriver: true,
+            tension: 100,
+            friction: 8
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  React.useEffect(() => {
+    if (visible) {
+      slideAnim.setValue(0);
+      fadeAnim.setValue(0);
+      showModal();
+    }
+  }, [visible]);
+
+  const showModal = () => {
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 100,
+        friction: 8
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const hideModal = () => {
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      onClose();
+    });
+  };
 
   const getCurrentLanguageId = (lang) => {
     if (lang === 'tr') return 'TURKISH';
@@ -20,17 +98,44 @@ const LanguageModal = ({ visible, onClose, currentLanguage, onLanguageSelect }) 
   return (
     <Modal
       visible={visible}
-      animationType="slide"
       transparent={true}
-      onRequestClose={onClose}
+      animationType="none"
+      onRequestClose={hideModal}
     >
-      <View style={styles.modalContainer}>
+      <Animated.View 
+        style={[
+          styles.modalOverlay,
+          {
+            opacity: fadeAnim,
+          }
+        ]}
+      >
         <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
-          onPress={onClose}
+          style={{ flex: 1 }}
+          onPress={hideModal}
         />
+      </Animated.View>
+
+      <Animated.View
+        style={[
+          styles.modalContainer,
+          {
+            transform: [
+              {
+                translateY: slideAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [screenHeight, 0],
+                }),
+              },
+            ],
+          },
+        ]}
+        {...panResponder.panHandlers}
+      >
         <View style={styles.modalContent}>
+          <View style={styles.modalHeader}>
+            <View style={styles.modalIndicator} />
+          </View>
           {languages.map((lang, index) => (
             <TouchableOpacity
               key={lang.id}
@@ -40,7 +145,10 @@ const LanguageModal = ({ visible, onClose, currentLanguage, onLanguageSelect }) 
                 index === languages.length - 1 && styles.lastMenuItem,
                 getCurrentLanguageId(currentLanguage) === lang.id && styles.selectedLanguageItem
               ]}
-              onPress={() => onLanguageSelect(lang.id)}
+              onPress={() => {
+                onLanguageSelect(lang.id);
+                hideModal();
+              }}
             >
               <View style={styles.languageInfo}>
                 <View style={styles.iconContainer}>
@@ -54,39 +162,46 @@ const LanguageModal = ({ visible, onClose, currentLanguage, onLanguageSelect }) 
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </Animated.View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.08)',
-  },
   modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
     position: 'absolute',
-    top: 0,
+    bottom: 0,
     left: 0,
     right: 0,
-    bottom: 0,
+    backgroundColor: '#1C1C1E',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 8,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
   },
   modalContent: {
-    backgroundColor: '#1C1C1E',
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    marginHorizontal: 16,
+    padding: 20,
+  },
+  modalHeader: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalIndicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#2C2C2E',
+    borderRadius: 2,
     marginBottom: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginBottom: 16,
   },
   languageItem: {
     flexDirection: 'row',
