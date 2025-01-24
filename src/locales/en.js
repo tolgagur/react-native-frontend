@@ -111,6 +111,7 @@ export default {
     title: 'Categories',
     addNew: 'New Category',
     addNewSubtitle: 'Create category',
+    newCategory: 'New Category',
     empty: "You haven't created any categories yet",
     emptySubtext: 'Click the + button to add a new category',
     name: 'Category Name',

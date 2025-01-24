@@ -112,6 +112,7 @@ export default {
     title: 'Kategoriler',
     addNew: 'Yeni Kategori',
     addNewSubtitle: 'Kategori oluştur',
+    newCategory: 'Yeni Kategori',
     empty: 'Henüz kategori oluşturmadınız',
     emptySubtext: 'Yeni kategori eklemek için + butonuna tıklayın',
     name: 'Kategori Adı',
