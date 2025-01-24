@@ -116,22 +116,22 @@ const HomeScreen = ({ navigation, route }) => {
   const createOptions = [
     {
       id: 1,
-      title: t('categories.addNew'),
-      subtitle: t('categories.addNewSubtitle'),
+      title: t('home.actions.newCategory'),
+      subtitle: t('home.actions.newCategoryDesc'),
       icon: 'grid',
       color: '#E3F2FD'
     },
     {
       id: 2,
-      title: t('studySet.addNew'),
-      subtitle: t('studySet.addNewSubtitle'),
+      title: t('home.actions.newStudySet'),
+      subtitle: t('home.actions.newStudySetDesc'),
       icon: 'albums',
       color: '#FFF3E0'
     },
     {
       id: 3,
-      title: t('flashcard.addNew'),
-      subtitle: t('flashcard.addNewSubtitle'),
+      title: t('home.actions.newFlashcard'),
+      subtitle: t('home.actions.newFlashcardDesc'),
       icon: 'documents',
       color: '#E8F5E9'
     }
@@ -242,7 +242,7 @@ const HomeScreen = ({ navigation, route }) => {
           <View style={[styles.quickActionIcon, { backgroundColor: '#F8F9FA' }]}>
             <Ionicons name="home" size={24} color="#666666" />
           </View>
-          <Text style={styles.quickActionTitle}>{t('categories.addNew')}</Text>
+          <Text style={styles.quickActionTitle}>{t('home.actions.newCategory')}</Text>
           <Text style={styles.quickActionSubtitle}>{t('home.actions.newCategoryDesc')}</Text>
         </TouchableOpacity>
 
@@ -253,7 +253,7 @@ const HomeScreen = ({ navigation, route }) => {
           <View style={[styles.quickActionIcon, { backgroundColor: '#F8F9FA' }]}>
             <Ionicons name="albums" size={24} color="#666666" />
           </View>
-          <Text style={styles.quickActionTitle}>{t('studySet.addNew')}</Text>
+          <Text style={styles.quickActionTitle}>{t('home.actions.newStudySet')}</Text>
           <Text style={styles.quickActionSubtitle}>{t('home.actions.newStudySetDesc')}</Text>
         </TouchableOpacity>
 
@@ -264,7 +264,7 @@ const HomeScreen = ({ navigation, route }) => {
           <View style={[styles.quickActionIcon, { backgroundColor: '#F8F9FA' }]}>
             <Ionicons name="documents" size={24} color="#666666" />
           </View>
-          <Text style={styles.quickActionTitle}>{t('flashcard.addNew')}</Text>
+          <Text style={styles.quickActionTitle}>{t('home.actions.newFlashcard')}</Text>
           <Text style={styles.quickActionSubtitle}>{t('home.actions.newFlashcardDesc')}</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
   activeIconBackground: null,
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
     position: 'absolute',
@@ -603,14 +603,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 24,
     paddingTop: 8,
     paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 20,
   },
   modalContent: {
     padding: 20,
@@ -630,6 +622,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: '#FFFFFF',
+    marginBottom: 16,
   },
   optionItem: {
     flexDirection: 'row',
@@ -641,10 +634,11 @@ const styles = StyleSheet.create({
   optionIcon: {
     width: 48,
     height: 48,
-    borderRadius: 12,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
+    backgroundColor: '#F8F9FA'
   },
   optionText: {
     flex: 1,
