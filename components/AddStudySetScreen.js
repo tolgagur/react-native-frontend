@@ -176,7 +176,6 @@ const AddStudySetScreen = ({ navigation, route }) => {
   const renderStep1 = () => (
     <View style={styles.step}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>{t('studySet.steps.name.title')}</Text>
         <Text style={styles.stepDescription}>
           {t('studySet.steps.name.description')}
         </Text>
@@ -188,7 +187,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
           value={name}
           onChangeText={setName}
           placeholderTextColor="rgba(255, 255, 255, 0.4)"
-          selectionColor="#FFFFFF"
+          selectionColor="#2196F3"
           editable={!isLoading}
           onBlur={validateName}
           autoCapitalize="none"
@@ -202,7 +201,6 @@ const AddStudySetScreen = ({ navigation, route }) => {
   const renderStep2 = () => (
     <View style={styles.step}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>{t('studySet.steps.description.title')}</Text>
         <Text style={styles.stepDescription}>
           {t('studySet.steps.description.description')}
         </Text>
@@ -216,7 +214,7 @@ const AddStudySetScreen = ({ navigation, route }) => {
           multiline
           numberOfLines={4}
           placeholderTextColor="rgba(255, 255, 255, 0.4)"
-          selectionColor="#FFFFFF"
+          selectionColor="#2196F3"
           editable={!isLoading}
           onBlur={validateDescription}
           autoCapitalize="none"
@@ -230,7 +228,6 @@ const AddStudySetScreen = ({ navigation, route }) => {
   const renderCategorySelection = () => (
     <View style={styles.step}>
       <View style={styles.stepHeader}>
-        <Text style={styles.stepTitle}>{t('studySet.steps.category.title')}</Text>
         <Text style={styles.stepDescription}>
           {t('studySet.steps.category.description')}
         </Text>
@@ -296,7 +293,9 @@ const AddStudySetScreen = ({ navigation, route }) => {
             />
           </TouchableOpacity>
           <View style={styles.stepIndicatorContainer}>
-            {renderStepIndicator()}
+            <Text style={{ color: '#FFFFFF', fontSize: 17, fontWeight: '600' }}>
+              {t('studySet.addNew')}
+            </Text>
           </View>
         </View>
 
@@ -315,36 +314,25 @@ const AddStudySetScreen = ({ navigation, route }) => {
             <TouchableOpacity 
               style={[
                 styles.nextButton,
-                ((name.length < 2 || name.length > 100) && step === 1) && styles.disabledButton
+                ((name.length < 2 || name.length > 100) && step === 1) && styles.buttonDisabled
               ]}
               onPress={nextStep}
               disabled={(name.length < 2 || name.length > 100) && step === 1}
             >
-              <Text style={[
-                styles.nextButtonText,
-                ((name.length < 2 || name.length > 100) && step === 1) && styles.disabledButtonText
-              ]}>
+              <Text style={styles.nextButtonText}>
                 {t('studySet.buttons.continue')}
               </Text>
-              <Ionicons 
-                name="arrow-forward" 
-                size={24} 
-                color={((name.length < 2 || name.length > 100) && step === 1) ? "#2C2C2E" : "#FFFFFF"} 
-              />
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={[
                 styles.submitButton,
-                (isLoading || name.length < 2 || name.length > 100 || description.length > 500 || !selectedCategory) && styles.disabledButton
+                (isLoading || name.length < 2 || name.length > 100 || description.length > 500 || !selectedCategory) && styles.buttonDisabled
               ]}
               onPress={handleSubmit}
               disabled={isLoading || name.length < 2 || name.length > 100 || description.length > 500 || !selectedCategory}
             >
-              <Text style={[
-                styles.submitButtonText,
-                (isLoading || name.length < 2 || name.length > 100 || description.length > 500 || !selectedCategory) && styles.disabledButtonText
-              ]}>
+              <Text style={styles.submitButtonText}>
                 {isLoading ? t('common.loading') : t('common.save')}
               </Text>
             </TouchableOpacity>
@@ -366,19 +354,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: '#000000',
+    height: 44,
+    borderBottomWidth: 0,
   },
   backButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1C1C1E',
-    borderRadius: 12,
+    alignItems: 'flex-start',
+    backgroundColor: 'transparent',
+    borderRadius: 0,
   },
   stepIndicatorContainer: {
     flex: 1,
-    marginLeft: 32,
-    marginRight: 40,
+    alignItems: 'center',
+    marginLeft: -40,
   },
   stepIndicator: {
     flexDirection: 'row',
@@ -412,31 +402,25 @@ const styles = StyleSheet.create({
   stepHeader: {
     marginBottom: 24,
   },
-  stepTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
   stepDescription: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#8E8E93',
-    lineHeight: 22,
+    lineHeight: 20,
   },
   inputContainer: {
-    borderWidth: 2,
-    borderColor: '#2C2C2E',
-    borderRadius: 12,
+    marginBottom: 12,
+    borderRadius: 8,
     backgroundColor: '#1C1C1E',
-    marginBottom: 8,
+    overflow: 'hidden',
   },
   modernInput: {
     flex: 1,
-    height: 60,
-    fontSize: 16,
+    height: 44,
+    fontSize: 17,
     color: '#FFFFFF',
     textAlignVertical: 'top',
     paddingHorizontal: 16,
+    backgroundColor: '#1C1C1E',
   },
   textArea: {
     height: 120,
@@ -456,15 +440,13 @@ const styles = StyleSheet.create({
   categoryCard: {
     width: '100%',
     marginBottom: 12,
-    borderRadius: 16,
+    borderRadius: 8,
     backgroundColor: '#1C1C1E',
     padding: 16,
-    borderWidth: 1,
-    borderColor: '#2C2C2E',
+    borderWidth: 0,
   },
   selectedCategoryCard: {
     backgroundColor: '#2C2C2E',
-    borderColor: '#FFFFFF',
   },
   categoryCardDisabled: {
     opacity: 0.5,
@@ -474,15 +456,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 40,
+    height: 40,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   categoryName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: '#FFFFFF',
   },
@@ -493,44 +475,40 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   footer: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#2C2C2E',
+    padding: 20,
     backgroundColor: '#000000',
   },
   nextButton: {
-    flexDirection: 'row',
+    backgroundColor: '#30D158',
+    marginHorizontal: 16,
+    marginVertical: 8,
+    padding: 16,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
+    width: undefined,
+    alignSelf: 'stretch',
   },
   nextButtonText: {
+    color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '600',
-    color: '#000000',
-    marginRight: 8,
   },
   submitButton: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#30D158',
+    marginHorizontal: 16,
+    marginVertical: 8,
+    padding: 16,
     borderRadius: 12,
-    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  disabledButton: {
-    backgroundColor: '#2C2C2E',
-    opacity: 0.7,
+    width: undefined,
+    alignSelf: 'stretch',
   },
   submitButtonText: {
-    color: '#000000',
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontSize: 17,
     fontWeight: '600',
-  },
-  disabledButtonText: {
-    color: '#8E8E93',
   },
   buttonDisabled: {
     opacity: 0.5,

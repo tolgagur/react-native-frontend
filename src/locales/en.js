@@ -184,6 +184,7 @@ export default {
   studySet: {
     title: 'Study Set',
     description: 'Study set description',
+    addNew: 'New Study Set',
     stats: {
       total: 'Total Cards',
       totalCards: 'Total Cards',
