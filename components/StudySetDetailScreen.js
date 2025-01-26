@@ -324,6 +324,44 @@ const StudySetDetailScreen = ({ navigation, route }) => {
         {renderTabs()}
         {renderCards()}
       </ScrollView>
+
+      <View style={styles.bottomNav}>
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <Ionicons 
+            name="home" 
+            size={24} 
+            color="#666666" 
+            style={[styles.inactiveNavItem]} 
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.addButton}
+          onPress={() => navigation.navigate('AddFlashcard', { studySetId: studySet.id })}
+        >
+          <Ionicons 
+            name="add" 
+            size={24} 
+            color="#666666" 
+            style={[styles.inactiveNavItem]} 
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.navItem}
+          onPress={() => navigation.navigate('Profile')}
+        >
+          <Ionicons 
+            name="person" 
+            size={24} 
+            color="#666666" 
+            style={[styles.inactiveNavItem]} 
+          />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -594,6 +632,38 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 15,
     color: '#8E8E93',
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 12,
+    backgroundColor: '#000000',
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    paddingVertical: 8,
+  },
+  addButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    paddingVertical: 8,
+  },
+  activeNavItem: {
+    color: '#007AFF',
+  },
+  inactiveNavItem: {
+    color: '#666666',
   },
 });
 

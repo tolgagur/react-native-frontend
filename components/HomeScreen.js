@@ -345,21 +345,36 @@ const HomeScreen = ({ navigation, route }) => {
           style={styles.navItem}
           onPress={() => {}}
         >
-          <Ionicons name="home" size={22} color="#666666" />
+          <Ionicons 
+            name="home" 
+            size={24} 
+            color="#666666" 
+            style={[styles.inactiveNavItem]} 
+          />
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.addButton}
           onPress={showModal}
         >
-          <Ionicons name="add" size={24} color="#666666" />
+          <Ionicons 
+            name="add" 
+            size={24} 
+            color="#666666" 
+            style={[styles.inactiveNavItem]} 
+          />
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.navItem}
           onPress={() => navigation.navigate('Profile', { onLogout })}
         >
-          <Ionicons name="person" size={22} color="#666666" />
+          <Ionicons 
+            name="person" 
+            size={24} 
+            color="#666666" 
+            style={[styles.inactiveNavItem]} 
+          />
         </TouchableOpacity>
       </View>
 
@@ -570,25 +585,41 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 12,
-    backgroundColor: '#1C1C1E',
-    borderTopWidth: 1,
-    borderTopColor: '#2C2C2E',
+    backgroundColor: '#000000',
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
     paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   navItem: {
     alignItems: 'center',
-    minWidth: 64,
+    justifyContent: 'center',
+    flex: 1,
+    paddingVertical: 8,
   },
   addButton: {
     alignItems: 'center',
-    minWidth: 64,
+    justifyContent: 'center',
+    flex: 1,
+    paddingVertical: 8,
   },
-  activeNavItem: null,
-  navText: null,
-  activeNavText: null,
-  addButtonContainer: null,
-  iconBackground: null,
-  activeIconBackground: null,
+  activeNavItem: {
+    color: '#007AFF',
+  },
+  inactiveNavItem: {
+    color: '#666666',
+  },
+  navText: {
+    fontSize: 12,
+    marginTop: 4,
+    color: '#666666',
+  },
+  activeNavText: {
+    color: '#007AFF',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
